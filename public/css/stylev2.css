@@ -1,0 +1,1385 @@
+/* ========================================
+   SISCA V2 - MAIN STYLESHEET
+   ========================================
+   Table of Contents:
+   1. CSS Variables & Root Settings
+   2. Base Styles & Typography
+   3. Login Page Styling
+   4. Sidebar Components
+   5. Main Content Layout
+   6. Navigation & Navbar
+   7. Dashboard Cards & Components
+   8. Form Controls & Inputs
+   9. Tables & Data Display
+   10. Buttons & Interactive Elements
+   11. Alerts & Badges
+   12. Pagination Styling
+   13. Scroll To Top Button
+   14. Responsive Design (Mobile)
+   15. Animations & Transitions
+   16. Footer Styling
+   17. Print Styles
+   18. Dark Mode Support
+   ======================================== */
+
+/* ========================================
+   1. CSS VARIABLES & ROOT SETTINGS
+   ======================================== */
+
+/* Import Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+:root {
+    --primary-color: #1e3c72;
+    --secondary-color: #2a5298;
+    --accent-color: #007bff;
+    --background-color: #f8f9fa;
+    --sidebar-bg: #0f172a;
+    --sidebar-active: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+    --text-color: #333;
+    --text-light: #ffffff;
+    --button-color: #0e54de;
+    --button-bg: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.12),
+        rgba(255, 255, 255, 0.05)
+    );
+    --footer-bg: #f8f8f8;
+    --navbar-bg: #ffffff;
+    --card-bg: #ffffff;
+    --card-header-bg: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--secondary-color) 100%
+    );
+    --border-color: #dee2e6;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+    --border-radius: 12px;
+    --transition: all 0.3s ease;
+}
+
+/* ========================================
+   2. BASE STYLES & TYPOGRAPHY
+   ======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 300;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.5;
+    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--text-color);
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* ========================================
+   3. LOGIN PAGE STYLING
+   ======================================== */
+.login {
+    background: url("../foto/background/01.jpg") no-repeat center center;
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    position: relative;
+}
+
+.login::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(30, 60, 114, 0.1);
+    backdrop-filter: blur(2px);
+}
+
+.login .container {
+    position: relative;
+    z-index: 1;
+}
+
+/* ========================================
+   4. SIDEBAR COMPONENTS
+   ======================================== */
+
+/* Main Sidebar Container */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    background: var(--sidebar-bg);
+    color: white;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(0);
+    z-index: 1000;
+    box-shadow: var(--shadow-lg);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #4a5568 #2d3748;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: #2d3748;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #4a5568;
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: #718096;
+}
+
+/* Sidebar collapsed state - support both class and data attribute like SISCA V1 */
+body.sidebar-collapsed .sidebar,
+body[data-kt-app-sidebar-minimize="on"] .sidebar {
+    transform: translateX(-280px) !important;
+}
+
+/* Content adjustment when sidebar is collapsed */
+body.sidebar-collapsed #content,
+body[data-kt-app-sidebar-minimize="on"] #content {
+    margin-left: 0 !important;
+}
+
+/* Desktop sidebar behavior - min-width: 769px (Tablet Landscape & Desktop) */
+@media (min-width: 769px) {
+    body:not(.sidebar-collapsed):not([data-kt-app-sidebar-minimize="on"])
+        .sidebar {
+        transform: translateX(0);
+    }
+
+    body:not(.sidebar-collapsed):not([data-kt-app-sidebar-minimize="on"])
+        #content {
+        margin-left: 280px;
+    }
+
+    body.sidebar-collapsed .sidebar,
+    body[data-kt-app-sidebar-minimize="on"] .sidebar {
+        transform: translateX(-280px);
+    }
+
+    body.sidebar-collapsed #content,
+    body[data-kt-app-sidebar-minimize="on"] #content {
+        margin-left: 0;
+    }
+
+    /* Desktop toggle positioning - Consistent with mobile styling concept */
+    .sidebar-toggle-fab {
+        left: 250px; /* 250px sidebar + 20px outside margin */
+        width: 45px;
+        height: 45px;
+    }
+
+    body.sidebar-collapsed .sidebar-toggle-fab,
+    body[data-kt-app-sidebar-minimize="on"] .sidebar-toggle-fab {
+        left: 20px; /* Consistent 20px margin from edge */
+    }
+}
+
+/* Sidebar Logo */
+.sidebar-logo {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+/* Sidebar Toggle FAB - Floating Action Button with Consistent Styling */
+.sidebar-toggle-fab {
+    position: fixed;
+    top: 10%;
+    left: 230px; /* Position outside sidebar when expanded (250px - 20px) */
+    transform: translateY(-50%);
+    width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    border-radius: 20%;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: var(--button-bg);
+    box-shadow: 0 8px 25px rgba(30, 60, 114, 0.3),
+        0 4px 10px rgba(0, 0, 0, 0.15);
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10000;
+    pointer-events: auto;
+    backdrop-filter: blur(3px);
+}
+
+.sidebar-toggle-fab:hover {
+    background: linear-gradient(
+        135deg,
+        var(--secondary-color) 0%,
+        var(--primary-color) 100%
+    );
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 12px 35px rgba(30, 60, 114, 0.4),
+        0 6px 15px rgba(0, 0, 0, 0.2);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.sidebar-toggle-fab:active {
+    transform: translateY(-50%) scale(0.95);
+    transition: all 0.1s ease;
+}
+
+.sidebar-toggle-fab i {
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* When sidebar is collapsed, move toggle and maintain consistent styling */
+body.sidebar-collapsed .sidebar-toggle-fab,
+body[data-kt-app-sidebar-minimize="on"] .sidebar-toggle-fab {
+    left: 10px; /* Consistent positioning when collapsed */
+    background: var(--button-bg);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+body.sidebar-collapsed .sidebar-toggle-fab:hover,
+body[data-kt-app-sidebar-minimize="on"] .sidebar-toggle-fab:hover {
+    background: linear-gradient(
+        135deg,
+        var(--secondary-color) 0%,
+        var(--primary-color) 100%
+    );
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 12px 35px rgba(30, 60, 114, 0.4),
+        0 6px 15px rgba(0, 0, 0, 0.2);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile position for toggle - Consistent with desktop styling */
+@media (max-width: 768px) {
+    .sidebar-toggle-fab {
+        position: fixed;
+        top: 50%; /* Below navbar on mobile */
+        left: 20px;
+        transform: none;
+        z-index: 1002;
+        width: 50px;
+        height: 50px;
+        border-radius: 20%;
+        background: var(--button-bg);
+        box-shadow: 0 8px 25px rgba(30, 60, 114, 0.3),
+            0 4px 10px rgba(0, 0, 0, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        color: var(--primary-color);
+        backdrop-filter: blur(10px);
+    }
+
+    .sidebar-toggle-fab:hover {
+        background: linear-gradient(
+            135deg,
+            var(--secondary-color) 0%,
+            var(--primary-color) 100%
+        );
+        transform: scale(1.08);
+        box-shadow: 0 12px 35px rgba(30, 60, 114, 0.4),
+            0 6px 15px rgba(0, 0, 0, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    .sidebar-toggle-fab:active {
+        transform: scale(0.95);
+        transition: all 0.1s ease;
+    }
+
+    .sidebar-toggle-fab i {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    /* Consistent styling when collapsed on mobile */
+    body.sidebar-collapsed .sidebar-toggle-fab,
+    body[data-kt-app-sidebar-minimize="on"] .sidebar-toggle-fab {
+        left: 20px;
+        background: linear-gradient(
+            135deg,
+            var(--primary-color) 0%,
+            var(--secondary-color) 100%
+        );
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    body.sidebar-collapsed .sidebar-toggle-fab:hover,
+    body[data-kt-app-sidebar-minimize="on"] .sidebar-toggle-fab:hover {
+        background: linear-gradient(
+            135deg,
+            var(--secondary-color) 0%,
+            var(--primary-color) 100%
+        );
+        transform: scale(1.08);
+        box-shadow: 0 12px 35px rgba(30, 60, 114, 0.4),
+            0 6px 15px rgba(0, 0, 0, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    /* Mobile sidebar overlay */
+    body:not(.sidebar-collapsed):not(
+            [data-kt-app-sidebar-minimize="on"]
+        )::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    body.sidebar-collapsed::after,
+    body[data-kt-app-sidebar-minimize="on"]::after {
+        display: none;
+    }
+}
+
+/* Sidebar Toggle Styles - Remove old sidebar-toggle styles */
+.sidebar-toggle {
+    display: none;
+}
+
+/* Sidebar Menu System */
+
+/* Main Menu Container */
+.menu {
+    padding: 0;
+}
+
+.menu-item {
+    margin-bottom: 2px;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: var(--transition);
+    border-radius: 0;
+    position: relative;
+}
+
+.menu-link:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.menu-link.active {
+    background: var(--sidebar-active);
+    color: white;
+    box-shadow: 0 2px 10px rgba(30, 60, 114, 0.3);
+}
+
+.menu-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #fff;
+}
+
+.menu-icon {
+    width: 20px;
+    margin-right: 12px;
+    text-align: center;
+}
+
+.menu-title {
+    text-align: left;
+    flex: 1;
+    font-weight: 300;
+}
+
+.menu-arrow {
+    margin-left: auto;
+    transition: var(--transition);
+}
+
+.menu-link[aria-expanded="true"] .menu-arrow {
+    transform: rotate(180deg);
+}
+
+/* Menu Accordion Styling like SISCA V1 */
+.menu-item.menu-accordion {
+    position: relative;
+}
+
+.menu-item.menu-accordion > .menu-link {
+    cursor: pointer;
+}
+
+.menu-sub {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-out;
+}
+
+.menu-sub.menu-sub-accordion {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Remove dropdown styling - make all submenus accordion style */
+.menu-sub.menu-sub-dropdown {
+    position: static;
+    background: rgba(0, 0, 0, 0.3);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    z-index: auto;
+    min-width: auto;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: max-height 0.3s ease-out;
+    max-height: 0;
+    overflow: hidden;
+}
+
+.menu-sub.menu-sub-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    max-height: 500px;
+}
+
+.menu-item.menu-accordion.show > .menu-sub.menu-sub-accordion,
+.menu-item.menu-accordion.show > .menu-sub.menu-sub-dropdown {
+    max-height: 500px;
+    transition: max-height 0.3s ease-in;
+}
+
+.menu-item.menu-accordion.show > .menu-link .menu-arrow i {
+    transform: rotate(180deg);
+}
+
+.menu-sub .menu-item {
+    margin-bottom: 0;
+}
+
+.menu-sub .menu-link {
+    padding: 10px 20px 10px 52px;
+    font-size: 0.8rem;
+}
+
+.menu-sub .menu-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* User Info Section like SISCA V1 */
+.app-sidebar-user {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.user-profile-link {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    position: relative;
+}
+
+.user-profile-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.user-profile-link .symbol {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(
+        135deg,
+        var(--primary-color),
+        var(--secondary-color)
+    );
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.8rem;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.user-profile-link .user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-profile-link .user-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-profile-link .user-position {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-profile-link .dropdown-arrow {
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.app-sidebar-user.show .user-profile-link .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* User Dropdown Menu */
+.user-dropdown-menu {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background: var(--sidebar-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.app-sidebar-user.show .user-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-menu-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.user-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.user-menu-item.danger:hover {
+    background: rgba(220, 53, 69, 0.2);
+    color: #ff6b7a;
+}
+
+.user-menu-item .menu-icon {
+    margin-right: 8px;
+    width: 20px;
+    text-align: center;
+}
+
+.user-menu-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 8px 0;
+}
+
+.user-menu-form {
+    margin: 0;
+}
+
+/* Hide user dropdown in minimized mode */
+body[data-kt-app-sidebar-minimize="on"]
+    .app-sidebar-user.show
+    .user-dropdown-menu,
+body.sidebar-collapsed .app-sidebar-user.show .user-dropdown-menu {
+    display: none;
+}
+
+/* ========================================
+   5. MAIN CONTENT LAYOUT
+   ======================================== */
+
+/* Main Content */
+#content {
+    margin-left: 280px;
+    min-height: 100vh;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 20px;
+    background: var(--background-color);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Content adjustment when sidebar is collapsed - Higher specificity */
+body.sidebar-collapsed #content,
+body[data-kt-app-sidebar-minimize="on"] #content {
+    margin-left: 0 !important;
+}
+
+/* ========================================
+   6. NAVIGATION & NAVBAR
+   ======================================== */
+
+/* Navbar */
+.navbar {
+    background: var(--navbar-bg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 30px;
+    border-radius: var(--border-radius);
+}
+
+.navbar-brand img {
+    transition: var(--transition);
+}
+
+.navbar-brand img:hover {
+    transform: scale(1.05);
+}
+
+/* ========================================
+   7. DASHBOARD CARDS & COMPONENTS
+   ======================================== */
+
+/* Dashboard Cards */
+.card {
+    background-color: var(--card-bg);
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+    background: var(--card-header-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 20px;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.card-title {
+    color: var(--text-light);
+}
+
+.border-left-primary {
+    border-left: 4px solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 4px solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 4px solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 4px solid #f6c23e !important;
+}
+
+.card-footer {
+    background: rgba(0, 0, 0, 0.02);
+    border-top: 1px solid var(--border-color);
+}
+
+/* ========================================
+   10. BUTTONS & INTERACTIVE ELEMENTS
+   ======================================== */
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 8px 16px;
+    transition: var(--transition);
+    border: none;
+    font-size: 0.8rem;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary {
+    background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--secondary-color) 100%
+    );
+    border-color: var(--secondary-color);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(
+        135deg,
+        var(--secondary-color) 0%,
+        var(--primary-color) 100%
+    );
+    border-color: var(--primary-color);
+}
+
+/* ========================================
+   9. TABLES & DATA DISPLAY
+   ======================================== */
+
+/* Tables */
+.table {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.table thead th {
+    background: var(--background-color);
+    color: var(--text-color);
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    transition: var(--transition);
+}
+
+.table tbody tr:hover {
+    background: rgba(30, 60, 114, 0.05);
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+
+/* ========================================
+   8. FORM CONTROLS & INPUTS
+   ======================================== */
+
+/* Form Controls */
+.form-text {
+    font-size: 0.75rem;
+    color: var(--text-color);
+}
+
+.form-control,
+.form-select {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: var(--transition);
+    font-size: 0.8rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 8px;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-input:focus {
+    border-color: var(--primary-color);
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(30, 60, 114, 0.25);
+}
+
+/* Password strength indicator */
+.password-strength {
+    height: 4px;
+    border-radius: 2px;
+    margin-top: 5px;
+    transition: all 0.3s ease;
+}
+
+.password-weak {
+    background-color: #dc3545;
+}
+
+.password-medium {
+    background-color: #ffc107;
+}
+
+.password-strong {
+    background-color: #198754;
+}
+
+/* ========================================
+   11. ALERTS & BADGES
+   ======================================== */
+
+/* Alerts */
+.alert {
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
+}
+
+.alert-info {
+    background-color: rgba(13, 202, 240, 0.5);
+    border-left: 4px solid #0dcaf0;
+    color: var(--text-color);
+}
+
+.alert-success {
+    background-color: rgba(25, 135, 84, 0.5);
+    border-left: 4px solid #198754;
+    color: var(--text-color);
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.5);
+    border-left: 4px solid #dc3545;
+    color: var(--text-color);
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+/* Role badge colors */
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.badge.bg-info {
+    background-color: #0dcaf0 !important;
+}
+
+.badge.bg-success {
+    background-color: #198754 !important;
+}
+
+.badge.bg-primary {
+    background-color: #0d6efd !important;
+}
+
+/* ========================================
+   12. PAGINATION STYLING
+   ======================================== */
+
+/* Pagination Styling */
+.pagination {
+    margin-bottom: 0;
+}
+
+.pagination .page-link {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    transition: var(--transition);
+    border-radius: 0.375rem;
+    margin: 0 2px;
+}
+
+.pagination .page-link:hover {
+    background-color: var(--background-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: var(--text-light);
+    background-color: #fff;
+    border-color: var(--border-color);
+}
+
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    border-radius: 0.375rem;
+}
+
+/* Fix pagination icons size */
+.pagination .page-link i {
+    font-size: 0.75rem !important;
+}
+
+.pagination .page-link svg {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+/* Custom pagination icon styling */
+.pagination .page-link i.fa-chevron-left,
+.pagination .page-link i.fa-chevron-right {
+    font-size: 0.75rem !important;
+    font-weight: 600;
+}
+
+/* SVG pagination styling */
+.pagination .page-link svg.w-5.h-5 {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.pagination .page-link svg {
+    width: 20px;
+    fill: currentColor;
+    vertical-align: middle;
+}
+
+/* Override Tailwind classes for pagination SVG */
+.pagination .w-5 {
+    width: 20px !important;
+}
+
+.pagination .h-5 {
+    height: 20px !important;
+}
+
+/* General SVG pagination styling */
+.pagination svg {
+    width: 20px !important;
+    height: 20px !important;
+    fill: currentColor;
+    vertical-align: middle;
+}
+
+/* Pagination responsive - max-width: 576px (Mobile Phones) */
+@media (max-width: 576px) {
+    .pagination .page-link {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.5rem;
+    }
+
+    .pagination .page-link i {
+        font-size: 0.65rem !important;
+    }
+
+    .pagination .page-link svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    .pagination .page-link i.fa-chevron-left,
+    .pagination .page-link i.fa-chevron-right {
+        font-size: 0.65rem !important;
+    }
+
+    /* Mobile SVG pagination styling */
+    .pagination .page-link svg.w-5.h-5 {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    /* Mobile Tailwind class overrides */
+    .pagination .w-5 {
+        width: 16px !important;
+    }
+
+    .pagination .h-5 {
+        height: 16px !important;
+    }
+
+    /* Mobile general SVG styling */
+    .pagination svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
+    .pagination {
+        justify-content: center;
+    }
+}
+
+/* ========================================
+   13. SCROLL TO TOP BUTTON
+   ======================================== */
+
+/* Scroll To Top Button */
+#scrollToTopBtn {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 99;
+    padding: 15px;
+    background: var(--button-bg);
+    color: #0e54de;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    font-size: 0.8rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-lg);
+}
+
+#scrollToTopBtn:hover {
+    background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   14. RESPONSIVE DESIGN (MOBILE)
+   ======================================== */
+
+/* Mobile overlay when sidebar is open - max-width: 768px (Mobile & Tablet Portrait) */
+@media (max-width: 768px) {
+    /* Create overlay when sidebar is open - only when sidebar is NOT collapsed */
+    body:not(.sidebar-collapsed):not(
+            [data-kt-app-sidebar-minimize="on"]
+        )::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+        pointer-events: auto;
+    }
+
+    /* Hide overlay when sidebar is collapsed */
+    body.sidebar-collapsed::before,
+    body[data-kt-app-sidebar-minimize="on"]::before {
+        opacity: 0;
+        pointer-events: none;
+        visibility: hidden;
+    }
+
+    /* On mobile, sidebar starts collapsed by default */
+    .sidebar {
+        transform: translateX(-280px);
+    }
+
+    /* When sidebar is opened (remove collapsed class), show sidebar */
+    body:not(.sidebar-collapsed):not([data-kt-app-sidebar-minimize="on"])
+        .sidebar {
+        transform: translateX(0);
+    }
+
+    #content {
+        margin-left: 0;
+        padding: 10px;
+    }
+
+    .card {
+        margin-bottom: 20px;
+    }
+
+    .table-responsive {
+        border-radius: var(--border-radius);
+    }
+
+    #scrollToTopBtn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 0.8rem;
+    }
+
+    .navbar-brand img {
+        width: 120px !important;
+    }
+
+    .h3 {
+        font-size: 1.2rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* ========================================
+   15. ANIMATIONS & TRANSITIONS
+   ======================================== */
+
+/* Animation */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.menu-item {
+    animation: slideInLeft 0.3s ease;
+}
+
+.card {
+    animation: fadeInUp 0.4s ease;
+}
+
+/* ========================================
+   16. FOOTER STYLING
+   ======================================== */
+
+/* Footer Styling */
+.footer {
+    margin-top: 30px;
+    z-index: 10;
+    position: relative;
+    background-color: var(--footer-bg);
+    color: var(--text-color);
+    flex-shrink: 0;
+}
+
+/* Enhanced Mobile Responsive - max-width: 576px (Mobile Phones) */
+@media (max-width: 576px) {
+    .col-xl-3,
+    .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    .navbar-brand img {
+        width: 100px !important;
+    }
+
+    .sidebar {
+        width: 260px;
+    }
+
+    .user-info {
+        padding: 15px;
+    }
+
+    .menu-link {
+        padding: 10px 15px;
+        font-size: 0.8rem;
+    }
+
+    .menu-icon {
+        width: 18px;
+        margin-right: 10px;
+    }
+
+    .footer {
+        font-size: 0.7rem;
+        padding: 15px 0;
+    }
+
+    .footer .col-md-6 {
+        text-align: center !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .footer .col-md-6:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* ========================================
+   17. PRINT STYLES
+   ======================================== */
+
+/* Print Styles */
+@media print {
+    .sidebar,
+    .navbar,
+    #scrollToTopBtn,
+    .footer {
+        display: none !important;
+    }
+
+    #content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+}
+
+/* ========================================
+   18. HIGH DPI & DEVICE PIXEL RATIO
+   ======================================== */
+
+/* High DPI Displays - Device Pixel Ratio >= 2 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .sidebar-toggle {
+        width: 32px;
+        height: 32px;
+        font-size: 0.6rem;
+    }
+}
+
+/* ========================================
+   19. DARK MODE SUPPORT
+   ======================================== */
+
+/* Dark Mode Support (Future Enhancement) - Prefers Dark Color Scheme */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #1a1a1a;
+        --text-color: #ffffff;
+        --border-color: #404040;
+        --footer-bg: #1a1a1a;
+        --sidebar-bg: #0a0a0a;
+        --navbar-bg: #404040;
+        --card-bg: #2a2a2a;
+        --button-bg: rgba(255, 255, 255, 0.1);
+        --button-color: #66b2ff;
+        --bs-secondary-color: #838fa5;
+        --bs-table-active-color: #ffffff;
+        --bs-table-hover-color: #ffffff;
+    }
+
+    .table {
+        color: #fff;
+        tbody > tr:hover > * {
+            color: #fff;
+        }
+    }
+
+    .modal-content {
+        background-color: #2a2a2a;
+        color: #fff;
+    }
+
+    .btn-close {
+        color: #fff;
+        background: transparent
+            url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e")
+            center/1em auto no-repeat;
+    }
+}
+
+/* ========================================
+   END OF SISCA V2 STYLESHEET
+   
+   File: stylev2.css
+   Description: Main stylesheet for SISCA V2 application
+   Version: 2.0
+   Author: SISCA Development Team
+   Last Updated: September 2025
+   
+   Device Breakpoints Used:
+   - Mobile Phones: max-width: 576px
+   - Mobile & Tablet Portrait: max-width: 768px  
+   - Tablet Landscape & Desktop: min-width: 769px
+   - High DPI Displays: Device Pixel Ratio >= 2
+   ======================================== */

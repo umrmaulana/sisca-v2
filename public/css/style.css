@@ -1,0 +1,302 @@
+/* Import Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+/* Styling for the element */
+.custom-link {
+    text-decoration: none;
+    transition: text-decoration 0.3s;
+}
+
+/* Underline effect on hover */
+.custom-link:hover {
+    text-decoration: underline;
+}
+
+/* Navbar Spacer */
+.navbar-spacer {
+    height: 90px;
+}
+
+/* Dashboard Navbar Styles */
+
+.btn-sidebar-toggle {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 18px;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-sidebar-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-sidebar-toggle #sidebar-arrow {
+    transition: transform 0.3s ease;
+}
+
+.sidebar-collapsed #sidebar-arrow {
+    transform: rotate(180deg);
+}
+
+.navbar-header .page-title {
+    color: white;
+    font-weight: 600;
+    font-size: 24px;
+    margin-left: 20px;
+}
+
+.dashboard-navbar .btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #1c7bd6 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(23, 162, 184, 0.3);
+    color: white;
+    font-weight: 500;
+}
+
+.dashboard-navbar .btn-info:hover {
+    background: linear-gradient(135deg, #138496 0%, #155bd1 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);
+}
+
+.dashboard-navbar .btn.user-button {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 15px rgba(30, 60, 114, 0.3);
+}
+
+.dashboard-navbar .btn.user-button:hover {
+    background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(30, 60, 114, 0.4);
+}
+
+.dashboard-navbar .dropdown-menu {
+    background: rgba(30, 60, 114, 0.95);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(30, 60, 114, 0.4);
+}
+
+.dashboard-navbar .dropdown-item {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 400;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    margin: 2px 5px;
+}
+
+.dashboard-navbar .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: translateX(5px);
+}
+
+/* Responsive Sidebar */
+@media (max-width: 768px) {
+    #sidebar {
+        margin-left: -280px;
+    }
+
+    #sidebar.active {
+        margin-left: 0;
+    }
+
+    #content {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    #content.active {
+        margin-left: 0;
+    }
+
+    .navbar-header .page-title {
+        font-size: 20px;
+        margin-left: 15px;
+    }
+
+    .btn-sidebar-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    /* Mobile responsive for sidebar toggle button */
+    .sidebar-toggle-btn {
+        left: 245px; /* Posisi untuk mobile saat sidebar terbuka */
+        width: 35px;
+        height: 35px;
+        top: 15px;
+    }
+
+    .sidebar-toggle-btn i {
+        font-size: 16px;
+    }
+
+    body.sidebar-collapsed .sidebar-toggle-btn {
+        left: 15px; /* Posisi untuk mobile saat sidebar tertutup */
+        background: rgba(239, 68, 68, 0.9);
+        border-color: rgba(239, 68, 68, 0.3);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+}
+
+/* Arrow Animation for Sidebar Toggle */
+.btn-sidebar-toggle #sidebar-arrow {
+    transition: transform 0.3s ease;
+}
+
+body.sidebar-collapsed .btn-sidebar-toggle #sidebar-arrow {
+    transform: rotate(180deg);
+}
+
+/* Enhanced Active State Animation */
+#sidebar ul li.active > a {
+    animation: slideInActive 0.3s ease;
+}
+
+@keyframes slideInActive {
+    from {
+        background: transparent;
+        transform: translateX(-10px);
+    }
+    to {
+        background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+        transform: translateX(0);
+    }
+}
+
+/* Scrollbar Styling */
+#sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+    background: #2d2d2d;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+    background: #4a4a4a;
+    border-radius: 3px;
+}
+
+#sidebar::-webkit-scrollbar-thumb:hover {
+    background: #5a5a5a;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .modern-navbar .navbar-collapse {
+        background: rgba(30, 60, 114, 0.98);
+        border-radius: 12px;
+        margin-top: 15px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar-spacer {
+        height: 80px;
+    }
+}
+
+/* Original styles maintained */
+.navbar .navbar-nav {
+    float: none;
+    vertical-align: top;
+}
+
+.navbar .navbar-collapse {
+    text-align: center;
+}
+
+.navbar-brand {
+    margin: 0 auto;
+    display: table;
+    margin-left: 30;
+}
+
+.nav-item:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.nav-item .nav-link:hover {
+    color: white;
+}
+
+/* Scroll To Top Button */
+#scrollToTopBtn {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 99;
+    padding: 15px;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 55px;
+    height: 55px;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(30, 60, 114, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+#scrollToTopBtn:hover {
+    background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(30, 60, 114, 0.4);
+}
+
+#scrollToTopBtn i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-table {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    font-size: small;
+}
+
+.bg-header-table {
+    background: linear-gradient(100deg, #0f172a 0%, #0f1e41 100%);
+    color: white;
+}
+
+.bg-header-table:hover {
+    background: linear-gradient(100deg, #0e54de 0%, #061e4e 100%);
+}
+
+.card-grafik {
+    border-radius: 16px;
+    overflow: hidden;
+}

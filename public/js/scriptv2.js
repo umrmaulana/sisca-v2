@@ -1,0 +1,653 @@
+// SISCA V2 JavaScript Functions
+document.addEventListener("DOMContentLoaded", function () {
+    initializeSidebar();
+    initializeMenuAccordions();
+    initializeUserDropdown();
+    initializeScrollToTop();
+    initializeTooltips();
+    initializeAnimations();
+    initializeFormValidation();
+});
+
+// Sidebar Functionality
+function initializeSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    const content = document.getElementById("content");
+    const body = document.body;
+
+    // Remove any existing navbar toggler functionality
+    const navbarTogglers = document.querySelectorAll(
+        '.navbar-toggler, [data-bs-toggle="collapse"]'
+    );
+    navbarTogglers.forEach((toggler) => {
+        toggler.removeAttribute("data-bs-toggle");
+        toggler.removeAttribute("data-bs-target");
+    });
+
+    if (sidebarToggle) {
+        // Remove any existing event listeners
+        const newToggle = sidebarToggle.cloneNode(true);
+        sidebarToggle.parentNode.replaceChild(newToggle, sidebarToggle);
+
+        // Add our custom event listener
+        newToggle.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            toggleSidebar();
+        });
+    }
+
+    // Mobile responsive - start collapsed on mobile
+    if (window.innerWidth <= 768) {
+        setSidebarMinimized(true);
+        // Ensure body starts with sidebar-collapsed class on mobile
+        body.classList.add("sidebar-collapsed");
+    }
+
+    // Handle overlay clicks on mobile to close sidebar
+    document.addEventListener("click", function (event) {
+        if (window.innerWidth <= 768) {
+            const isClickInsideSidebar =
+                sidebar && sidebar.contains(event.target);
+            const isClickOnToggle =
+                document.getElementById("sidebarToggle") &&
+                document.getElementById("sidebarToggle").contains(event.target);
+
+            // If clicked outside sidebar and toggle when sidebar is open, close it
+            if (
+                !isClickInsideSidebar &&
+                !isClickOnToggle &&
+                !isSidebarMinimized()
+            ) {
+                setSidebarMinimized(true);
+                localStorage.setItem("sidebarCollapsed", "true");
+            }
+        }
+    });
+
+    // Handle window resize
+    window.addEventListener("resize", function () {
+        if (window.innerWidth <= 768) {
+            // On mobile, always start collapsed
+            setSidebarMinimized(true);
+            body.classList.add("sidebar-collapsed");
+        } else {
+            // On desktop, restore previous state or show sidebar
+            const sidebarCollapsed = localStorage.getItem("sidebarCollapsed");
+            if (sidebarCollapsed !== "true") {
+                setSidebarMinimized(false);
+                body.classList.remove("sidebar-collapsed");
+            }
+        }
+    });
+
+    // Restore sidebar state on load (desktop only)
+    if (window.innerWidth > 768) {
+        const sidebarCollapsed = localStorage.getItem("sidebarCollapsed");
+        if (sidebarCollapsed === "true") {
+            setSidebarMinimized(true);
+        }
+    }
+}
+
+function toggleSidebar() {
+    const body = document.body;
+    const sidebar = document.getElementById("sidebar");
+
+    // Toggle the minimized state using data attribute like SISCA V1
+    const isCurrentlyMinimized = isSidebarMinimized();
+    setSidebarMinimized(!isCurrentlyMinimized);
+
+    // Save state to localStorage
+    const newState = isSidebarMinimized();
+    localStorage.setItem("sidebarCollapsed", newState.toString());
+
+    // Force CSS reflow and animation
+    if (sidebar) {
+        sidebar.style.transition =
+            "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
+        // Force reflow
+        sidebar.offsetHeight;
+        // Trigger transform
+        if (newState) {
+            sidebar.style.transform = "translateX(-280px)";
+        } else {
+            sidebar.style.transform = "translateX(0px)";
+        }
+    }
+
+    // Force content margin adjustment
+    const content = document.getElementById("content");
+    if (content) {
+        content.style.transition =
+            "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
+        content.offsetHeight; // Force reflow
+        if (newState) {
+            content.style.marginLeft = "0px";
+        } else {
+            content.style.marginLeft = "280px";
+        }
+    }
+}
+
+// Helper functions for sidebar state management (like SISCA V1)
+function isSidebarMinimized() {
+    return document.body.getAttribute("data-kt-app-sidebar-minimize") === "on";
+}
+
+function setSidebarMinimized(minimize) {
+    const body = document.body;
+    const sidebar = document.getElementById("sidebar");
+    const content = document.getElementById("content");
+
+    // Prevent any other scripts from interfering
+    const originalSetAttribute = body.setAttribute.bind(body);
+    const originalRemoveAttribute = body.removeAttribute.bind(body);
+    const originalClassListAdd = body.classList.add.bind(body.classList);
+    const originalClassListRemove = body.classList.remove.bind(body.classList);
+
+    if (minimize) {
+        // Add both class and data attribute for compatibility
+        body.classList.add("sidebar-collapsed");
+        body.setAttribute("data-kt-app-sidebar-minimize", "on");
+    } else {
+        // Remove both class and data attribute
+        body.classList.remove("sidebar-collapsed");
+        body.removeAttribute("data-kt-app-sidebar-minimize");
+    }
+
+    // Force DOM update multiple times to ensure it sticks
+    body.offsetHeight;
+    setTimeout(() => {
+        if (minimize) {
+            if (!body.classList.contains("sidebar-collapsed")) {
+                body.classList.add("sidebar-collapsed");
+            }
+            if (body.getAttribute("data-kt-app-sidebar-minimize") !== "on") {
+                body.setAttribute("data-kt-app-sidebar-minimize", "on");
+            }
+        } else {
+            if (body.classList.contains("sidebar-collapsed")) {
+                body.classList.remove("sidebar-collapsed");
+            }
+            if (body.getAttribute("data-kt-app-sidebar-minimize")) {
+                body.removeAttribute("data-kt-app-sidebar-minimize");
+            }
+        }
+    }, 50);
+
+    // Update toggle icon
+    updateToggleIcon();
+
+    // Debug computed styles
+    if (sidebar && content) {
+        setTimeout(() => {
+            const sidebarStyle = window.getComputedStyle(sidebar);
+            const contentStyle = window.getComputedStyle(content);
+        }, 100);
+    }
+}
+
+function updateToggleIcon() {
+    const toggleIcon = document.getElementById("sidebarToggleIcon");
+    const isMinimized = isSidebarMinimized();
+
+    if (toggleIcon) {
+        if (isMinimized) {
+            // When minimized/collapsed, show right arrow (to open)
+            toggleIcon.className = "fas fa-chevron-right";
+            toggleIcon.style.transform = "rotate(0deg)";
+        } else {
+            // When expanded, show left arrow (to close)
+            toggleIcon.className = "fas fa-chevron-left";
+            toggleIcon.style.transform = "rotate(0deg)";
+        }
+        toggleIcon.style.transition = "all 0.3s ease";
+    }
+}
+
+// Menu Accordion Functionality like SISCA V1 - Simple Accordion Only
+function initializeMenuAccordions() {
+    const accordionItems = document.querySelectorAll(
+        "#app_menu .menu-item.menu-accordion"
+    );
+
+    accordionItems.forEach((item) => {
+        const link = item.querySelector(":scope > .menu-link");
+        const sub = item.querySelector(":scope > .menu-sub");
+
+        if (!link || !sub) return;
+
+        // Add click handler for accordion toggle - works for both expanded and minimized
+        link.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Close other accordions at the same level
+            const parentMenu = item.closest("#app_menu");
+            if (parentMenu) {
+                parentMenu
+                    .querySelectorAll(":scope > .menu-item.menu-accordion.show")
+                    .forEach((sibling) => {
+                        if (sibling !== item) {
+                            sibling.classList.remove("show");
+                        }
+                    });
+            }
+
+            // Toggle current accordion
+            item.classList.toggle("show");
+        });
+    });
+
+    // Expand active menus on load
+    expandActiveMenus();
+}
+
+function expandActiveMenus() {
+    const activeLinks = document.querySelectorAll(
+        "#app_menu .menu-link.active"
+    );
+
+    activeLinks.forEach((link) => {
+        let currentSub = link.closest(".menu-sub");
+
+        while (currentSub) {
+            const accordionItem = currentSub.closest(
+                ".menu-item.menu-accordion"
+            );
+            if (!accordionItem) break;
+
+            accordionItem.classList.add("show");
+
+            // Look for next parent level
+            currentSub = accordionItem.closest(".menu-sub");
+        }
+    });
+}
+
+// User Dropdown Functionality like SISCA V1
+function initializeUserDropdown() {
+    const userProfileLink = document.querySelector(
+        '[data-custom-dropdown="user-menu"]'
+    );
+    const userDropdownMenu = document.getElementById("user-menu");
+    const userSection = document.querySelector(".app-sidebar-user");
+
+    if (!userProfileLink || !userDropdownMenu || !userSection) {
+        return;
+    }
+
+    // Toggle dropdown on click
+    userProfileLink.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const isShown = userSection.classList.contains("show");
+
+        if (isShown) {
+            userSection.classList.remove("show");
+        } else {
+            userSection.classList.add("show");
+        }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (e) {
+        if (!userSection.contains(e.target)) {
+            userSection.classList.remove("show");
+        }
+    });
+
+    // Prevent dropdown from closing when clicking inside the menu
+    userDropdownMenu.addEventListener("click", function (e) {
+        e.stopPropagation();
+    });
+
+    // Close dropdown when sidebar is toggled
+    const toggleBtn = document.getElementById("sidebarToggle");
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", function () {
+            userSection.classList.remove("show");
+        });
+    }
+}
+
+// Scroll to Top Functionality
+function initializeScrollToTop() {
+    const scrollBtn = document.getElementById("scrollToTopBtn");
+
+    if (!scrollBtn) return;
+
+    // Show/hide scroll button
+    window.addEventListener("scroll", function () {
+        if (
+            document.body.scrollTop > 20 ||
+            document.documentElement.scrollTop > 20
+        ) {
+            scrollBtn.style.display = "block";
+            scrollBtn.style.opacity = "1";
+        } else {
+            scrollBtn.style.opacity = "0";
+            setTimeout(() => {
+                if (scrollBtn.style.opacity === "0") {
+                    scrollBtn.style.display = "none";
+                }
+            }, 300);
+        }
+    });
+
+    // Smooth scroll to top
+    scrollBtn.addEventListener("click", function () {
+        smoothScrollToTop();
+    });
+}
+
+function smoothScrollToTop() {
+    const scrollToTop = () => {
+        const currentPosition =
+            document.documentElement.scrollTop || document.body.scrollTop;
+        if (currentPosition > 0) {
+            window.requestAnimationFrame(scrollToTop);
+            window.scrollTo(0, currentPosition - currentPosition / 8);
+        }
+    };
+    scrollToTop();
+}
+
+// Initialize Bootstrap Tooltips
+function initializeTooltips() {
+    const tooltipTriggerList = [].slice.call(
+        document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+}
+
+// Initialize Animations
+function initializeAnimations() {
+    // Add animation classes to elements as they come into view
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+    };
+
+    const observer = new IntersectionObserver(function (entries) {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("animate-in");
+            }
+        });
+    }, observerOptions);
+
+    // Observe cards and other elements
+    document.querySelectorAll(".card, .table, .alert").forEach((el) => {
+        observer.observe(el);
+    });
+}
+
+// Form Validation Enhancement
+function initializeFormValidation() {
+    const forms = document.querySelectorAll("form[novalidate]");
+
+    forms.forEach((form) => {
+        form.addEventListener("submit", function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Focus on first invalid field
+                const firstInvalid = form.querySelector(":invalid");
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                    firstInvalid.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                    });
+                }
+            }
+            form.classList.add("was-validated");
+        });
+
+        // Real-time validation
+        const inputs = form.querySelectorAll("input, textarea, select");
+        inputs.forEach((input) => {
+            input.addEventListener("blur", function () {
+                if (this.checkValidity()) {
+                    this.classList.remove("is-invalid");
+                    this.classList.add("is-valid");
+                } else {
+                    this.classList.remove("is-valid");
+                    this.classList.add("is-invalid");
+                }
+            });
+
+            input.addEventListener("input", function () {
+                if (
+                    this.classList.contains("is-invalid") &&
+                    this.checkValidity()
+                ) {
+                    this.classList.remove("is-invalid");
+                    this.classList.add("is-valid");
+                }
+            });
+        });
+    });
+}
+
+// Password Toggle Functionality
+function togglePassword(inputId, iconId) {
+    const passwordInput = document.getElementById(inputId);
+    const passwordIcon = document.getElementById(iconId);
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        passwordIcon.classList.remove("bi-eye-slash");
+        passwordIcon.classList.add("bi-eye");
+    } else {
+        passwordInput.type = "password";
+        passwordIcon.classList.remove("bi-eye");
+        passwordIcon.classList.add("bi-eye-slash");
+    }
+}
+
+// Confirmation Dialog
+function confirmDelete(id, itemName = "item") {
+    return new Promise((resolve) => {
+        if (
+            confirm(
+                `Are you sure you want to delete this ${itemName}? This action cannot be undone.`
+            )
+        ) {
+            resolve(true);
+        } else {
+            resolve(false);
+        }
+    });
+}
+
+// Auto-hide alerts
+function autoHideAlerts() {
+    const alerts = document.querySelectorAll(".alert");
+    alerts.forEach((alert) => {
+        setTimeout(() => {
+            if (alert && alert.classList.contains("alert")) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+    });
+}
+
+// Loading spinner
+function showLoading(element) {
+    const originalContent = element.innerHTML;
+    element.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+    element.disabled = true;
+
+    return function hideLoading() {
+        element.innerHTML = originalContent;
+        element.disabled = false;
+    };
+}
+
+// Data table search functionality
+function initializeTableSearch(tableId, searchInputId) {
+    const table = document.getElementById(tableId);
+    const searchInput = document.getElementById(searchInputId);
+
+    if (!table || !searchInput) return;
+
+    searchInput.addEventListener("keyup", function () {
+        const filter = this.value.toLowerCase();
+        const rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) {
+            // Start from 1 to skip header
+            const row = rows[i];
+            const cells = row.getElementsByTagName("td");
+            let found = false;
+
+            for (let j = 0; j < cells.length; j++) {
+                if (cells[j].textContent.toLowerCase().indexOf(filter) > -1) {
+                    found = true;
+                    break;
+                }
+            }
+
+            row.style.display = found ? "" : "none";
+        }
+    });
+}
+
+// Number formatting
+function formatNumber(num, decimals = 0) {
+    return new Intl.NumberFormat("id-ID", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+    }).format(num);
+}
+
+// Date formatting
+function formatDate(date, format = "dd/mm/yyyy") {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+
+    switch (format) {
+        case "dd/mm/yyyy":
+            return `${day}/${month}/${year}`;
+        case "yyyy-mm-dd":
+            return `${year}-${month}-${day}`;
+        case "dd MMM yyyy":
+            const months = [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
+            ];
+            return `${day} ${months[d.getMonth()]} ${year}`;
+        default:
+            return d.toLocaleDateString();
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener("DOMContentLoaded", function () {
+    // Initialize sidebar first
+    initializeSidebar();
+
+    // Auto-hide alerts
+    autoHideAlerts();
+
+    // Initialize all interactive elements
+    initializeAnimations();
+
+    // Add loading states to form submissions
+    const forms = document.querySelectorAll("form");
+    forms.forEach((form) => {
+        form.addEventListener("submit", function () {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                showLoading(submitBtn);
+            }
+        });
+    });
+
+    // Close accordions and user dropdown when clicking outside sidebar
+    document.addEventListener("click", (e) => {
+        const sidebar = document.getElementById("sidebar");
+
+        if (!sidebar || sidebar.contains(e.target)) return;
+
+        // Close all accordions
+        document
+            .querySelectorAll("#app_menu .menu-item.menu-accordion.show")
+            .forEach((accordion) => accordion.classList.remove("show"));
+
+        // Close user dropdown
+        const userSection = document.querySelector(".app-sidebar-user");
+        if (userSection) {
+            userSection.classList.remove("show");
+        }
+    });
+
+    // Close accordions when window is resized for mobile
+    window.addEventListener("resize", () => {
+        if (window.innerWidth <= 768) {
+            document
+                .querySelectorAll("#app_menu .menu-item.menu-accordion.show")
+                .forEach((accordion) => accordion.classList.remove("show"));
+        }
+    });
+});
+
+// Global utility functions with sidebar toggle
+window.SISCA = {
+    toggleSidebar: toggleSidebar,
+    togglePassword: togglePassword,
+    confirmDelete: confirmDelete,
+    showLoading: showLoading,
+    formatNumber: formatNumber,
+    formatDate: formatDate,
+    initializeTableSearch: initializeTableSearch,
+    // Menu functions
+    initializeMenuAccordions: initializeMenuAccordions,
+    initializeUserDropdown: initializeUserDropdown,
+    expandActiveMenus: expandActiveMenus,
+};
+
+// Monitor body changes for debugging
+const bodyObserver = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+        if (mutation.type === "attributes") {
+            if (
+                mutation.attributeName === "class" ||
+                mutation.attributeName === "data-kt-app-sidebar-minimize"
+            ) {
+                // Body attribute changed - can be used for debugging if needed
+            }
+        }
+    });
+});
+
+// Start observing body changes
+if (document.body) {
+    bodyObserver.observe(document.body, {
+        attributes: true,
+        attributeOldValue: true,
+        attributeFilter: ["class", "data-kt-app-sidebar-minimize"],
+    });
+}
