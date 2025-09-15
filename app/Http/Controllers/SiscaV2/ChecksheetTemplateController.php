@@ -78,7 +78,7 @@ class ChecksheetTemplateController extends Controller
      */
     public function create()
     {
-        $this->authorize('create', ChecksheetTemplate::class);
+        $user = Auth::guard('sisca-v2')->user();
 
         $equipmentTypes = EquipmentType::where('is_active', true)->get();
 
@@ -99,7 +99,7 @@ class ChecksheetTemplateController extends Controller
      */
     public function store(Request $request)
     {
-        $this->authorize('create', ChecksheetTemplate::class);
+        $user = Auth::guard('sisca-v2')->user();
 
         $request->validate([
             'equipment_type_id' => 'required|exists:tm_equipment_types,id',
@@ -181,7 +181,7 @@ class ChecksheetTemplateController extends Controller
      */
     public function show(ChecksheetTemplate $checksheetTemplate)
     {
-        $this->authorize('view', $checksheetTemplate);
+        $user = Auth::guard('sisca-v2')->user();
 
         $checksheetTemplate->load(['equipmentType', 'creator', 'updater']);
 
@@ -193,7 +193,7 @@ class ChecksheetTemplateController extends Controller
      */
     public function edit(ChecksheetTemplate $checksheetTemplate)
     {
-        $this->authorize('update', $checksheetTemplate);
+        $user = Auth::guard('sisca-v2')->user();
 
         $equipmentTypes = EquipmentType::where('is_active', true)->get();
 
@@ -205,7 +205,7 @@ class ChecksheetTemplateController extends Controller
      */
     public function update(Request $request, ChecksheetTemplate $checksheetTemplate)
     {
-        $this->authorize('update', $checksheetTemplate);
+        $user = Auth::guard('sisca-v2')->user();
 
         $request->validate([
             'equipment_type_id' => 'required|exists:tm_equipment_types,id',
@@ -281,7 +281,7 @@ class ChecksheetTemplateController extends Controller
      */
     public function destroy(ChecksheetTemplate $checksheetTemplate)
     {
-        $this->authorize('delete', $checksheetTemplate);
+        $user = Auth::guard('sisca-v2')->user();
 
         try {
             DB::beginTransaction();
