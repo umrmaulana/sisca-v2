@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\SiscaV2;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller;
 use App\Models\SiscaV2\ChecksheetTemplate;
 use App\Models\SiscaV2\EquipmentType;
@@ -25,7 +26,8 @@ class ChecksheetTemplateController extends Controller
      */
     public function index(Request $request)
     {
-        $this->authorize('viewAny', ChecksheetTemplate::class);
+        // $this->authorize('viewAny', ChecksheetTemplate::class);
+        $user = Auth::guard('sisca-v2')->user();
 
         // Handle AJAX request for next order number
         if ($request->ajax() && $request->get('ajax') === 'next_order') {
