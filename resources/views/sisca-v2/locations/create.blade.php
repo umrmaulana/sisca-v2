@@ -229,7 +229,7 @@
 
                     if (plantId) {
                         // Fetch areas for the selected plant
-                        const url = `{{ route('sisca-v2.locations.areas-by-plant', '') }}/${plantId}`;
+                        const url = `${window.location.origin}/sisca-v2/locations/areas/${plantId}`;
 
                         $.get(url)
                             .done(function(areas) {
@@ -253,7 +253,7 @@
                         // Find the selected area data
                         const plantId = $('#plant_id').val();
                         if (plantId) {
-                            const url = `{{ route('sisca-v2.locations.areas-by-plant', '') }}/${plantId}`;
+                            const url = `${window.location.origin}/sisca-v2/locations/areas/${plantId}`;
 
                             $.get(url)
                                 .done(function(areas) {

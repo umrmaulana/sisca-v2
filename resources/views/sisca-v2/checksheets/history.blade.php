@@ -354,7 +354,7 @@
 
                 if (plantId) {
                     // Make AJAX request to get areas
-                    fetch(`{{ route('sisca-v2.checksheets.areas-by-plant') }}?plant_id=${plantId}`)
+                    fetch(`${window.location.origin}/sisca-v2/checksheets/areas-by-plant?plant_id=${plantId}`)
                         .then(response => response.json())
                         .then(data => {
                             areaSelect.innerHTML = '<option value="">All Areas</option>';

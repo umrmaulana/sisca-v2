@@ -162,7 +162,7 @@
         function loadInspections(page = 1) {
             const formData = $('#filterForm').serialize() + '&page=' + page;
 
-            $.get("{{ route('sisca-v2.inspections.index') }}?" + formData)
+            $.get(`${window.location.origin}/sisca-v2/inspections?` + formData)
                 .done(function(response) {
                     if (response.success) {
                         renderInspectionsTable(response.data.data);
@@ -175,7 +175,7 @@
         }
 
         function loadEquipments() {
-            $.get("{{ route('sisca-v2.api.equipments') }}")
+            $.get(`${window.location.origin}/sisca-v2/api/equipments`)
                 .done(function(equipments) {
                     const options = '<option value="">Select Equipment</option>' +
                         equipments.map(eq => `<option value="${eq.id}">${eq.equipment_code} - ${eq.desc}</option>`)

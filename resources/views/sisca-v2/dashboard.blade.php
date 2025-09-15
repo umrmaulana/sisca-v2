@@ -653,7 +653,7 @@
             areaSelect.disabled = true;
 
             if (plantId) {
-                let url = `{{ route('sisca-v2.dashboard.areas-by-plant') }}?plant_id=${plantId}`;
+                let url = `${window.location.origin}/sisca-v2/dashboard/areas-by-plant?plant_id=${plantId}`;
                 if (equipmentTypeId) {
                     url += `&equipment_type_id=${equipmentTypeId}`;
                 }

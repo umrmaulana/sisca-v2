@@ -306,7 +306,7 @@
             locationSelect.innerHTML = '<option value="">Select Area First</option>';
 
             if (plantId) {
-                fetch(`{{ route('sisca-v2.equipments.areas-by-plant') }}?plant_id=${plantId}`)
+                fetch(`${window.location.origin}/sisca-v2/equipments/areas-by-plant?plant_id=${plantId}`)
                     .then(response => response.json())
                     .then(areas => {
                         areaSelect.innerHTML = '<option value="">Select Area</option>';
@@ -342,7 +342,7 @@
             locationSelect.innerHTML = '<option value="">Loading locations...</option>';
 
             if (areaId) {
-                fetch(`{{ route('sisca-v2.equipments.locations-by-area') }}?area_id=${areaId}`)
+                fetch(`${window.location.origin}/sisca-v2/equipments/locations-by-area?area_id=${areaId}`)
                     .then(response => response.json())
                     .then(locations => {
                         locationSelect.innerHTML = '<option value="">Select Location</option>';

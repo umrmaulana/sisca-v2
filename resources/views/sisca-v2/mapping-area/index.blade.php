@@ -430,7 +430,7 @@
             areaSelect.innerHTML = '<option value="">Select Area</option>';
 
             if (plantId) {
-                let url = `{{ route('sisca-v2.mapping-area.areas-by-plant') }}?plant_id=${plantId}`;
+                let url = `${window.location.origin}/sisca-v2/mapping-area/areas-by-plant?plant_id=${plantId}`;
                 if (equipmentTypeId) {
                     url += `&equipment_type_id=${equipmentTypeId}`;
                 }

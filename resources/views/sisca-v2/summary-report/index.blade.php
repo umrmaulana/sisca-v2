@@ -646,7 +646,7 @@
                 areaSelect.disabled = true;
 
                 if (plantId) {
-                    let url = `{{ route('sisca-v2.summary-report.areas-by-plant') }}?plant_id=${plantId}`;
+                    let url = `${window.location.origin}/sisca-v2/summary-report/areas-by-plant?plant_id=${plantId}`;
                     if (equipmentTypeId) {
                         url += `&equipment_type_id=${equipmentTypeId}`;
                     }
@@ -733,7 +733,7 @@
             function exportPDF() {
                 const form = document.getElementById('filterForm');
                 const params = new URLSearchParams(new FormData(form));
-                const url = `{{ route('sisca-v2.summary-report.export-pdf') }}?${params.toString()}`;
+                const url = `${window.location.origin}/sisca-v2/summary-report/export-pdf?${params.toString()}`;
                 window.open(url, '_blank');
             }
 
@@ -864,7 +864,7 @@
                     return;
                 }
 
-                fetch('{{ route('sisca-v2.summary-report.bulk-approve') }}', {
+                fetch(`${window.location.origin}/sisca-v2/summary-report/bulk-approve`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -908,7 +908,7 @@
                     return;
                 }
 
-                fetch('{{ route('sisca-v2.summary-report.bulk-reject') }}', {
+                fetch(`${window.location.origin}/sisca-v2/summary-report/bulk-reject`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
