@@ -213,13 +213,13 @@
                         <i class="fas fa-eye"></i>
                     </button>
                     ${inspection.status !== 'approved' ? `
-                            <button class="btn btn-sm btn-warning" onclick="editInspection(${inspection.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteInspection(${inspection.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        ` : ''}
+                                <button class="btn btn-sm btn-warning" onclick="editInspection(${inspection.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteInspection(${inspection.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            ` : ''}
                 </td>
             </tr>
         `;
