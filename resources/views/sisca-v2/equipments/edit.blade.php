@@ -80,16 +80,6 @@
                                     @enderror
                                 </div>
 
-                                <div class="col-12 mb-3">
-                                    <label for="description" class="form-label">Description</label>
-                                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description"
-                                        rows="3" maxlength="255" placeholder="Enter equipment description (optional)">{{ old('description', $equipment->description) }}</textarea>
-                                    @error('description')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <div class="form-text">Optional. Maximum 255 characters</div>
-                                </div>
-
                                 <div class="col-md-6 mb-3">
                                     <label for="plant_id" class="form-label">
                                         Plant <span class="text-danger">*</span>
@@ -308,10 +298,18 @@
             if (plantId) {
                 fetch(`${window.location.origin}/sisca-v2/equipments/areas-by-plant?plant_id=${plantId}`)
                     .then(response => response.json())
-                    .then(areas => {
+                    .then(data => {
                         areaSelect.innerHTML = '<option value="">Select Area</option>';
 
-                        if (Array.isArray(areas)) {
+                        // Handle different response formats - server returns {areas: [...]}
+                        let areas = [];
+                        if (Array.isArray(data)) {
+                            areas = data;
+                        } else if (data && Array.isArray(data.areas)) {
+                            areas = data.areas;
+                        }
+
+                        if (areas.length > 0) {
                             areas.forEach(area => {
                                 const selected = selectedAreaId && selectedAreaId == area.id ? 'selected' : '';
                                 areaSelect.innerHTML +=
@@ -323,7 +321,7 @@
                                 loadLocations(selectedAreaId, originalLocationId);
                             }
                         } else {
-                            console.error('Areas response is not an array:', areas);
+                            console.error('No areas found in response:', data);
                             areaSelect.innerHTML = '<option value="">No areas available</option>';
                         }
                     })

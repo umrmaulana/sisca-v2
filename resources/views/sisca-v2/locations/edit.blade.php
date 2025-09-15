@@ -259,7 +259,15 @@
                         const url = `${window.location.origin}/sisca-v2/locations/areas/${plantId}`;
 
                         $.get(url)
-                            .done(function(areas) {
+                            .done(function(data) {
+                                // Handle different response formats
+                                let areas = [];
+                                if (Array.isArray(data)) {
+                                    areas = data;
+                                } else if (data && Array.isArray(data.areas)) {
+                                    areas = data.areas;
+                                }
+
                                 areas.forEach(function(area) {
                                     $('#area_id').append(
                                         `<option value="${area.id}">${area.area_name}</option>`);
@@ -288,7 +296,15 @@
                             const url = `${window.location.origin}/sisca-v2/locations/areas/${plantId}`;
 
                             $.get(url)
-                                .done(function(areas) {
+                                .done(function(data) {
+                                    // Handle different response formats
+                                    let areas = [];
+                                    if (Array.isArray(data)) {
+                                        areas = data;
+                                    } else if (data && Array.isArray(data.areas)) {
+                                        areas = data.areas;
+                                    }
+
                                     const selectedArea = areas.find(area => area.id == areaId);
                                     if (selectedArea && selectedArea.mapping_picture) {
                                         showMappingImage(selectedArea.mapping_picture);
