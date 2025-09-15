@@ -44,7 +44,7 @@ class ChecksheetTemplate extends Model
      */
     public function creator()
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
@@ -52,7 +52,7 @@ class ChecksheetTemplate extends Model
      */
     public function updater()
     {
-        return $this->belongsTo(\App\Models\User::class, 'updated_by');
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     /**
