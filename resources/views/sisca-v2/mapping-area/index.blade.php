@@ -141,7 +141,7 @@
                             @if ($mappingImage)
                                 <div class="mapping-container position-relative">
                                     <img src="{{ $mappingImage }}" class="img-fluid mapping-image" alt="Area Mapping"
-                                        style="max-height: 600px; width: 100%; object-fit: contain;">
+                                        style="max-height: 100%; width: 100%; object-fit: contain;">
 
                                     <!-- Equipment markers would be positioned here -->
                                     @foreach ($equipments as $equipment)
