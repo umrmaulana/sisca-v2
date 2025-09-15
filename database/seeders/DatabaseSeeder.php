@@ -30,24 +30,6 @@ class DatabaseSeeder extends Seeder
             EquipmentTypeSeeder::class,
             ChecksheetTemplateSeeder::class,
             EquipmentSeeder::class,
-
-                // Legacy locations for SISCA V1 equipment (old tm_locations table)
-            LegacyLocationSeeder::class,
-
-                // SISCA V1 Equipment seeders (depends on LegacyLocationSeeder)
-            AparSeeder::class,
-            Co2Seeder::class,
-            HydrantSeeder::class,
-            NitrogenSeeder::class,
-            EyewasherSeeder::class,
-            FacpSeeder::class,
-            HeadCraneSeeder::class,
-            SafetyBeltSeeder::class,
-            SlingSeeder::class,
-            TanduSeeder::class,
-
-                // Item check seeders
-            ItemCheckHeadCraneSeeder::class,
         ]);
     }
 }
