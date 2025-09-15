@@ -315,10 +315,10 @@
                                                                 Picture</label>
                                                             <div class="standard-picture-container mt-2">
                                                                 @if ($template->standar_picture && asset('public/' . $template->standar_picture))
-                                                                    <img src="{{ asset('storage/' . $template->standar_picture) }}"
+                                                                    <img src="{{ url('storage/' . $template->standar_picture) }}"
                                                                         alt="Standard Picture"
                                                                         class="img-thumbnail standard-picture"
-                                                                        onclick="showImageModal('{{ asset('storage/' . $template->standar_picture) }}', '{{ $template->item_name }}')"
+                                                                        onclick="showImageModal('{{ url('storage/' . $template->standar_picture) }}', '{{ $template->item_name }}')"
                                                                         role="button" title="Click to enlarge"
                                                                         style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;">
                                                                 @else
@@ -357,7 +357,7 @@
                                                                     </span>
                                                                     @if ($previousDetail->picture && \Storage::disk('public')->exists($previousDetail->picture))
                                                                         <br><small class="text-muted mt-1">
-                                                                            <a href="{{ asset('storage/' . $previousDetail->picture) }}"
+                                                                            <a href="{{ url('storage/' . $previousDetail->picture) }}"
                                                                                 target="_blank"
                                                                                 class="text-decoration-none">
                                                                                 <i class="fas fa-image me-1"></i>View

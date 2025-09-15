@@ -84,7 +84,7 @@
                                     <div class="mt-2">
                                         <small class="text-muted">Current mapping picture:</small>
                                         <div class="mt-1">
-                                            <img src="{{ asset('storage/' . $area->mapping_picture) }}"
+                                            <img src="{{ url('storage/' . $area->mapping_picture) }}"
                                                 alt="Current mapping" class="img-thumbnail"
                                                 style="max-width: 100px; max-height: 100px; cursor: pointer;"
                                                 data-bs-toggle="modal" data-bs-target="#currentImageModal">
@@ -146,7 +146,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body text-center">
-                        <img src="{{ asset('storage/' . $area->mapping_picture) }}" alt="Current mapping picture"
+                        <img src="{{ url('storage/' . $area->mapping_picture) }}" alt="Current mapping picture"
                             class="img-fluid">
                     </div>
                 </div>

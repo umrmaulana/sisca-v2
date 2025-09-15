@@ -176,11 +176,14 @@
                                     <td>
                                         @if ($equipment->qrcode && \Storage::disk('public')->exists($equipment->qrcode))
                                             <div class="d-flex align-items-center">
-                                                <img src="{{ asset('storage/' . $equipment->qrcode) }}" alt="QR Code"
-                                                    class="me-2 border rounded"
-                                                    style="width: 50px; height: 50px; object-fit: contain;">
-                                                <a href="{{ asset('storage/' . $equipment->qrcode) }}" target="_blank"
-                                                    class="btn btn-sm btn-outline-primary" title="View QR Code">
+                                                <img src="{{ url('storage/' . $equipment->qrcode) }}" alt="QR Code"
+                                                    class="me-2 border rounded qr-image"
+                                                    style="width: 50px; height: 50px; object-fit: contain;"
+                                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
+                                                    title="QR Code for {{ $equipment->equipment_code }}">
+                                                <span class="badge bg-danger" style="display: none;">QR Error</span>
+                                                <a href="{{ url('storage/' . $equipment->qrcode) }}" target="_blank"
+                                                    class="btn btn-sm btn-outline-primary ms-1" title="View QR Code">
                                                     <i class="fas fa-external-link-alt"></i>
                                                 </a>
                                             </div>
@@ -279,6 +282,52 @@
     </div>
 @endsection
 
+@push('styles')
+    <style>
+        .qr-image {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .qr-image:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+
+        .badge {
+            transition: all 0.2s ease;
+        }
+
+        .btn-group .btn {
+            transition: all 0.2s ease;
+        }
+
+        .btn-group .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Loading animation for images */
+        .qr-image[src=""] {
+            background: linear-gradient(90deg, #f0f0f0 25%, transparent 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+    </style>
+@endpush
+
 @push('scripts')
     <script>
         function confirmDelete(equipmentId, equipmentCode) {
@@ -295,6 +344,92 @@
                 bsAlert.close();
             });
         }, 5000);
+
+        // Fix image loading issues in development
+        document.addEventListener('DOMContentLoaded', function() {
+            // Replace any http images with current protocol
+            const images = document.querySelectorAll('img[src*="storage/"]');
+            images.forEach(function(img) {
+                const currentSrc = img.src;
+                if (currentSrc.startsWith('http://') && window.location.protocol === 'https:') {
+                    img.src = currentSrc.replace('http://', 'https://');
+                } else if (currentSrc.includes('127.0.0.1') || currentSrc.includes('localhost')) {
+                    // For development, ensure proper base URL
+                    const path = currentSrc.split('/storage/')[1];
+                    if (path) {
+                        img.src = window.location.origin + '/storage/' + path;
+                    }
+                }
+            });
+
+            // Same for links
+            const links = document.querySelectorAll('a[href*="storage/"]');
+            links.forEach(function(link) {
+                const currentHref = link.href;
+                if (currentHref.startsWith('http://') && window.location.protocol === 'https:') {
+                    link.href = currentHref.replace('http://', 'https://');
+                } else if (currentHref.includes('127.0.0.1') || currentHref.includes('localhost')) {
+                    // For development, ensure proper base URL
+                    const path = currentHref.split('/storage/')[1];
+                    if (path) {
+                        link.href = window.location.origin + '/storage/' + path;
+                    }
+                }
+            });
+        });
+
+        // QR Code preview functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click event to QR images for preview
+            document.querySelectorAll('.qr-image').forEach(function(img) {
+                img.addEventListener('click', function() {
+                    showQRPreview(this.src, this.alt);
+                });
+            });
+        });
+
+        function showQRPreview(imageSrc, alt) {
+            // Create modal for QR preview if it doesn't exist
+            let modal = document.getElementById('qrPreviewModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'qrPreviewModal';
+                modal.className = 'modal fade';
+                modal.setAttribute('tabindex', '-1');
+                modal.innerHTML = `
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">QR Code Preview</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <img id="qrPreviewImage" src="" alt="" class="img-fluid" style="max-width: 300px;">
+                                <p id="qrPreviewText" class="mt-3 text-muted"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <a id="qrDownloadLink" href="" class="btn btn-success" download>
+                                    <i class="fas fa-download me-1"></i>Download
+                                </a>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            // Update modal content
+            document.getElementById('qrPreviewImage').src = imageSrc;
+            document.getElementById('qrPreviewImage').alt = alt;
+            document.getElementById('qrPreviewText').textContent = alt;
+            document.getElementById('qrDownloadLink').href = imageSrc;
+            document.getElementById('qrDownloadLink').setAttribute('download', alt.replace(/\s+/g, '_') + '.png');
+
+            // Show modal
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+        }
 
         // Handle plant change for area filtering
         document.addEventListener('DOMContentLoaded', function() {

@@ -144,7 +144,7 @@
                         </div>
                         <div class="card-body">
                             <div class="position-relative">
-                                <img src="{{ asset('storage/' . $location->area->mapping_picture) }}" alt="Area mapping"
+                                <img src="{{ url('storage/' . $location->area->mapping_picture) }}" alt="Area mapping"
                                     class="img-fluid border rounded" style="width: 100%; cursor: pointer;"
                                     data-bs-toggle="modal" data-bs-target="#mappingModal">
 
@@ -320,7 +320,7 @@
                     </div>
                     <div class="modal-body text-center">
                         <div class="position-relative">
-                            <img src="{{ asset('storage/' . $location->area->mapping_picture) }}"
+                            <img src="{{ url('storage/' . $location->area->mapping_picture) }}"
                                 alt="Area mapping picture" class="img-fluid">
 
                             @if ($location->coordinate_x && $location->coordinate_y)

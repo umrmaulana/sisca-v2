@@ -1,8 +1,8 @@
 <div class="sidebar" id="sidebar">
     <!-- Logo Section -->
     <div class="sidebar-logo">
-        <img src="{{ asset('foto/logo.png') }}" alt="AISIN Logo" style="max-width: 150px; height: auto;" class="logo-full">
-        <img src="{{ asset('foto/logo-mini.png') }}" alt="AISIN Mini" style="width: 40px; height: auto;"
+        <img src="{{ url('foto/logo.png') }}" alt="AISIN Logo" style="max-width: 150px; height: auto;" class="logo-full">
+        <img src="{{ url('foto/logo-mini.png') }}" alt="AISIN Mini" style="width: 40px; height: auto;"
             class="logo-mini d-none">
     </div>
 

@@ -142,10 +142,10 @@
                                                 <label class="form-label fw-bold text-muted">Standard Picture</label>
                                                 <div class="standard-picture-container mt-2">
                                                     @if ($template->equipment_type_id && $template->standar_picture)
-                                                        <img src="{{ asset('storage/' . $template->standar_picture) }}"
+                                                        <img src="{{ url('storage/' . $template->standar_picture) }}"
                                                             alt="Standard Picture"
                                                             class="img-thumbnail standard-picture"
-                                                            onclick="showImageModal('{{ asset('storage/' . $template->standar_picture) }}', '{{ $template->item_name }}')"
+                                                            onclick="showImageModal('{{ url('storage/' . $template->standar_picture) }}', '{{ $template->item_name }}')"
                                                             role="button" title="Click to enlarge"
                                                             style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;">
                                                     @else

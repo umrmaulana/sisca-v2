@@ -100,7 +100,7 @@
                         <div class="mb-3">
                             <label class="form-label">Current Standard Picture</label>
                             <div class="d-flex align-items-start">
-                                <img src="{{ asset('storage/' . $checksheetTemplate->standar_picture) }}"
+                                <img src="{{ url('storage/' . $checksheetTemplate->standar_picture) }}"
                                     alt="Current Standard Picture" class="img-thumbnail me-3"
                                     style="width: 100px; height: 100px; object-fit: cover;">
                                 <div class="flex-grow-1">
@@ -207,11 +207,11 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body text-center">
-                        <img src="{{ asset('storage/' . $checksheetTemplate->standar_picture) }}"
+                        <img src="{{ url('storage/' . $checksheetTemplate->standar_picture) }}"
                             alt="Current Standard Picture" class="img-fluid rounded">
                     </div>
                     <div class="modal-footer">
-                        <a href="{{ asset('storage/' . $checksheetTemplate->standar_picture) }}" target="_blank"
+                        <a href="{{ url('storage/' . $checksheetTemplate->standar_picture) }}" target="_blank"
                             class="btn btn-primary">
                             <i class="fas fa-external-link-alt me-2"></i>Open Full Size
                         </a>

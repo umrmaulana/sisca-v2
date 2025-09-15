@@ -190,8 +190,8 @@
                                             </td>
                                             <td>
                                                 @if ($detail->picture && Storage::disk('public')->exists($detail->picture))
-                                                    <a href="{{ asset('storage/' . $detail->picture) }}" target="_blank">
-                                                        <img src="{{ asset('storage/' . $detail->picture) }}"
+                                                    <a href="{{ url('storage/' . $detail->picture) }}" target="_blank">
+                                                        <img src="{{ url('storage/' . $detail->picture) }}"
                                                             alt="Inspection Picture" class="img-thumbnail"
                                                             style="max-width: 100px; max-height: 80px; object-fit: cover;">
                                                     </a>

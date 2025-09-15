@@ -107,10 +107,10 @@
                                     </td>
                                     <td>
                                         @if ($area->mapping_picture)
-                                            <img src="{{ asset('storage/' . $area->mapping_picture) }}" alt="Mapping"
+                                            <img src="{{ url('storage/' . $area->mapping_picture) }}" alt="Mapping"
                                                 class="img-thumbnail"
                                                 style="width: 50px; height: 50px; object-fit: cover; cursor: pointer;"
-                                                onclick="showImageModal('{{ asset('storage/' . $area->mapping_picture) }}', '{{ $area->area_name }} Mapping')">
+                                                onclick="showImageModal('{{ url('storage/' . $area->mapping_picture) }}', '{{ $area->area_name }} Mapping')">
                                         @else
                                             <span class="text-muted fst-italic">No mapping</span>
                                         @endif

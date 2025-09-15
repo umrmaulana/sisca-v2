@@ -193,7 +193,7 @@
                     <div class="card-body text-center">
                         @if ($equipment->qrcode && \Storage::disk('public')->exists($equipment->qrcode))
                             <div class="mb-3">
-                                <img src="{{ asset('storage/' . $equipment->qrcode) }}" alt="QR Code"
+                                <img src="{{ url('storage/' . $equipment->qrcode) }}" alt="QR Code"
                                     class="img-fluid border rounded" style="max-width: 200px;">
                             </div>
                             <div class="mb-3">
@@ -204,11 +204,11 @@
                                 @endif
                             </div>
                             <div class="d-grid gap-2">
-                                <a href="{{ asset('storage/' . $equipment->qrcode) }}" target="_blank"
+                                <a href="{{ url('storage/' . $equipment->qrcode) }}" target="_blank"
                                     class="btn btn-outline-primary btn-sm">
                                     <i class="fas fa-external-link-alt me-1"></i>View Full Size
                                 </a>
-                                <a href="{{ asset('storage/' . $equipment->qrcode) }}"
+                                <a href="{{ url('storage/' . $equipment->qrcode) }}"
                                     download="QR_{{ $equipment->equipment_code }}.png"
                                     class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-download me-1"></i>Download QR Code

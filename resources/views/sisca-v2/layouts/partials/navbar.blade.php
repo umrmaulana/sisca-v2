@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <!-- Brand Logo -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('sisca-v2.dashboard') }}">
-            <img src="{{ asset('foto/satu-aisin-final.png') }}" style="width: 150px; height: auto;" alt="AISIN Logo"
+            <img src="{{ url('foto/satu-aisin-final.png') }}" style="width: 150px; height: auto;" alt="AISIN Logo"
                 class="img-fluid">
         </a>
 

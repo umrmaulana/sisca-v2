@@ -96,7 +96,7 @@
                                     <div class="mb-4">
                                         <label class="form-label text-muted">Standard Picture</label>
                                         <div class="border rounded p-3 text-center">
-                                            <img src="{{ asset('storage/' . $checksheetTemplate->standar_picture) }}"
+                                            <img src="{{ url('storage/' . $checksheetTemplate->standar_picture) }}"
                                                 alt="Standard Picture" class="img-fluid rounded border"
                                                 style="max-width: 300px; cursor: pointer;" data-bs-toggle="modal"
                                                 data-bs-target="#imageModal">
@@ -263,11 +263,11 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body text-center">
-                        <img src="{{ asset('storage/' . $checksheetTemplate->standar_picture) }}" alt="Standard Picture"
+                        <img src="{{ url('storage/' . $checksheetTemplate->standar_picture) }}" alt="Standard Picture"
                             class="img-fluid rounded">
                     </div>
                     <div class="modal-footer">
-                        <a href="{{ asset('storage/' . $checksheetTemplate->standar_picture) }}" target="_blank"
+                        <a href="{{ url('storage/' . $checksheetTemplate->standar_picture) }}" target="_blank"
                             class="btn btn-primary">
                             <i class="fas fa-external-link-alt me-2"></i>Open Full Size
                         </a>

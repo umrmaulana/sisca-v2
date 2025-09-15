@@ -73,7 +73,7 @@
                                     <label class="form-label text-muted">Mapping Picture</label>
                                     <div>
                                         @if ($area->mapping_picture)
-                                            <img src="{{ asset('storage/' . $area->mapping_picture) }}" alt="Area mapping"
+                                            <img src="{{ url('storage/' . $area->mapping_picture) }}" alt="Area mapping"
                                                 class="img-thumbnail"
                                                 style="max-width: 120px; max-height: 120px; cursor: pointer;"
                                                 data-bs-toggle="modal" data-bs-target="#mappingImageModal">
@@ -239,7 +239,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body text-center">
-                        <img src="{{ asset('storage/' . $area->mapping_picture) }}" alt="Area mapping picture"
+                        <img src="{{ url('storage/' . $area->mapping_picture) }}" alt="Area mapping picture"
                             class="img-fluid">
                     </div>
                 </div>

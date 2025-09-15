@@ -101,7 +101,7 @@
                             <div class="col-md-3">
                                 <strong>QR Code:</strong><br>
                                 @if ($inspection->equipment->qrcode && \Storage::disk('public')->exists($inspection->equipment->qrcode))
-                                    <img src="{{ asset('storage/' . $inspection->equipment->qrcode) }}" alt="QR Code"
+                                    <img src="{{ url('storage/' . $inspection->equipment->qrcode) }}" alt="QR Code"
                                         class="img-thumbnail" style="max-width: 80px;">
                                 @else
                                     <span class="text-muted">No QR Code</span>
@@ -161,7 +161,7 @@
                                                 \Storage::disk('public')->exists($detail->checksheetTemplate->standar_picture))
                                             <div class="mb-2">
                                                 <strong class="small text-muted d-block mb-1">Reference Picture:</strong>
-                                                <img src="{{ asset('storage/' . $detail->checksheetTemplate->standar_picture) }}"
+                                                <img src="{{ url('storage/' . $detail->checksheetTemplate->standar_picture) }}"
                                                     alt="Standard Picture - {{ $detail->checksheetTemplate->item_name }}"
                                                     class="img-thumbnail" style="max-width: 80px; max-height: 80px;">
                                             </div>
@@ -187,16 +187,16 @@
                                         @if ($detail->picture && \Storage::disk('public')->exists($detail->picture))
                                             <strong class="small text-muted d-block mb-1">Evidence Photo:</strong>
                                             <div class="d-flex align-items-center gap-2">
-                                                <img src="{{ asset('storage/' . $detail->picture) }}"
+                                                <img src="{{ url('storage/' . $detail->picture) }}"
                                                     alt="Evidence Photo - {{ $detail->checksheetTemplate->item_name }}"
                                                     class="img-thumbnail" style="max-width: 120px; max-height: 120px;"
                                                     title="Click to enlarge">
                                                 <div class="d-flex flex-column gap-1">
-                                                    <a href="{{ asset('storage/' . $detail->picture) }}" target="_blank"
+                                                    <a href="{{ url('storage/' . $detail->picture) }}" target="_blank"
                                                         class="btn btn-sm btn-outline-primary">
                                                         <i class="fas fa-expand me-1"></i>View Full
                                                     </a>
-                                                    <a href="{{ asset('storage/' . $detail->picture) }}"
+                                                    <a href="{{ url('storage/' . $detail->picture) }}"
                                                         download="Evidence_{{ $detail->checksheetTemplate->item_name }}.jpg"
                                                         class="btn btn-sm btn-outline-success">
                                                         <i class="fas fa-download me-1"></i>Download

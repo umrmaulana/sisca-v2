@@ -244,7 +244,7 @@
                                             <div class="btn-group" role="group">
                                                 @if ($history->picture && \Storage::disk('public')->exists($history->picture))
                                                     <button type="button" class="btn btn-sm btn-outline-info"
-                                                        onclick="showImageModal('{{ asset('storage/' . $history->picture) }}', '{{ $history->checksheetTemplate->item_name ?? 'NG Item' }}')">
+                                                        onclick="showImageModal('{{ url('storage/' . $history->picture) }}', '{{ $history->checksheetTemplate->item_name ?? 'NG Item' }}')">
                                                         <i class="fas fa-image"></i>
                                                     </button>
                                                 @endif

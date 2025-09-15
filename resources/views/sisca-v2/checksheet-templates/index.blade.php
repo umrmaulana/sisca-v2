@@ -124,10 +124,10 @@
                                     </td>
                                     <td>
                                         @if ($template->standar_picture)
-                                            <img src="{{ asset('storage/' . $template->standar_picture) }}"
+                                            <img src="{{ url('storage/' . $template->standar_picture) }}"
                                                 alt="Standard Picture" class="img-thumbnail"
                                                 style="width: 40px; height: 40px; object-fit: cover;"
-                                                onclick="showImageModal('{{ asset('storage/' . $template->standar_picture) }}', '{{ $template->item_name }}')"
+                                                onclick="showImageModal('{{ url('storage/' . $template->standar_picture) }}', '{{ $template->item_name }}')"
                                                 role="button" title="Click to view">
                                         @else
                                             <span class="text-muted small">No image</span>

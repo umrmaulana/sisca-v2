@@ -28,7 +28,7 @@
                     </div>
                     <div class="rounded">
                         <div class="d-flex justify-content-center align-items-center bg-white">
-                            <img src="{{ asset('foto/satu-aisin-final.png') }}" class="img-fluid" style="width: 70%"
+                            <img src="{{ url('foto/satu-aisin-final.png') }}" class="img-fluid" style="width: 70%"
                                 alt="Logo Aisin">
                         </div>
                         <div class="m-4 p-4">

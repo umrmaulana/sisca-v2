@@ -12,11 +12,11 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="{{ asset('dist/css/bootstrap-icons.css') }}">
+    <link rel="stylesheet" href="{{ url('dist/css/bootstrap-icons.css') }}">
     <!-- Custom CSS V2 -->
-    <link rel="stylesheet" href="{{ asset('css/stylev2.css') }}">
+    <link rel="stylesheet" href="{{ url('css/stylev2.css') }}">
     <!-- Favicon -->
-    <link rel="icon" href="{{ asset('foto/aii.ico') }}">
+    <link rel="icon" href="{{ url('foto/aii.ico') }}">
 
     @stack('styles')
 </head>
@@ -50,7 +50,7 @@
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Custom JavaScript V2 -->
-    <script src="{{ asset('js/scriptv2.js') }}"></script>
+    <script src="{{ url('js/scriptv2.js') }}"></script>
 
     @stack('scripts')
 </body>

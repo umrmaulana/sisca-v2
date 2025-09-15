@@ -203,7 +203,7 @@
                                 style="{{ $location->area && $location->area->mapping_picture ? '' : 'display: none;' }}">
                                 <div class="position-relative">
                                     <img id="mappingImage"
-                                        src="{{ $location->area && $location->area->mapping_picture ? asset('storage/' . $location->area->mapping_picture) : '' }}"
+                                        src="{{ $location->area && $location->area->mapping_picture ? url('storage/' . $location->area->mapping_picture) : '' }}"
                                         alt="Area Mapping" class="img-fluid border rounded"
                                         style="width: 100%; cursor: crosshair;">
                                     <div id="coordinateMarker" class="position-absolute bg-danger rounded-circle"
