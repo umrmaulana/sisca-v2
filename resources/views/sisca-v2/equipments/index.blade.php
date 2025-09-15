@@ -321,6 +321,7 @@
             0% {
                 background-position: 200% 0;
             }
+
             100% {
                 background-position: -200% 0;
             }
@@ -447,7 +448,8 @@
                     if (plantId) {
                         // Make AJAX request to get areas
                         fetch(
-                                `${window.location.origin}/sisca-v2/equipments/areas-by-plant?plant_id=${plantId}`)
+                                `${window.location.origin}/sisca-v2/equipments/areas-by-plant?plant_id=${plantId}`
+                                )
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);

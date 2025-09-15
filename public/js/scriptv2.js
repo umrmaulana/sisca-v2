@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeTooltips();
     initializeAnimations();
     initializeFormValidation();
+    fixMixedContentIssues(); // Add mixed content fix
 });
 
 // Sidebar Functionality
@@ -575,6 +576,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize all interactive elements
     initializeAnimations();
 
+    // Fix mixed content issues
+    fixMixedContentIssues();
+
     // Add loading states to form submissions
     const forms = document.querySelectorAll("form");
     forms.forEach((form) => {
@@ -614,6 +618,112 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// Fix Mixed Content Issues
+function fixMixedContentIssues() {
+    // Ensure all URLs use the correct protocol
+    if (window.location.protocol === "https:") {
+        // Fix image src attributes
+        const images = document.querySelectorAll("img[src]");
+        images.forEach(function (img) {
+            const src = img.src;
+            if (
+                src.startsWith("http:") &&
+                src.includes(window.location.hostname)
+            ) {
+                img.src = src.replace("http:", "https:");
+            }
+        });
+
+        // Fix link href attributes (stylesheets and other resources)
+        const links = document.querySelectorAll("link[href], a[href]");
+        links.forEach(function (link) {
+            const href = link.href;
+            if (
+                href &&
+                href.startsWith("http:") &&
+                href.includes(window.location.hostname)
+            ) {
+                link.href = href.replace("http:", "https:");
+            }
+        });
+
+        // Fix script src attributes
+        const scripts = document.querySelectorAll("script[src]");
+        scripts.forEach(function (script) {
+            const src = script.src;
+            if (
+                src.startsWith("http:") &&
+                src.includes(window.location.hostname)
+            ) {
+                // Create new script element with HTTPS URL
+                const newScript = document.createElement("script");
+                newScript.src = src.replace("http:", "https:");
+                newScript.onload = function () {
+                    script.remove();
+                };
+                script.parentNode.insertBefore(newScript, script.nextSibling);
+            }
+        });
+
+        // Fix form actions
+        const forms = document.querySelectorAll("form[action]");
+        forms.forEach(function (form) {
+            const action = form.action;
+            if (
+                action.startsWith("http:") &&
+                action.includes(window.location.hostname)
+            ) {
+                form.action = action.replace("http:", "https:");
+            }
+        });
+
+        // Fix dynamic content that might be added later
+        const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                mutation.addedNodes.forEach(function (node) {
+                    if (node.nodeType === 1) {
+                        // Element node
+                        // Fix images in newly added content
+                        const newImages = node.querySelectorAll
+                            ? node.querySelectorAll("img[src]")
+                            : [];
+                        newImages.forEach(function (img) {
+                            const src = img.src;
+                            if (
+                                src.startsWith("http:") &&
+                                src.includes(window.location.hostname)
+                            ) {
+                                img.src = src.replace("http:", "https:");
+                            }
+                        });
+
+                        // Fix links in newly added content
+                        const newLinks = node.querySelectorAll
+                            ? node.querySelectorAll("a[href]")
+                            : [];
+                        newLinks.forEach(function (link) {
+                            const href = link.href;
+                            if (
+                                href &&
+                                href.startsWith("http:") &&
+                                href.includes(window.location.hostname)
+                            ) {
+                                link.href = href.replace("http:", "https:");
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+        // Start observing for dynamic content
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    }
+}
+
 // Global utility functions with sidebar toggle
 window.SISCA = {
     toggleSidebar: toggleSidebar,
@@ -623,6 +733,7 @@ window.SISCA = {
     formatNumber: formatNumber,
     formatDate: formatDate,
     initializeTableSearch: initializeTableSearch,
+    fixMixedContentIssues: fixMixedContentIssues,
     // Menu functions
     initializeMenuAccordions: initializeMenuAccordions,
     initializeUserDropdown: initializeUserDropdown,
