@@ -429,11 +429,13 @@
                                                             <!-- Mobile Camera Options -->
                                                             <div class="mobile-camera-options d-md-none mb-2">
                                                                 <div class="btn-group w-100" role="group">
-                                                                    <button type="button" class="btn btn-outline-primary btn-sm" 
+                                                                    <button type="button"
+                                                                        class="btn btn-outline-primary btn-sm"
                                                                         onclick="openCamera({{ $loop->index }})">
                                                                         <i class="fas fa-camera me-1"></i>Camera
                                                                     </button>
-                                                                    <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                                                    <button type="button"
+                                                                        class="btn btn-outline-secondary btn-sm"
                                                                         onclick="openGallery({{ $loop->index }})">
                                                                         <i class="fas fa-folder me-1"></i>Gallery
                                                                     </button>
@@ -447,29 +449,30 @@
                                                                 <i
                                                                     class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
                                                                 <p class="mb-2 text-muted small">
-                                                                    <strong class="d-none d-md-inline">Click to upload</strong>
+                                                                    <strong class="d-none d-md-inline">Click to
+                                                                        upload</strong>
                                                                     <strong class="d-md-none">Choose Photo</strong>
-                                                                    <span class="d-none d-md-inline"> or drag and drop</span>
+                                                                    <span class="d-none d-md-inline"> or drag and
+                                                                        drop</span>
                                                                 </p>
                                                                 <p class="mb-0 text-muted small">
                                                                     Max 10MB (JPEG, PNG, JPG)
                                                                 </p>
                                                             </div>
-                                                            
+
                                                             <!-- Hidden file inputs for different capture modes -->
                                                             <input type="file" class="form-control d-none"
                                                                 id="photo-{{ $loop->index }}"
                                                                 name="items[{{ $loop->index }}][picture]"
                                                                 accept="image/jpeg,image/png,image/jpg"
                                                                 onchange="previewImage(this, {{ $loop->index }})">
-                                                            
+
                                                             <!-- Camera input for mobile -->
                                                             <input type="file" class="form-control d-none"
-                                                                id="camera-{{ $loop->index }}"
-                                                                accept="image/*"
+                                                                id="camera-{{ $loop->index }}" accept="image/*"
                                                                 capture="environment"
                                                                 onchange="handleCameraCapture(this, {{ $loop->index }})">
-                                                            
+
                                                             <!-- Gallery input for mobile -->
                                                             <input type="file" class="form-control d-none"
                                                                 id="gallery-{{ $loop->index }}"
@@ -800,7 +803,8 @@
 
                         inspectionItems.forEach((item, index) => {
                             const radioButtons = item.querySelectorAll('input[type="radio"]');
-                            const fileInput = item.querySelector('input[name*="[picture]"]'); // Main file input
+                            const fileInput = item.querySelector(
+                            'input[name*="[picture]"]'); // Main file input
                             const hasSelectedStatus = Array.from(radioButtons).some(radio => radio
                                 .checked);
                             const hasUploadedFile = fileInput && fileInput.files.length > 0;
