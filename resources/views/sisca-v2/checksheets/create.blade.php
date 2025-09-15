@@ -426,33 +426,72 @@
                                                             Upload Photo <span class="text-danger">*</span>
                                                         </label>
                                                         <div class="upload-container mt-2">
+                                                            <!-- Mobile Camera Options -->
+                                                            <div class="mobile-camera-options d-md-none mb-2">
+                                                                <div class="btn-group w-100" role="group">
+                                                                    <button type="button" class="btn btn-outline-primary btn-sm" 
+                                                                        onclick="openCamera({{ $loop->index }})">
+                                                                        <i class="fas fa-camera me-1"></i>Camera
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                                                        onclick="openGallery({{ $loop->index }})">
+                                                                        <i class="fas fa-folder me-1"></i>Gallery
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
                                                             <div class="upload-area border border-2 border-dashed rounded p-3 text-center"
                                                                 ondrop="handleDrop(event, {{ $loop->index }})"
                                                                 ondragover="handleDragOver(event)"
-                                                                onclick="document.getElementById('photo-{{ $loop->index }}').click()">
+                                                                onclick="handleUploadClick({{ $loop->index }})">
                                                                 <i
                                                                     class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
                                                                 <p class="mb-2 text-muted small">
-                                                                    <strong>Click to upload</strong> or drag and drop
+                                                                    <strong class="d-none d-md-inline">Click to upload</strong>
+                                                                    <strong class="d-md-none">Choose Photo</strong>
+                                                                    <span class="d-none d-md-inline"> or drag and drop</span>
                                                                 </p>
                                                                 <p class="mb-0 text-muted small">
                                                                     Max 10MB (JPEG, PNG, JPG)
                                                                 </p>
                                                             </div>
+                                                            
+                                                            <!-- Hidden file inputs for different capture modes -->
                                                             <input type="file" class="form-control d-none"
                                                                 id="photo-{{ $loop->index }}"
                                                                 name="items[{{ $loop->index }}][picture]"
                                                                 accept="image/jpeg,image/png,image/jpg"
                                                                 onchange="previewImage(this, {{ $loop->index }})">
+                                                            
+                                                            <!-- Camera input for mobile -->
+                                                            <input type="file" class="form-control d-none"
+                                                                id="camera-{{ $loop->index }}"
+                                                                accept="image/*"
+                                                                capture="environment"
+                                                                onchange="handleCameraCapture(this, {{ $loop->index }})">
+                                                            
+                                                            <!-- Gallery input for mobile -->
+                                                            <input type="file" class="form-control d-none"
+                                                                id="gallery-{{ $loop->index }}"
+                                                                accept="image/jpeg,image/png,image/jpg"
+                                                                onchange="handleGalleryCapture(this, {{ $loop->index }})">
+
                                                             <div id="preview-{{ $loop->index }}" class="mt-2 d-none">
                                                                 <img id="preview-img-{{ $loop->index }}"
                                                                     class="img-thumbnail"
                                                                     style="max-width: 100px; max-height: 100px;">
-                                                                <button type="button"
-                                                                    class="btn btn-sm btn-outline-danger mt-1"
-                                                                    onclick="removeImage({{ $loop->index }})">
-                                                                    <i class="fas fa-trash"></i> Remove
-                                                                </button>
+                                                                <div class="mt-2">
+                                                                    <button type="button"
+                                                                        class="btn btn-sm btn-outline-success me-1"
+                                                                        onclick="showImagePreview({{ $loop->index }})">
+                                                                        <i class="fas fa-eye"></i> View
+                                                                    </button>
+                                                                    <button type="button"
+                                                                        class="btn btn-sm btn-outline-danger"
+                                                                        onclick="removeImage({{ $loop->index }})">
+                                                                        <i class="fas fa-trash"></i> Remove
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -629,6 +668,39 @@
                 border-color: #0d6efd !important;
             }
 
+            .mobile-camera-options {
+                border-radius: 6px;
+                overflow: hidden;
+            }
+
+            .mobile-camera-options .btn {
+                border-radius: 0;
+                font-weight: 600;
+                padding: 8px 12px;
+            }
+
+            .mobile-camera-options .btn:first-child {
+                border-top-left-radius: 6px;
+                border-bottom-left-radius: 6px;
+            }
+
+            .mobile-camera-options .btn:last-child {
+                border-top-right-radius: 6px;
+                border-bottom-right-radius: 6px;
+            }
+
+            .mobile-camera-options .btn-outline-primary:hover {
+                background-color: #0d6efd;
+                border-color: #0d6efd;
+                color: white;
+            }
+
+            .mobile-camera-options .btn-outline-secondary:hover {
+                background-color: #6c757d;
+                border-color: #6c757d;
+                color: white;
+            }
+
             .status-buttons .btn {
                 font-weight: 600;
                 border-width: 2px;
@@ -677,10 +749,39 @@
                     flex: 1;
                     margin-right: 5px;
                     margin-bottom: 0;
+                    font-size: 14px;
+                    padding: 8px 4px;
                 }
 
                 .status-buttons .btn:last-child {
                     margin-right: 0;
+                }
+
+                .upload-area {
+                    min-height: 80px;
+                    padding: 15px !important;
+                }
+
+                .upload-area p {
+                    font-size: 12px !important;
+                    margin-bottom: 8px !important;
+                }
+
+                .upload-area i {
+                    font-size: 1.5rem !important;
+                    margin-bottom: 8px !important;
+                }
+
+                .mobile-camera-options {
+                    margin-bottom: 10px !important;
+                }
+
+                .card-body {
+                    padding: 15px;
+                }
+
+                .inspection-item .col-lg-3 {
+                    margin-bottom: 15px;
                 }
             }
         </style>
@@ -699,7 +800,7 @@
 
                         inspectionItems.forEach((item, index) => {
                             const radioButtons = item.querySelectorAll('input[type="radio"]');
-                            const fileInput = item.querySelector('input[type="file"]');
+                            const fileInput = item.querySelector('input[name*="[picture]"]'); // Main file input
                             const hasSelectedStatus = Array.from(radioButtons).some(radio => radio
                                 .checked);
                             const hasUploadedFile = fileInput && fileInput.files.length > 0;
@@ -756,7 +857,7 @@
                     form.querySelectorAll('input[type="radio"]').forEach(radio => {
                         radio.addEventListener('change', function() {
                             const item = this.closest('.inspection-item');
-                            const fileInput = item.querySelector('input[type="file"]');
+                            const fileInput = item.querySelector('input[name*="[picture]"]');
 
                             if (fileInput && fileInput.files.length > 0) {
                                 item.classList.remove('has-error');
@@ -823,6 +924,12 @@
                         previewContainer.classList.remove('d-none');
                         uploadArea.style.display = 'none';
 
+                        // Update the main file input with the selected file
+                        const mainInput = document.getElementById(`photo-${index}`);
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        mainInput.files = dataTransfer.files;
+
                         // Remove error state
                         const item = input.closest('.inspection-item');
                         const hasSelectedStatus = item.querySelector('input[type="radio"]:checked');
@@ -831,6 +938,46 @@
                         }
                     };
                     reader.readAsDataURL(file);
+                }
+            }
+
+            // Mobile-specific functions
+            function isMobileDevice() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+
+            function handleUploadClick(index) {
+                if (isMobileDevice()) {
+                    // On mobile, show option buttons (they are already visible)
+                    return;
+                } else {
+                    // On desktop, directly open file picker
+                    document.getElementById(`photo-${index}`).click();
+                }
+            }
+
+            function openCamera(index) {
+                const cameraInput = document.getElementById(`camera-${index}`);
+                cameraInput.click();
+            }
+
+            function openGallery(index) {
+                const galleryInput = document.getElementById(`gallery-${index}`);
+                galleryInput.click();
+            }
+
+            function handleCameraCapture(input, index) {
+                previewImage(input, index);
+            }
+
+            function handleGalleryCapture(input, index) {
+                previewImage(input, index);
+            }
+
+            function showImagePreview(index) {
+                const previewImg = document.getElementById(`preview-img-${index}`);
+                if (previewImg && previewImg.src) {
+                    showImageModal(previewImg.src, `Inspection Photo - Item ${index + 1}`);
                 }
             }
 
