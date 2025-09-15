@@ -272,32 +272,32 @@
             </div>
         </div>
 
-    </div>
-@endsection
-
-<!-- Image Modal -->
-<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img src="" alt="Full Size Image" id="modalImage" class="img-fluid rounded">
-            </div>
-            <div class="modal-footer">
-                <a href="" id="downloadLink" class="btn btn-success" download>
-                    <i class="fas fa-download me-1"></i>Download
-                </a>
-                <a href="" id="openLink" target="_blank" class="btn btn-primary">
-                    <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
-                </a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <!-- Image Modal -->
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="" alt="Full Size Image" id="modalImage" class="img-fluid rounded">
+                    </div>
+                    <div class="modal-footer">
+                        <a href="" id="downloadLink" class="btn btn-success" download>
+                            <i class="fas fa-download me-1"></i>Download
+                        </a>
+                        <a href="" id="openLink" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                        </a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+@endsection
+
 
 @push('styles')
     <style>
