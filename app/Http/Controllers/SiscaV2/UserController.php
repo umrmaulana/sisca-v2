@@ -14,7 +14,7 @@ class UserController extends Controller
     {
         // Only Admin can manage users
         $this->middleware('role:Admin');
-        $this->authorizeResource(User::class, 'user');
+        // $this->authorizeResource(User::class, 'user');
     }
 
     public function index(Request $request)
