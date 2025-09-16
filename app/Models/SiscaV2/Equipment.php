@@ -75,4 +75,32 @@ class Equipment extends Model
         }
         return 'Not inspected yet';
     }
+
+    // Check if equipment was inspected in specific month/year
+    public function wasInspectedIn($year, $month)
+    {
+        return $this->inspections()
+            ->whereYear('inspection_date', $year)
+            ->whereMonth('inspection_date', $month)
+            ->exists();
+    }
+
+    // Get inspection count for specific month/year
+    public function getInspectionCountFor($year, $month)
+    {
+        return $this->inspections()
+            ->whereYear('inspection_date', $year)
+            ->whereMonth('inspection_date', $month)
+            ->count();
+    }
+
+    // Get latest inspection for specific month/year
+    public function getLatestInspectionFor($year, $month)
+    {
+        return $this->inspections()
+            ->whereYear('inspection_date', $year)
+            ->whereMonth('inspection_date', $month)
+            ->latest('inspection_date')
+            ->first();
+    }
 }
