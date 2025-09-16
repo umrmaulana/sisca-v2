@@ -128,6 +128,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Office AIIA',
                 'plant_id' => $plants->count() > 1 ? $plants->skip(1)->first() : $plants->first(),
+                'mapping_picture' => null,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -135,6 +136,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Body AIIA',
                 'plant_id' => $plants->count() > 1 ? $plants->skip(1)->first() : $plants->first(),
+                'mapping_picture' => null,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -142,6 +144,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Locker & Pose AIIA',
                 'plant_id' => $plants->count() > 1 ? $plants->skip(1)->first() : $plants->first(),
+                'mapping_picture' => null,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -149,6 +152,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Kantin AIIA',
                 'plant_id' => $plants->count() > 1 ? $plants->skip(1)->first() : $plants->first(),
+                'mapping_picture' => null,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -156,6 +160,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Masjid AIIA',
                 'plant_id' => $plants->count() > 1 ? $plants->skip(1)->first() : $plants->first(),
+                'mapping_picture' => null,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -163,6 +168,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Main Station AIIA',
                 'plant_id' => $plants->count() > 1 ? $plants->skip(1)->first() : $plants->first(),
+                'mapping_picture' => null,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -170,6 +176,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Pump AIIA',
                 'plant_id' => $plants->count() > 1 ? $plants->skip(1)->first() : $plants->first(),
+                'mapping_picture' => null,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -177,6 +184,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Storage Chemical AIIA',
                 'plant_id' => $plants->count() > 1 ? $plants->skip(1)->first() : $plants->first(),
+                'mapping_picture' => null,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -184,6 +192,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Unit AIIA',
                 'plant_id' => $plants->count() > 1 ? $plants->skip(1)->first() : $plants->first(),
+                'mapping_picture' => null,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -191,6 +200,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'WWT AIIA',
                 'plant_id' => $plants->count() > 1 ? $plants->skip(1)->first() : $plants->first(),
+                'mapping_picture' => null,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
