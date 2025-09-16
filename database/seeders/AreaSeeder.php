@@ -23,7 +23,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 1 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area01.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area01.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -31,7 +31,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 2 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area02.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area02.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -39,7 +39,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 3 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area03.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area03.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -47,7 +47,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 4 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area04.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area04.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -55,7 +55,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 5 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area05.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area05.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -63,7 +63,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Office & Kantin AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area06.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area06.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -71,7 +71,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 7 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area07.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area07.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -79,7 +79,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 8 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area08.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area08.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -87,7 +87,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 9 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area09.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area09.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -95,7 +95,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 10 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area10.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area10.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -103,7 +103,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 11 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area11.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area11.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -111,7 +111,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 12 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area12.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area12.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -119,7 +119,7 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'Area 13 AII',
                 'plant_id' => $plants->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/area13.png',
+                'mapping_picture' => 'sisca-v2/templates/mapping/Area13.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
