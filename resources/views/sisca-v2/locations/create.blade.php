@@ -312,7 +312,7 @@
             });
 
             function showMappingImage(mappingPicture) {
-                const imagePath = `{{ asset('storage') }}/${mappingPicture}`;
+                const imagePath = `${window.location.origin}/storage/${mappingPicture}`;
                 $('#mappingImage').attr('src', imagePath);
                 $('#noMappingMessage').hide();
                 $('#mappingImageContainer').show();

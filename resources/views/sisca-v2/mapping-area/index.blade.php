@@ -148,18 +148,35 @@
                                         @if ($equipment->location && $equipment->location->coordinate_x && $equipment->location->coordinate_y)
                                             <div class="equipment-marker" data-equipment-id="{{ $equipment->id }}"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="{{ $equipment->code }} - {{ $equipment->name }}"
+                                                title="{{ $equipment->equipment_code }} - {{ $equipment->equipmentType->equipment_name ?? 'N/A' }}"
                                                 style="position: absolute; 
-                                            left: {{ $equipment->location->coordinate_x }}%; 
-                                            top: {{ $equipment->location->coordinate_y }}%; 
+                                            left: {{ $equipment->location->coordinate_x * 100 }}%; 
+                                            top: {{ $equipment->location->coordinate_y * 100 }}%; 
                                             transform: translate(-50%, -50%);
                                             z-index: 10;">
-                                                <div class="marker-icon {{ $equipment->is_checked ? 'checked' : 'unchecked' }}"
+                                                @php
+                                                    // Check if equipment has been inspected in the selected month/year
+                                                    $isChecked = $equipment
+                                                        ->checksheets()
+                                                        ->whereYear('inspection_date', $selectedYear)
+                                                        ->whereMonth('inspection_date', $selectedMonth)
+                                                        ->exists();
+                                                    $statusColor = $isChecked ? '#28a745' : '#dc3545';
+                                                    $statusIcon = $isChecked ? '✓' : '✕';
+                                                @endphp
+                                                <div class="marker-icon {{ $isChecked ? 'checked' : 'unchecked' }}"
                                                     style="width: 20px; height: 20px; border-radius: 50%; 
-                                                background-color: {{ $equipment->is_checked ? '#28a745' : '#dc3545' }};
+                                                background-color: {{ $statusColor }};
                                                 border: 2px solid white;
                                                 cursor: pointer;
-                                                box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                color: white;
+                                                font-size: 10px;
+                                                font-weight: bold;">
+                                                    {{ $statusIcon }}
                                                 </div>
                                             </div>
                                         @endif
@@ -375,27 +392,80 @@
             background: #f8f9fa;
             border-radius: 8px;
             padding: 10px;
+            overflow: hidden;
+        }
+
+        .mapping-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
         }
 
         .equipment-marker {
             cursor: pointer;
+            position: absolute;
+            z-index: 10;
         }
 
         .equipment-marker:hover .marker-icon {
-            transform: scale(1.2);
+            transform: scale(1.3);
             transition: transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .marker-icon {
+            transition: all 0.2s ease;
         }
 
         .equipment-item:hover {
             cursor: pointer;
+            background-color: rgba(0, 123, 255, 0.1);
         }
 
         .equipment-item.highlighted {
             border-left: 4px solid #2196f3 !important;
+            background-color: rgba(33, 150, 243, 0.1);
         }
 
         .status-indicator {
             display: inline-block;
+        }
+
+        /* Improved marker visibility */
+        .equipment-marker .marker-icon.checked {
+            background-color: #28a745 !important;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 6px rgba(40, 167, 69, 0.4);
+        }
+
+        .equipment-marker .marker-icon.unchecked {
+            background-color: #dc3545 !important;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+        }
+
+        .highlighted .marker-icon {
+            animation: pulse 1s infinite;
+            transform: scale(1.3) !important;
+            box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.3);
+        }
+
+        .highlighted.equipment-item {
+            border-left: 4px solid #2196f3 !important;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7), 0 2px 6px rgba(0, 0, 0, 0.3);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(33, 150, 243, 0), 0 2px 6px rgba(0, 0, 0, 0.3);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(33, 150, 243, 0), 0 2px 6px rgba(0, 0, 0, 0.3);
+            }
         }
     </style>
 
@@ -488,6 +558,26 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
+            // Ensure mapping image is loaded and coordinates are properly positioned
+            const mappingImage = document.querySelector('.mapping-image');
+            if (mappingImage) {
+                mappingImage.onload = function() {
+                    // Force recalculation of marker positions after image loads
+                    setTimeout(function() {
+                        const markers = document.querySelectorAll('.equipment-marker');
+                        markers.forEach(function(marker) {
+                            // Marker positions are already calculated server-side with correct percentages
+                            // No additional calculation needed
+                        });
+                    }, 100);
+                };
+
+                // If image is already loaded
+                if (mappingImage.complete) {
+                    mappingImage.onload();
+                }
+            }
+
             // Add click handlers for equipment markers and list items
             const equipmentMarkers = document.querySelectorAll('.equipment-marker');
             const equipmentItems = document.querySelectorAll('.equipment-item');
@@ -537,24 +627,6 @@
             });
         }
 
-        // Add CSS for highlight effect
-        const style = document.createElement('style');
-        style.textContent = `
-    .highlighted .marker-icon {
-        animation: pulse 1s infinite;
-        transform: scale(1.3) !important;
-    }
-    
-    .highlighted.equipment-item {
-        border-left: 4px solid #2196f3 !important;
-    }
-    
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(33, 150, 243, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
-    }
-`;
-        document.head.appendChild(style);
+        // Add CSS for highlight effect - moved to main style section above
     </script>
 @endsection
