@@ -157,7 +157,7 @@
                                                 @php
                                                     // Check if equipment has been inspected in the selected month/year
                                                     $isChecked = $equipment
-                                                        ->checksheets()
+                                                        ->inspections()
                                                         ->whereYear('inspection_date', $selectedYear)
                                                         ->whereMonth('inspection_date', $selectedMonth)
                                                         ->exists();
