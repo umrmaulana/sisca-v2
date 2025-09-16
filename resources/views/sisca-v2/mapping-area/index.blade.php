@@ -156,7 +156,10 @@
                                             z-index: 10;">
                                                 @php
                                                     // Check if equipment has been inspected in the selected month/year
-                                                    $isChecked = $equipment->wasInspectedIn($selectedYear, $selectedMonth);
+                                                    $isChecked = $equipment->wasInspectedIn(
+                                                        $selectedYear,
+                                                        $selectedMonth,
+                                                    );
                                                     $statusColor = $isChecked ? '#28a745' : '#dc3545';
                                                     $statusIcon = $isChecked ? '✓' : '✕';
                                                 @endphp
