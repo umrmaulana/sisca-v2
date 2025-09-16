@@ -19,27 +19,20 @@ class LocationSeeder extends Seeder
         $plants = DB::table('tm_plants')->pluck('id', 'plant_name');
         $areas = DB::table('tm_areas')->get();
 
-        $locations = [];
-        $counter = 1;
 
-        foreach ($areas as $area) {
-            // Create 2-3 locations per area
-            for ($i = 1; $i <= 10; $i++) {
-                $locations[] = [
-                    'location_code' => 'LOC-' . str_pad($counter, 3, '0', STR_PAD_LEFT),
-                    'plant_id' => $area->plant_id,
-                    'area_id' => $area->id,
-                    'pos' => 'Position ' . $i,
-                    'coordinate_x' => rand(100, 999) / 10,
-                    'coordinate_y' => rand(100, 999) / 10,
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-                $counter++;
-            }
-        }
-
-        DB::table('tm_locations_new')->insert($locations);
+        DB::table('tm_locations_new')->insert([
+            // Aisin Indonesia
+            [
+                'location_code' => 'AII-LOC-001',
+                'plant_id' => $plants->first(),
+                'area_id' => $areas->where('area_name', 'Area 1 AII')->first()->id,
+                'pos' => 'K2',
+                'coordinate_x' => 150,
+                'coordinate_y' => 200,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        ]);
     }
 }
