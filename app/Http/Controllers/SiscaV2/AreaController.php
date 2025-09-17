@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\SiscaV2;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller;
 use App\Models\SiscaV2\Area;
 use Illuminate\Http\Request;
 
