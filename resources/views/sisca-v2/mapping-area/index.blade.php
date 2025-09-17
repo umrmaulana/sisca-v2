@@ -30,6 +30,39 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <!-- Area Filter (combined with All Area option) -->
+                            <div class="col-lg-3">
+                                <label for="area_id" class="form-label">Area</label>
+                                <select class="form-select" id="area_id" name="area_id" onchange="submitFilter()">
+                                    <option value="">Select Area</option>
+                                    @if (request('plant_id') && $areas->count() > 0)
+                                        <option value="all" {{ request('area_id') == 'all' ? 'selected' : '' }}>
+                                            All Areas (Plant View)
+                                        </option>
+                                        @foreach ($areas as $area)
+                                            <option value="{{ $area->id }}"
+                                                {{ request('area_id') == $area->id ? 'selected' : '' }}>
+                                                {{ $area->area_name }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        @else
+                            <!-- For other roles, only show area dropdown -->
+                            <div class="col-lg-3">
+                                <label for="area_id" class="form-label">Area</label>
+                                <select class="form-select" id="area_id" name="area_id" onchange="submitFilter()">
+                                    <option value="">Select Area</option>
+                                    @foreach ($areas as $area)
+                                        <option value="{{ $area->id }}"
+                                            {{ request('area_id') == $area->id ? 'selected' : '' }}>
+                                            {{ $area->area_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         @endif
 
                         <div class="col-lg-3">
@@ -44,20 +77,6 @@
                                         @if ($type->equipment_type)
                                             ({{ $type->equipment_type }})
                                         @endif
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Area Filter -->
-                        <div class="col-lg-2">
-                            <label for="area_id" class="form-label">Area</label>
-                            <select class="form-select" id="area_id" name="area_id" onchange="submitFilter()">
-                                <option value="">Select Area</option>
-                                @foreach ($areas as $area)
-                                    <option value="{{ $area->id }}"
-                                        {{ request('area_id') == $area->id ? 'selected' : '' }}>
-                                        {{ $area->area_name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -120,16 +139,23 @@
             </div>
         </div>
 
-        @if ($selectedArea)
+        @if (
+            $selectedArea ||
+                (request('view_mode') == 'plant' && $selectedPlant && $mappingImage) ||
+                (!$selectedArea && $selectedPlant && request('view_mode') != 'area'))
             <div class="row">
                 <!-- Area Map -->
                 <div class="col-xl-12">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
                             <h6 class="card-title m-0 font-weight-bold">
-                                Area Map: {{ $selectedArea->area_name }}
-                                @if ($selectedPlant)
-                                    - {{ $selectedPlant->plant_name }}
+                                @if (request('area_id') == 'all' || (!request('area_id') && $selectedPlant))
+                                    Plant Map: {{ $selectedPlant->plant_name ?? 'All Areas' }}
+                                @else
+                                    Area Map: {{ $selectedArea->area_name ?? 'Select Area' }}
+                                    @if ($selectedPlant)
+                                        - {{ $selectedPlant->plant_name }}
+                                    @endif
                                 @endif
                                 @if ($selectedEquipmentType)
                                     <br><small class="text-muted">Equipment Type:
@@ -140,26 +166,61 @@
                         <div class="card-body">
                             @if ($mappingImage)
                                 <div class="mapping-container position-relative">
-                                    <img src="{{ $mappingImage }}" class="img-fluid mapping-image" alt="Area Mapping"
+                                    <img src="{{ $mappingImage }}" class="img-fluid mapping-image"
+                                        alt="@if (request('area_id') == 'all' || (!request('area_id') && $selectedPlant)) Plant Mapping@else Area Mapping @endif"
                                         style="max-height: 100%; width: 100%; object-fit: contain;">
 
                                     <!-- Equipment markers would be positioned here -->
                                     @foreach ($equipments as $equipment)
-                                        @if ($equipment->location && $equipment->location->coordinate_x && $equipment->location->coordinate_y)
+                                        @php
+                                            // Use plant coordinates if area_id is 'all' (All Areas selected)
+                                            $coordinateX = null;
+                                            $coordinateY = null;
+
+                                            if (
+                                                request('area_id') == 'all' ||
+                                                (!request('area_id') && $selectedPlant)
+                                            ) {
+                                                // For plant view, use plant coordinates (percentage 0-100)
+                                                $coordinateX = $equipment->location->plant_coordinate_x ?? null;
+                                                $coordinateY = $equipment->location->plant_coordinate_y ?? null;
+                                            } else {
+                                                // For area view, use area coordinates (decimal 0-1 converted to percentage)
+                                                $coordinateX = $equipment->location->coordinate_x
+                                                    ? $equipment->location->coordinate_x * 100
+                                                    : null;
+                                                $coordinateY = $equipment->location->coordinate_y
+                                                    ? $equipment->location->coordinate_y * 100
+                                                    : null;
+                                            }
+
+                                            // Debug coordinate values
+                                            // dd([
+                                            //     'equipment_id' => $equipment->id,
+                                            //     'location' => $equipment->location,
+                                            //     'area_id' => request('area_id'),
+                                            //     'plant_x' => $equipment->location->plant_coordinate_x ?? 'null',
+                                            //     'plant_y' => $equipment->location->plant_coordinate_y ?? 'null',
+                                            //     'area_x' => $equipment->location->coordinate_x ?? 'null',
+                                            //     'area_y' => $equipment->location->coordinate_y ?? 'null',
+                                            //     'final_x' => $coordinateX,
+                                            //     'final_y' => $coordinateY
+                                            // ]);
+
+                                        @endphp
+
+                                        @if ($equipment->location && ($coordinateX !== null && $coordinateY !== null))
                                             <div class="equipment-marker" data-equipment-id="{{ $equipment->id }}"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="{{ $equipment->equipment_code }} - {{ $equipment->equipmentType->equipment_name ?? 'N/A' }}"
+                                                title="{{ $equipment->equipment_code }} - {{ $equipment->equipmentType->equipment_name ?? 'N/A' }} - {{ $equipment->location->area->area_name ?? 'N/A' }}"
                                                 style="position: absolute; 
-                                            left: {{ $equipment->location->coordinate_x * 100 }}%; 
-                                            top: {{ $equipment->location->coordinate_y * 100 }}%; 
+                                            left: {{ $coordinateX }}%; 
+                                            top: {{ $coordinateY }}%; 
                                             transform: translate(-50%, -50%);
                                             z-index: 10;">
                                                 @php
                                                     // Check if equipment has been inspected in the selected month/year
-                                                    $isChecked = $equipment->wasInspectedIn(
-                                                        $selectedYear,
-                                                        $selectedMonth,
-                                                    );
+                                                    $isChecked = $equipment->is_checked ?? false;
                                                     $statusColor = $isChecked ? '#28a745' : '#dc3545';
                                                     $statusIcon = $isChecked ? '✓' : '✕';
                                                 @endphp
@@ -178,13 +239,36 @@
                                                     {{ $statusIcon }}
                                                 </div>
                                             </div>
+                                        @else
+                                            <!-- Debug missing coordinates -->
+                                            @if (config('app.debug'))
+                                                <!-- Equipment {{ $equipment->id }} ({{ $equipment->equipment_code }}) missing coordinates:
+                                                        Location: {{ $equipment->location ? 'exists' : 'missing' }}
+                                                        Plant X: {{ $equipment->location->plant_coordinate_x ?? 'null' }}
+                                                        Plant Y: {{ $equipment->location->plant_coordinate_y ?? 'null' }}
+                                                        Area X: {{ $equipment->location->coordinate_x ?? 'null' }}
+                                                        Area Y: {{ $equipment->location->coordinate_y ?? 'null' }}
+                                                        Final X: {{ $coordinateX ?? 'null' }}
+                                                        Final Y: {{ $coordinateY ?? 'null' }}
+                                                        -->
+                                            @endif
                                         @endif
                                     @endforeach
                                 </div>
                             @else
                                 <div class="text-center py-5">
                                     <i class="bi bi-image-fill text-muted" style="font-size: 3rem;"></i>
-                                    <p class="text-muted mt-2">No mapping image available for this area</p>
+                                    @if (request('area_id') == 'all' || (!request('area_id') && $selectedPlant))
+                                        <p class="text-muted mt-2">No plant mapping image available for
+                                            {{ $selectedPlant->plant_name ?? 'this plant' }}</p>
+                                        <small class="text-muted">Please upload a plant mapping image in Plant
+                                            Management</small>
+                                    @else
+                                        <p class="text-muted mt-2">No area mapping image available for
+                                            {{ $selectedArea->area_name ?? 'this area' }}</p>
+                                        <small class="text-muted">Please upload an area mapping image in Area
+                                            Management</small>
+                                    @endif
                                 </div>
                             @endif
                         </div>
@@ -379,253 +463,284 @@
             <div class="card shadow mb-4">
                 <div class="card-body text-center py-5">
                     <i class="bi bi-geo-alt text-muted" style="font-size: 3rem;"></i>
-                    <h5 class="mt-3 text-muted">Select Plant and Area</h5>
-                    <p class="text-muted">Please select a plant and area to view the mapping and equipment status.</p>
+                    @if (in_array($userRole, ['Admin', 'Management']))
+                        @if (!$selectedPlant)
+                            <h5 class="mt-3 text-muted">Select Plant to View Mapping</h5>
+                            <p class="text-muted">Please select a plant first to view either the complete plant mapping or
+                                specific area mapping.</p>
+                        @else
+                            <h5 class="mt-3 text-muted">Select View Mode or Area</h5>
+                            <p class="text-muted">
+                                Choose "Whole Plant" view to see the complete plant mapping,
+                                or select a specific area for detailed area mapping.
+                            </p>
+                        @endif
+                    @else
+                        @if (request('view_mode') == 'plant')
+                            <h5 class="mt-3 text-muted">Plant View Available</h5>
+                            <p class="text-muted">View the complete plant mapping with all equipment positioned according
+                                to plant coordinates.</p>
+                        @else
+                            <h5 class="mt-3 text-muted">Select Area</h5>
+                            <p class="text-muted">Please select an area to view the area mapping and equipment status.</p>
+                        @endif
+                    @endif
                 </div>
             </div>
         @endif
     </div>
 
-    <style>
-        .mapping-container {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 10px;
-            overflow: hidden;
-        }
-
-        .mapping-image {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .equipment-marker {
-            cursor: pointer;
-            position: absolute;
-            z-index: 10;
-        }
-
-        .equipment-marker:hover .marker-icon {
-            transform: scale(1.3);
-            transition: transform 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-        }
-
-        .marker-icon {
-            transition: all 0.2s ease;
-        }
-
-        .equipment-item:hover {
-            cursor: pointer;
-            background-color: rgba(0, 123, 255, 0.1);
-        }
-
-        .equipment-item.highlighted {
-            border-left: 4px solid #2196f3 !important;
-            background-color: rgba(33, 150, 243, 0.1);
-        }
-
-        .status-indicator {
-            display: inline-block;
-        }
-
-        /* Improved marker visibility */
-        .equipment-marker .marker-icon.checked {
-            background-color: #28a745 !important;
-            border: 2px solid #ffffff;
-            box-shadow: 0 2px 6px rgba(40, 167, 69, 0.4);
-        }
-
-        .equipment-marker .marker-icon.unchecked {
-            background-color: #dc3545 !important;
-            border: 2px solid #ffffff;
-            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
-        }
-
-        .highlighted .marker-icon {
-            animation: pulse 1s infinite;
-            transform: scale(1.3) !important;
-            box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.3);
-        }
-
-        .highlighted.equipment-item {
-            border-left: 4px solid #2196f3 !important;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7), 0 2px 6px rgba(0, 0, 0, 0.3);
+    @push('styles')
+        <style>
+            .mapping-container {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 10px;
+                overflow: hidden;
             }
 
-            70% {
-                box-shadow: 0 0 0 10px rgba(33, 150, 243, 0), 0 2px 6px rgba(0, 0, 0, 0.3);
+            .mapping-image {
+                max-width: 100%;
+                height: auto;
+                display: block;
             }
 
-            100% {
-                box-shadow: 0 0 0 0 rgba(33, 150, 243, 0), 0 2px 6px rgba(0, 0, 0, 0.3);
+            .equipment-marker {
+                cursor: pointer;
+                position: absolute;
+                z-index: 10;
             }
-        }
-    </style>
 
-    <script>
-        // Load areas when plant changes (for Admin/Management)
-        function loadAreas() {
-            const plantId = document.getElementById('plant_id').value;
-            const equipmentTypeId = document.getElementById('equipment_type_id').value;
-            loadAreasByPlantAndType(plantId, equipmentTypeId);
-        }
+            .equipment-marker:hover .marker-icon {
+                transform: scale(1.3);
+                transition: transform 0.2s ease;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            }
 
-        // Load areas when equipment type changes
-        function loadAreasWithEquipmentType() {
-            @if (in_array($userRole, ['Admin', 'Management']))
-                const plantId = document.getElementById('plant_id').value;
-            @else
-                const plantId = '{{ $user->plant_id ?? '' }}';
-            @endif
-            const equipmentTypeId = document.getElementById('equipment_type_id').value;
+            .marker-icon {
+                transition: all 0.2s ease;
+            }
 
-            // Reset area selection when equipment type changes
-            document.getElementById('area_id').value = '';
+            .equipment-item:hover {
+                cursor: pointer;
+                background-color: rgba(0, 123, 255, 0.1);
+            }
 
-            loadAreasByPlantAndType(plantId, equipmentTypeId);
-        }
+            .equipment-item.highlighted {
+                border-left: 4px solid #2196f3 !important;
+                background-color: rgba(33, 150, 243, 0.1);
+            }
 
-        // Generic function to load areas based on plant and equipment type
-        function loadAreasByPlantAndType(plantId, equipmentTypeId = '') {
-            const areaSelect = document.getElementById('area_id');
+            .status-indicator {
+                display: inline-block;
+            }
 
-            // Clear current options
-            areaSelect.innerHTML = '<option value="">Select Area</option>';
+            /* Improved marker visibility */
+            .equipment-marker .marker-icon.checked {
+                background-color: #28a745 !important;
+                border: 2px solid #ffffff;
+                box-shadow: 0 2px 6px rgba(40, 167, 69, 0.4);
+            }
 
-            if (plantId) {
-                let url = `${window.location.origin}/sisca-v2/mapping-area/areas-by-plant?plant_id=${plantId}`;
-                if (equipmentTypeId) {
-                    url += `&equipment_type_id=${equipmentTypeId}`;
+            .equipment-marker .marker-icon.unchecked {
+                background-color: #dc3545 !important;
+                border: 2px solid #ffffff;
+                box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+            }
+
+            .highlighted .marker-icon {
+                animation: pulse 1s infinite;
+                transform: scale(1.3) !important;
+                box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.3);
+            }
+
+            .highlighted.equipment-item {
+                border-left: 4px solid #2196f3 !important;
+            }
+
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7), 0 2px 6px rgba(0, 0, 0, 0.3);
                 }
 
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.length === 0 && equipmentTypeId) {
+                70% {
+                    box-shadow: 0 0 0 10px rgba(33, 150, 243, 0), 0 2px 6px rgba(0, 0, 0, 0.3);
+                }
+
+                100% {
+                    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0), 0 2px 6px rgba(0, 0, 0, 0.3);
+                }
+            }
+        </style>
+    @endpush
+    @push('scripts')
+        <script>
+            // Load areas when plant changes (for Admin/Management)
+            function loadAreas() {
+                const plantId = document.getElementById('plant_id').value;
+                const equipmentTypeId = document.getElementById('equipment_type_id').value;
+
+                loadAreasByPlantAndType(plantId, equipmentTypeId);
+            }
+
+            // Load areas when equipment type changes
+            function loadAreasWithEquipmentType() {
+                @if (in_array($userRole, ['Admin', 'Management']))
+                    const plantId = document.getElementById('plant_id').value;
+                @else
+                    const plantId = '{{ $user->plant_id ?? '' }}';
+                @endif
+                const equipmentTypeId = document.getElementById('equipment_type_id').value;
+
+                // Reset area selection when equipment type changes
+                document.getElementById('area_id').value = '';
+
+                loadAreasByPlantAndType(plantId, equipmentTypeId);
+            }
+
+            // Generic function to load areas based on plant and equipment type
+            function loadAreasByPlantAndType(plantId, equipmentTypeId = '') {
+                const areaSelect = document.getElementById('area_id');
+
+                // Clear current options
+                areaSelect.innerHTML = '<option value="">Select Area</option>';
+
+                if (plantId) {
+                    let url = `${window.location.origin}/sisca-v2/mapping-area/areas-by-plant?plant_id=${plantId}`;
+                    if (equipmentTypeId) {
+                        url += `&equipment_type_id=${equipmentTypeId}`;
+                    }
+
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length === 0 && equipmentTypeId) {
+                                const option = document.createElement('option');
+                                option.value = '';
+                                option.textContent = 'No areas available for selected equipment type';
+                                option.disabled = true;
+                                areaSelect.appendChild(option);
+                            } else if (data.length > 0) {
+                                // Add "All Areas" option for plant view
+                                const allAreasOption = document.createElement('option');
+                                allAreasOption.value = 'all';
+                                allAreasOption.textContent = 'All Areas (Plant View)';
+                                areaSelect.appendChild(allAreasOption);
+
+                                // Add individual areas
+                                data.forEach(area => {
+                                    const option = document.createElement('option');
+                                    option.value = area.id;
+                                    option.textContent = area.area_name;
+                                    areaSelect.appendChild(option);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading areas:', error);
                             const option = document.createElement('option');
                             option.value = '';
-                            option.textContent = 'No areas available for selected equipment type';
+                            option.textContent = 'Error loading areas';
                             option.disabled = true;
                             areaSelect.appendChild(option);
-                        } else {
-                            data.forEach(area => {
-                                const option = document.createElement('option');
-                                option.value = area.id;
-                                option.textContent = area.area_name;
-                                areaSelect.appendChild(option);
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading areas:', error);
-                        const option = document.createElement('option');
-                        option.value = '';
-                        option.textContent = 'Error loading areas';
-                        option.disabled = true;
-                        areaSelect.appendChild(option);
-                    });
-            }
-        }
-
-        // Submit filter automatically when select changes
-        function submitFilter() {
-            document.getElementById('filterForm').submit();
-        }
-
-        // Initialize tooltips and area loading on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load areas on page load if plant is already selected
-            @if (in_array($userRole, ['Admin', 'Management']))
-                const initialPlantId = document.getElementById('plant_id').value;
-            @else
-                const initialPlantId = '{{ $user->plant_id ?? '' }}';
-            @endif
-            const initialEquipmentTypeId = document.getElementById('equipment_type_id').value;
-
-            if (initialPlantId) {
-                loadAreasByPlantAndType(initialPlantId, initialEquipmentTypeId);
-            }
-
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-
-            // Ensure mapping image is loaded and coordinates are properly positioned
-            const mappingImage = document.querySelector('.mapping-image');
-            if (mappingImage) {
-                mappingImage.onload = function() {
-                    // Force recalculation of marker positions after image loads
-                    setTimeout(function() {
-                        const markers = document.querySelectorAll('.equipment-marker');
-                        markers.forEach(function(marker) {
-                            // Marker positions are already calculated server-side with correct percentages
-                            // No additional calculation needed
                         });
-                    }, 100);
-                };
-
-                // If image is already loaded
-                if (mappingImage.complete) {
-                    mappingImage.onload();
                 }
             }
 
-            // Add click handlers for equipment markers and list items
-            const equipmentMarkers = document.querySelectorAll('.equipment-marker');
-            const equipmentItems = document.querySelectorAll('.equipment-item');
+            // Submit filter automatically when select changes
+            function submitFilter() {
+                document.getElementById('filterForm').submit();
+            }
 
-            // Highlight corresponding items when marker is clicked
-            equipmentMarkers.forEach(marker => {
-                marker.addEventListener('click', function() {
-                    const equipmentId = this.getAttribute('data-equipment-id');
-                    highlightEquipment(equipmentId);
+            // Initialize tooltips and area loading on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                // Load areas on page load if plant is already selected
+                @if (in_array($userRole, ['Admin', 'Management']))
+                    const initialPlantId = document.getElementById('plant_id').value;
+                @else
+                    const initialPlantId = '{{ $user->plant_id ?? '' }}';
+                @endif
+                const initialEquipmentTypeId = document.getElementById('equipment_type_id').value;
+
+                if (initialPlantId) {
+                    loadAreasByPlantAndType(initialPlantId, initialEquipmentTypeId);
+                }
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
-            });
 
-            // Highlight corresponding marker when list item is clicked
-            equipmentItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    const equipmentId = this.getAttribute('data-equipment-id');
-                    highlightEquipment(equipmentId);
-                });
-            });
-        });
+                // Ensure mapping image is loaded and coordinates are properly positioned
+                const mappingImage = document.querySelector('.mapping-image');
+                if (mappingImage) {
+                    mappingImage.onload = function() {
+                        // Force recalculation of marker positions after image loads
+                        setTimeout(function() {
+                            const markers = document.querySelectorAll('.equipment-marker');
+                            markers.forEach(function(marker) {
+                                // Marker positions are already calculated server-side with correct percentages
+                                // No additional calculation needed
+                            });
+                        }, 100);
+                    };
 
-        function highlightEquipment(equipmentId) {
-            // Remove previous highlights
-            document.querySelectorAll('.equipment-marker, .equipment-item').forEach(el => {
-                el.classList.remove('highlighted');
-            });
-
-            // Add highlight to selected equipment
-            document.querySelectorAll(`[data-equipment-id="${equipmentId}"]`).forEach(el => {
-                el.classList.add('highlighted');
-
-                // Scroll to equipment item if it's in the table
-                if (el.classList.contains('equipment-item')) {
-                    // Scroll within the table container
-                    const tableContainer = el.closest('.table-responsive');
-                    if (tableContainer) {
-                        const containerTop = tableContainer.scrollTop;
-                        const containerBottom = containerTop + tableContainer.clientHeight;
-                        const elementTop = el.offsetTop;
-                        const elementBottom = elementTop + el.offsetHeight;
-
-                        if (elementTop < containerTop || elementBottom > containerBottom) {
-                            tableContainer.scrollTop = elementTop - (tableContainer.clientHeight / 2);
-                        }
+                    // If image is already loaded
+                    if (mappingImage.complete) {
+                        mappingImage.onload();
                     }
                 }
-            });
-        }
 
-        // Add CSS for highlight effect - moved to main style section above
-    </script>
+                // Add click handlers for equipment markers and list items
+                const equipmentMarkers = document.querySelectorAll('.equipment-marker');
+                const equipmentItems = document.querySelectorAll('.equipment-item');
+
+                // Highlight corresponding items when marker is clicked
+                equipmentMarkers.forEach(marker => {
+                    marker.addEventListener('click', function() {
+                        const equipmentId = this.getAttribute('data-equipment-id');
+                        highlightEquipment(equipmentId);
+                    });
+                });
+
+                // Highlight corresponding marker when list item is clicked
+                equipmentItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        const equipmentId = this.getAttribute('data-equipment-id');
+                        highlightEquipment(equipmentId);
+                    });
+                });
+            });
+
+            function highlightEquipment(equipmentId) {
+                // Remove previous highlights
+                document.querySelectorAll('.equipment-marker, .equipment-item').forEach(el => {
+                    el.classList.remove('highlighted');
+                });
+
+                // Add highlight to selected equipment
+                document.querySelectorAll(`[data-equipment-id="${equipmentId}"]`).forEach(el => {
+                    el.classList.add('highlighted');
+
+                    // Scroll to equipment item if it's in the table
+                    if (el.classList.contains('equipment-item')) {
+                        // Scroll within the table container
+                        const tableContainer = el.closest('.table-responsive');
+                        if (tableContainer) {
+                            const containerTop = tableContainer.scrollTop;
+                            const containerBottom = containerTop + tableContainer.clientHeight;
+                            const elementTop = el.offsetTop;
+                            const elementBottom = elementTop + el.offsetHeight;
+
+                            if (elementTop < containerTop || elementBottom > containerBottom) {
+                                tableContainer.scrollTop = elementTop - (tableContainer.clientHeight / 2);
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Add CSS for highlight effect - moved to main style section above
+        </script>
+    @endpush
 @endsection

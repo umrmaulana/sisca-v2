@@ -95,7 +95,7 @@
                                                 {{ $equipment->location->area->area_name }}</small>
                                         @endif
                                         @if ($equipment->location && $equipment->location->plant)
-                                            <small class="text-muted d-block">Plant:
+                                            <small class="text-muted d-block">Company:
                                                 {{ $equipment->location->plant->plant_name }}</small>
                                         @endif
                                     </div>

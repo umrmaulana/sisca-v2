@@ -18,6 +18,8 @@ class Location extends Model
         'pos',
         'coordinate_x',
         'coordinate_y',
+        'plant_coordinate_x',
+        'plant_coordinate_y',
         'is_active',
     ];
 
@@ -25,6 +27,8 @@ class Location extends Model
         'is_active' => 'boolean',
         'coordinate_x' => 'decimal:6',
         'coordinate_y' => 'decimal:6',
+        'plant_coordinate_x' => 'decimal:6',
+        'plant_coordinate_y' => 'decimal:6',
     ];
 
     // Accessor for location_name (use location_code as display name)

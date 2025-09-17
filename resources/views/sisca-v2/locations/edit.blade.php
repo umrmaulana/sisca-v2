@@ -1,4 +1,4 @@
-@extends('sisca-v2.layouts.app')
+@extends('layouts.sisca-v2')
 
 @section('title', 'Edit Location')
 
@@ -111,7 +111,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="coordinate_x" class="form-label">X Coordinate</label>
+                                        <label for="coordinate_x" class="form-label">X Coordinate (Area)</label>
                                         <input type="number" step="0.000001"
                                             class="form-control @error('coordinate_x') is-invalid @enderror"
                                             id="coordinate_x" name="coordinate_x"
@@ -120,13 +120,13 @@
                                         @error('coordinate_x')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <div class="form-text">X coordinate (click on mapping picture)</div>
+                                        <div class="form-text">X coordinate (click on area mapping picture)</div>
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="coordinate_y" class="form-label">Y Coordinate</label>
+                                        <label for="coordinate_y" class="form-label">Y Coordinate (Area)</label>
                                         <input type="number" step="0.000001"
                                             class="form-control @error('coordinate_y') is-invalid @enderror"
                                             id="coordinate_y" name="coordinate_y"
@@ -135,7 +135,39 @@
                                         @error('coordinate_y')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <div class="form-text">Y coordinate (click on mapping picture)</div>
+                                        <div class="form-text">Y coordinate (click on area mapping picture)</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="plant_coordinate_x" class="form-label">X Coordinate (Plant)</label>
+                                        <input type="number" step="0.000001"
+                                            class="form-control @error('plant_coordinate_x') is-invalid @enderror"
+                                            id="plant_coordinate_x" name="plant_coordinate_x"
+                                            value="{{ old('plant_coordinate_x', $location->plant_coordinate_x) }}"
+                                            placeholder="X coordinate for plant mapping...">
+                                        @error('plant_coordinate_x')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">X position relative to plant mapping (0-100%)</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="plant_coordinate_y" class="form-label">Y Coordinate (Plant)</label>
+                                        <input type="number" step="0.000001"
+                                            class="form-control @error('plant_coordinate_y') is-invalid @enderror"
+                                            id="plant_coordinate_y" name="plant_coordinate_y"
+                                            value="{{ old('plant_coordinate_y', $location->plant_coordinate_y) }}"
+                                            placeholder="Y coordinate for plant mapping...">
+                                        @error('plant_coordinate_y')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">Y position relative to plant mapping (0-100%)</div>
                                     </div>
                                 </div>
                             </div>
@@ -187,45 +219,74 @@
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title mb-0">
-                            <i class="fas fa-map me-2"></i>Area Mapping
+                            <i class="fas fa-map me-2"></i>Dual Mapping Interface
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div id="mappingContainer">
-                            <div id="noMappingMessage" class="text-center py-5"
-                                style="{{ $location->area && $location->area->mapping_picture ? 'display: none;' : '' }}">
-                                <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
-                                <h6 class="text-muted">No Mapping Available</h6>
-                                <p class="text-muted">Select a plant and area to view the mapping picture</p>
-                            </div>
-
-                            <div id="mappingImageContainer"
-                                style="{{ $location->area && $location->area->mapping_picture ? '' : 'display: none;' }}">
-                                <div class="position-relative">
-                                    <img id="mappingImage"
-                                        src="{{ $location->area && $location->area->mapping_picture ? url('storage/' . $location->area->mapping_picture) : '' }}"
-                                        alt="Area Mapping" class="img-fluid border rounded"
-                                        style="width: 100%; cursor: crosshair;">
-                                    <div id="coordinateMarker" class="position-absolute bg-danger rounded-circle"
-                                        style="width: 10px; height: 10px; transform: translate(-50%, -50%); z-index: 10;
-                                                {{ $location->coordinate_x && $location->coordinate_y ? '' : 'display: none;' }}">
+                        <!-- Plant Mapping Section -->
+                        <div id="plantMappingSection" style="display: none;">
+                            <div class="mb-3">
+                                <h6 class="text-success mb-2">
+                                    <i class="fas fa-industry me-2"></i>Plant Mapping
+                                </h6>
+                                <div class="alert alert-success">
+                                    <small><i class="fas fa-info-circle me-2"></i>Click on plant map to set plant
+                                        coordinates (0-100%)</small>
+                                </div>
+                                <div class="position-relative border rounded" style="background: #f8f9fa;">
+                                    <img id="plantMappingImage" src="" alt="Plant Mapping" class="img-fluid"
+                                        style="width: 100%; cursor: crosshair; border-radius: 8px;">
+                                    <div id="plantCoordinateMarker"
+                                        style="position: absolute; display: none; z-index: 10;">
+                                        <div
+                                            style="width: 12px; height: 12px; background-color: #28a745; border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="mt-3">
-                                    <small class="text-muted">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Click on the mapping picture to set coordinates
+                                @if ($location->plant_coordinate_x && $location->plant_coordinate_y)
+                                    <small class="text-success mt-2 d-block">
+                                        Current plant coordinates:
+                                        X={{ number_format($location->plant_coordinate_x, 2) }}%,
+                                        Y={{ number_format($location->plant_coordinate_y, 2) }}%
                                     </small>
-                                    @if ($location->coordinate_x && $location->coordinate_y)
-                                        <div class="mt-2">
-                                            <small class="text-info">
-                                                Current coordinates: X={{ number_format($location->coordinate_x, 6) }},
-                                                Y={{ number_format($location->coordinate_y, 6) }}
-                                            </small>
-                                        </div>
-                                    @endif
-                                </div>
+                                @endif
                             </div>
+                        </div>
+
+                        <!-- Area Mapping Section -->
+                        <div id="areaMappingSection" style="display: none;">
+                            <div class="mb-3">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Area Mapping
+                                </h6>
+                                <div class="alert alert-info">
+                                    <small><i class="fas fa-info-circle me-2"></i>Click on area map to set area coordinates
+                                        (0.0-1.0 decimal)</small>
+                                </div>
+                                <div class="position-relative border rounded" style="background: #f8f9fa;">
+                                    <img id="areaMappingImage" src="" alt="Area Mapping" class="img-fluid"
+                                        style="width: 100%; cursor: crosshair; border-radius: 8px;">
+                                    <div id="areaCoordinateMarker"
+                                        style="position: absolute; display: none; z-index: 10;">
+                                        <div
+                                            style="width: 12px; height: 12px; background-color: #dc3545; border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                        </div>
+                                    </div>
+                                </div>
+                                @if ($location->coordinate_x && $location->coordinate_y)
+                                    <small class="text-primary mt-2 d-block">
+                                        Current area coordinates: X={{ number_format($location->coordinate_x, 6) }},
+                                        Y={{ number_format($location->coordinate_y, 6) }}
+                                    </small>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- No Mapping Message -->
+                        <div id="noMappingMessage" class="text-center py-5">
+                            <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">Select Plant and Area</h6>
+                            <p class="text-muted">Choose a plant and area to view mapping interfaces</p>
                         </div>
                     </div>
                 </div>
@@ -236,9 +297,16 @@
     @push('scripts')
         <script>
             $(document).ready(function() {
-                // Initialize marker position if coordinates exist
-                @if ($location->coordinate_x && $location->coordinate_y && $location->area && $location->area->mapping_picture)
-                    updateMarkerPosition({{ $location->coordinate_x }}, {{ $location->coordinate_y }});
+                let currentPlantData = null;
+                let currentAreaData = null;
+
+                // Initialize existing coordinates markers
+                @if ($location->plant && $location->plant->plant_mapping_picture)
+                    loadPlantMapping({{ $location->plant_id }});
+                @endif
+
+                @if ($location->area && $location->area->mapping_picture)
+                    loadAreaMapping({{ $location->area_id }});
                 @endif
 
                 // When plant changes
@@ -248,40 +316,19 @@
                     // Clear area dropdown
                     $('#area_id').html('<option value="">Select Area</option>');
 
-                    // Clear coordinates
-                    $('#coordinate_x, #coordinate_y').val('');
+                    // Clear plant coordinates if plant changes
+                    $('#plant_coordinate_x, #plant_coordinate_y').val('');
+                    $('#plantCoordinateMarker').hide();
 
-                    // Hide mapping
-                    hideMappingImage();
+                    // Hide area mapping
+                    $('#areaMappingSection').hide();
 
                     if (plantId) {
-                        // Fetch areas for the selected plant
-                        const url = `${window.location.origin}/sisca-v2/locations/areas/${plantId}`;
-
-                        $.get(url)
-                            .done(function(data) {
-                                // Handle different response formats
-                                let areas = [];
-                                if (Array.isArray(data)) {
-                                    areas = data;
-                                } else if (data && Array.isArray(data.areas)) {
-                                    areas = data.areas;
-                                }
-
-                                areas.forEach(function(area) {
-                                    $('#area_id').append(
-                                        `<option value="${area.id}">${area.area_name}</option>`);
-                                });
-
-                                // Re-select current area if it belongs to the new plant
-                                @if ($location->area_id)
-                                    const currentAreaId = {{ $location->area_id }};
-                                    if (areas.find(area => area.id == currentAreaId)) {
-                                        $('#area_id').val(currentAreaId).trigger('change');
-                                    }
-                                @endif
-                            })
-                            .fail(function(xhr, status, error) {});
+                        loadPlantMapping(plantId);
+                        loadAreasForPlant(plantId);
+                    } else {
+                        $('#plantMappingSection').hide();
+                        $('#noMappingMessage').show();
                     }
                 });
 
@@ -289,50 +336,46 @@
                 $('#area_id').on('change', function() {
                     const areaId = $(this).val();
 
+                    // Clear area coordinates if area changes
+                    $('#coordinate_x, #coordinate_y').val('');
+                    $('#areaCoordinateMarker').hide();
+
                     if (areaId) {
-                        // Find the selected area data
-                        const plantId = $('#plant_id').val();
-                        if (plantId) {
-                            const url = `${window.location.origin}/sisca-v2/locations/areas/${plantId}`;
-
-                            $.get(url)
-                                .done(function(data) {
-                                    // Handle different response formats
-                                    let areas = [];
-                                    if (Array.isArray(data)) {
-                                        areas = data;
-                                    } else if (data && Array.isArray(data.areas)) {
-                                        areas = data.areas;
-                                    }
-
-                                    const selectedArea = areas.find(area => area.id == areaId);
-                                    if (selectedArea && selectedArea.mapping_picture) {
-                                        showMappingImage(selectedArea.mapping_picture);
-
-                                        // Restore coordinates if they exist
-                                        const x = $('#coordinate_x').val();
-                                        const y = $('#coordinate_y').val();
-                                        if (x && y) {
-                                            setTimeout(() => updateMarkerPosition(x, y), 100);
-                                        }
-                                    } else {
-                                        hideMappingImage();
-                                    }
-                                })
-                                .fail(function(xhr, status, error) {});
-                        }
+                        loadAreaMapping(areaId);
                     } else {
-                        hideMappingImage();
+                        $('#areaMappingSection').hide();
                     }
                 });
 
-                // Mapping image click handler
-                $(document).on('click', '#mappingImage', function(e) {
+                // Plant mapping image click handler
+                $(document).on('click', '#plantMappingImage', function(e) {
                     const rect = this.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
 
-                    // Calculate relative coordinates (0-1 range)
+                    // Calculate relative coordinates (0-100 percentage range for plant)
+                    const relativeX = (x / rect.width) * 100;
+                    const relativeY = (y / rect.height) * 100;
+
+                    // Update coordinate inputs
+                    $('#plant_coordinate_x').val(relativeX.toFixed(2));
+                    $('#plant_coordinate_y').val(relativeY.toFixed(2));
+
+                    // Show marker
+                    $('#plantCoordinateMarker').css({
+                        left: x + 'px',
+                        top: y + 'px',
+                        display: 'block'
+                    });
+                });
+
+                // Area mapping image click handler
+                $(document).on('click', '#areaMappingImage', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    // Calculate relative coordinates (0-1 decimal range for area)
                     const relativeX = x / rect.width;
                     const relativeY = y / rect.height;
 
@@ -341,42 +384,136 @@
                     $('#coordinate_y').val(relativeY.toFixed(6));
 
                     // Show marker
-                    const marker = $('#coordinateMarker');
-                    marker.css({
+                    $('#areaCoordinateMarker').css({
                         left: x + 'px',
                         top: y + 'px',
                         display: 'block'
                     });
                 });
-            });
 
-            function showMappingImage(mappingPicture) {
-                const imagePath = `${window.location.origin}/storage/${mappingPicture}`;
-                $('#mappingImage').attr('src', imagePath);
-                $('#noMappingMessage').hide();
-                $('#mappingImageContainer').show();
-            }
+                function loadPlantMapping(plantId) {
+                    fetch(`${window.location.origin}/sisca-v2/locations/plant/${plantId}`)
+                        .then(response => response.json())
+                        .then(plant => {
+                            currentPlantData = plant;
+                            if (plant.plant_mapping_picture) {
+                                const imagePath =
+                                    `${window.location.origin}/storage/${plant.plant_mapping_picture}`;
+                                $('#plantMappingImage').attr('src', imagePath);
+                                $('#plantMappingSection').show();
+                                $('#noMappingMessage').hide();
 
-            function hideMappingImage() {
-                $('#mappingImageContainer').hide();
-                $('#noMappingMessage').show();
-                $('#coordinateMarker').hide();
-            }
-
-            function updateMarkerPosition(relativeX, relativeY) {
-                const image = $('#mappingImage')[0];
-                if (image && image.complete) {
-                    const rect = image.getBoundingClientRect();
-                    const x = relativeX * rect.width;
-                    const y = relativeY * rect.height;
-
-                    $('#coordinateMarker').css({
-                        left: x + 'px',
-                        top: y + 'px',
-                        display: 'block'
-                    });
+                                // Restore existing plant coordinates
+                                @if ($location->plant_coordinate_x && $location->plant_coordinate_y)
+                                    if (plantId == {{ $location->plant_id }}) {
+                                        setTimeout(() => {
+                                            updatePlantMarkerPosition({{ $location->plant_coordinate_x }},
+                                                {{ $location->plant_coordinate_y }});
+                                        }, 100);
+                                    }
+                                @endif
+                            } else {
+                                $('#plantMappingSection').hide();
+                                if (!currentAreaData || !currentAreaData.mapping_picture) {
+                                    $('#noMappingMessage').show();
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading plant mapping:', error);
+                            $('#plantMappingSection').hide();
+                        });
                 }
-            }
+
+                function loadAreaMapping(areaId) {
+                    const plantId = $('#plant_id').val();
+                    if (!plantId) return;
+
+                    fetch(`${window.location.origin}/sisca-v2/locations/areas/${plantId}`)
+                        .then(response => response.json())
+                        .then(areas => {
+                            const area = areas.find(a => a.id == areaId);
+                            if (area && area.mapping_picture) {
+                                currentAreaData = area;
+                                const imagePath = `${window.location.origin}/storage/${area.mapping_picture}`;
+                                $('#areaMappingImage').attr('src', imagePath);
+                                $('#areaMappingSection').show();
+                                $('#noMappingMessage').hide();
+
+                                // Restore existing area coordinates
+                                @if ($location->coordinate_x && $location->coordinate_y)
+                                    if (areaId == {{ $location->area_id }}) {
+                                        setTimeout(() => {
+                                            updateAreaMarkerPosition({{ $location->coordinate_x }},
+                                                {{ $location->coordinate_y }});
+                                        }, 100);
+                                    }
+                                @endif
+                            } else {
+                                $('#areaMappingSection').hide();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading area mapping:', error);
+                            $('#areaMappingSection').hide();
+                        });
+                }
+
+                function loadAreasForPlant(plantId) {
+                    fetch(`${window.location.origin}/sisca-v2/locations/areas/${plantId}`)
+                        .then(response => response.json())
+                        .then(areas => {
+                            areas.forEach(area => {
+                                $('#area_id').append(
+                                    `<option value="${area.id}">${area.area_name}</option>`);
+                            });
+
+                            // Re-select current area if editing
+                            @if ($location->area_id)
+                                if (plantId == {{ $location->plant_id }}) {
+                                    $('#area_id').val({{ $location->area_id }}).trigger('change');
+                                }
+                            @endif
+                        })
+                        .catch(error => console.error('Error loading areas:', error));
+                }
+
+                function updatePlantMarkerPosition(relativeX, relativeY) {
+                    const image = $('#plantMappingImage')[0];
+                    if (image && image.complete) {
+                        const rect = image.getBoundingClientRect();
+                        const x = (relativeX / 100) * rect.width;
+                        const y = (relativeY / 100) * rect.height;
+
+                        $('#plantCoordinateMarker').css({
+                            left: x + 'px',
+                            top: y + 'px',
+                            display: 'block'
+                        });
+                    }
+                }
+
+                function updateAreaMarkerPosition(relativeX, relativeY) {
+                    const image = $('#areaMappingImage')[0];
+                    if (image && image.complete) {
+                        const rect = image.getBoundingClientRect();
+                        const x = relativeX * rect.width;
+                        const y = relativeY * rect.height;
+
+                        $('#areaCoordinateMarker').css({
+                            left: x + 'px',
+                            top: y + 'px',
+                            display: 'block'
+                        });
+                    }
+                }
+
+                // Initialize page
+                const existingPlantId = $('#plant_id').val();
+                if (existingPlantId) {
+                    $('#plant_id').trigger('change');
+                }
+            });
         </script>
     @endpush
 @endsection

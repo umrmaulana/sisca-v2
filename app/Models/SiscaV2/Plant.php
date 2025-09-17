@@ -13,6 +13,8 @@ class Plant extends Model
 
     protected $fillable = [
         'plant_name',
+        'plant_mapping_picture',
+        'plant_description',
         'is_active',
     ];
 

@@ -28,9 +28,9 @@
                     </div>
                     @if (count($plants) > 0)
                         <div class="col-md-2">
-                            <label for="plant_id" class="form-label">Plant</label>
+                            <label for="plant_id" class="form-label">Company</label>
                             <select class="form-select" id="plant_id" name="plant_id">
-                                <option value="">All Plants</option>
+                                <option value="">All Companies</option>
                                 @foreach ($plants as $plant)
                                     <option value="{{ $plant->id }}"
                                         {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
@@ -449,7 +449,7 @@
                         // Make AJAX request to get areas
                         fetch(
                                 `${window.location.origin}/sisca-v2/equipments/areas-by-plant?plant_id=${plantId}`
-                                )
+                            )
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -480,7 +480,7 @@
                                 if (areas.length === 0) {
                                     const option = document.createElement('option');
                                     option.value = '';
-                                    option.textContent = 'No areas available for this plant';
+                                    option.textContent = 'No areas available for this company';
                                     option.disabled = true;
                                     areaSelect.appendChild(option);
                                 } else {
@@ -505,7 +505,7 @@
                                 areaSelect.disabled = false;
                             });
                     } else {
-                        areaSelect.innerHTML = '<option value="">Select plant first</option>';
+                        areaSelect.innerHTML = '<option value="">Select company first</option>';
                         areaSelect.disabled = false;
                     }
                 });

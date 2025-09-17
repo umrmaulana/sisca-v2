@@ -29,7 +29,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             EquipmentTypeSeeder::class,
             ChecksheetTemplateSeeder::class,
-            // EquipmentSeeder::class,
+            EquipmentSeeder::class,
+
         ]);
     }
 }

@@ -19,11 +19,6 @@
 
         <!-- Filter Section -->
         <div class="card mb-4">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="fas fa-filter me-2"></i>Filters
-                </h6>
-            </div>
             <div class="card-body">
                 <form method="GET" action="{{ route('sisca-v2.locations.index') }}">
                     <div class="row g-3">
@@ -32,18 +27,20 @@
                             <input type="text" class="form-control" id="search" name="search"
                                 value="{{ request('search') }}" placeholder="Search by location code...">
                         </div>
-                        <div class="col-md-3">
-                            <label for="plant_id" class="form-label">Plant</label>
-                            <select class="form-select" id="plant_id" name="plant_id">
-                                <option value="">All Plants</option>
-                                @foreach ($plants as $plant)
-                                    <option value="{{ $plant->id }}"
-                                        {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
-                                        {{ $plant->plant_name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                        @if (auth('sisca-v2')->user()->role === 'Admin' || auth('sisca-v2')->user()->role === 'Management')
+                            <div class="col-md-3">
+                                <label for="plant_id" class="form-label">Company</label>
+                                <select class="form-select" id="plant_id" name="plant_id">
+                                    <option value="">All Companies</option>
+                                    @foreach ($plants as $plant)
+                                        <option value="{{ $plant->id }}"
+                                            {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
+                                            {{ $plant->plant_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
                         <div class="col-md-3">
                             <label for="area_id" class="form-label">Area</label>
                             <select class="form-select" id="area_id" name="area_id">
@@ -60,7 +57,7 @@
                             <button type="submit" class="btn btn-outline-primary me-2">
                                 <i class="fas fa-search me-1"></i>Search
                             </button>
-                            <a href="{{ route('sisca-v2.plants.index') }}" class="btn btn-outline-danger">
+                            <a href="{{ route('sisca-v2.locations.index') }}" class="btn btn-outline-danger">
                                 <i class="fas fa-times me-1"></i>Clear
                             </a>
                         </div>
@@ -98,7 +95,7 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Location Code</th>
-                                    <th>Plant</th>
+                                    <th>Company</th>
                                     <th>Area</th>
                                     <th>Position</th>
                                     <th>Coordinates</th>

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\SiscaV2;
 
+use App\Http\Controllers\Controller;
 use App\Models\SiscaV2\Area;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 
 class AreaController extends Controller
 {
@@ -80,13 +80,7 @@ class AreaController extends Controller
     public function show(Area $area)
     {
         $plants = \App\Models\SiscaV2\Plant::where('is_active', true)->orderBy('plant_name')->get();
-        $area->load('plant', 'locations');
-        return view('sisca-v2.areas.show', compact('area', 'plants'));
-
-        $this->authorize('view', $area);
-
-        $area->load(['locations', 'plant']);
-
+        $area->load(['plant', 'locations']);
         return view('sisca-v2.areas.show', compact('area', 'plants'));
     }
 
