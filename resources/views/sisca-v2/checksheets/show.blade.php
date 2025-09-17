@@ -468,7 +468,6 @@
                 opacity: 1;
             }
         }
-        }
 
         .card {
             border: 1px solid #dee2e6 !important;
@@ -485,97 +484,11 @@
             max-width: 100px !important;
             max-height: 100px !important;
         }
-        }
     </style>
 @endpush
 
 @push('scripts')
     <script>
-        // Ensure sidebar functionality works on this page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Force initialize sidebar if not already initialized
-            if (typeof window.SISCA !== 'undefined' && window.SISCA.initializeSidebar) {
-                // Re-initialize sidebar functionality
-                const sidebarToggle = document.getElementById('sidebarToggle');
-                if (sidebarToggle) {
-                    // Remove existing event listeners and re-add
-                    const newToggle = sidebarToggle.cloneNode(true);
-                    sidebarToggle.parentNode.replaceChild(newToggle, sidebarToggle);
-
-                    newToggle.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (window.SISCA && window.SISCA.toggleSidebar) {
-                            window.SISCA.toggleSidebar();
-                        }
-                    });
-                }
-            }
-
-            // Re-initialize menu accordions
-            if (typeof window.SISCA !== 'undefined' && window.SISCA.initializeMenuAccordions) {
-                window.SISCA.initializeMenuAccordions();
-            }
-
-            // Re-initialize user dropdown
-            if (typeof window.SISCA !== 'undefined' && window.SISCA.initializeUserDropdown) {
-                window.SISCA.initializeUserDropdown();
-            }
-
-            // Image modal functionality
-            var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
-            var modalImage = document.getElementById('modalImage');
-            var modalTitle = document.getElementById('imageModalLabel');
-            var downloadLink = document.getElementById('downloadLink');
-            var openLink = document.getElementById('openLink');
-
-            // Add click event to all thumbnail images
-            document.querySelectorAll('.img-thumbnail').forEach(function(img) {
-                img.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    var imgSrc = this.src;
-                    var imgAlt = this.alt || 'Image Preview';
-
-                    // Update modal content
-                    modalImage.src = imgSrc;
-                    modalImage.alt = imgAlt;
-                    modalTitle.textContent = imgAlt;
-                    downloadLink.href = imgSrc;
-                    openLink.href = imgSrc;
-
-                    // Set download filename
-                    var filename = imgAlt.replace(/\s+/g, '_') + '.jpg';
-                    downloadLink.setAttribute('download', filename);
-
-                    // Add fade-in animation
-                    modalImage.classList.add('fade-in');
-
-                    // Show modal
-                    imageModal.show();
-                });
-            });
-
-            // Remove fade-in class after modal is shown
-            document.getElementById('imageModal').addEventListener('shown.bs.modal', function() {
-                modalImage.classList.remove('fade-in');
-            });
-
-            // Add keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                // ESC key to close modal
-                if (e.key === 'Escape' && imageModal._isShown) {
-                    imageModal.hide();
-                }
-
-                // Ctrl+P for print
-                if (e.ctrlKey && e.key === 'p') {
-                    e.preventDefault();
-                    window.print();
-                }
-            });
-        });
-
         function shareInspection() {
             const url = window.location.href;
             const title = 'Inspection Report #{{ str_pad($inspection->id, 6, '0', STR_PAD_LEFT) }}';

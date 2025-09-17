@@ -70,9 +70,9 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label for="plant_id" class="form-label">Plant</label>
+                            <label for="plant_id" class="form-label">Company</label>
                             <select class="form-select" id="plant_id" name="plant_id">
-                                <option value="">All Plants</option>
+                                <option value="">All Companies</option>
                                 @foreach ($plants as $plant)
                                     <option value="{{ $plant->id }}"
                                         {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
@@ -265,7 +265,7 @@
             const viewFullLink = document.getElementById('viewFullDetails');
 
             // Set full details link
-            viewFullLink.href = `/sisca-v2/checksheet/show/${inspectionId}`;
+            viewFullLink.href = `/sisca-v2/checksheets/show/${inspectionId}`;
 
             // Show loading state
             modalContent.innerHTML = `
@@ -375,7 +375,7 @@
                             areaSelect.disabled = false;
                         });
                 } else {
-                    areaSelect.innerHTML = '<option value="">Select plant first</option>';
+                    areaSelect.innerHTML = '<option value="">Select company first</option>';
                     areaSelect.disabled = false;
                 }
             });
@@ -390,7 +390,7 @@
         window.showApprovalModal = function(inspectionId) {
             const modal = new bootstrap.Modal(document.getElementById('approvalModal'));
             const form = document.getElementById('approvalForm');
-            form.action = `/sisca-v2/checksheet/approve/${inspectionId}`;
+            form.action = `/sisca-v2/checksheets/approve/${inspectionId}`;
             modal.show();
         }
     </script>

@@ -32,9 +32,9 @@
                         @if (in_array($userRole, ['Admin', 'Management']))
                             <!-- Plant Filter -->
                             <div class="col-lg-3">
-                                <label for="plant_id" class="form-label fw-bold">Plant</label>
+                                <label for="plant_id" class="form-label fw-bold">Company</label>
                                 <select class="form-select" id="plant_id" name="plant_id" onchange="loadAreas()">
-                                    <option value="">All Plants</option>
+                                    <option value="">All Companies</option>
                                     @foreach ($plants as $plant)
                                         <option value="{{ $plant->id }}"
                                             {{ $selectedPlantId == $plant->id ? 'selected' : '' }}>
@@ -438,6 +438,11 @@
                                         @endif
                                     </td>
                                     <td>
+                                        <a href="{{ route('sisca-v2.checksheets.show', $inspection->id) }}"
+                                            class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip"
+                                            title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                         @if ($inspection->status === 'pending')
                                             <div class="btn-group btn-group-sm" role="group">
                                                 <button type="button" class="btn btn-outline-success"
