@@ -23,13 +23,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
                 // Master data seeders (run in order due to foreign key dependencies)
             PlantSeeder::class,
-            AreaSeeder::class,
-            PeriodCheckSeeder::class,
-            LocationSeeder::class,
             UserSeeder::class,
-            EquipmentTypeSeeder::class,
-            ChecksheetTemplateSeeder::class,
-            EquipmentSeeder::class,
+            // AreaSeeder::class,
+            // PeriodCheckSeeder::class,
+            // LocationSeeder::class,
+            // EquipmentTypeSeeder::class,
+            // ChecksheetTemplateSeeder::class,
+            // EquipmentSeeder::class,
 
         ]);
     }
