@@ -248,7 +248,7 @@
         <script>
             function confirmDelete(id) {
                 const form = document.getElementById('deleteForm');
-                form.action = `{{ route('sisca-v2.locations.destroy') }}/${id}`;
+                form.action = `{{ route('sisca-v2.locations.index') }}/${id}`;
                 const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
                 modal.show();
             }
