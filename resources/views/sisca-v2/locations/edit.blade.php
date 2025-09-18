@@ -1,4 +1,4 @@
-@extends('layouts.sisca-v2')
+@extends('sisca-v2.layouts.app')
 
 @section('title', 'Edit Location')
 
