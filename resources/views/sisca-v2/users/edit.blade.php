@@ -301,7 +301,7 @@
                     // Create a form to reset password
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = '{{ route('sisca-v2.users.reset-password', $user) }}';
+                    form.action = `${window.location.origin}/sisca-v2.users.reset-password/${$user->id}`;
 
                     const csrfToken = document.createElement('input');
                     csrfToken.type = 'hidden';
@@ -320,7 +320,7 @@
                     // Create a form to toggle status
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = '{{ route('sisca-v2.users.toggle-status', $user) }}';
+                    form.action = `${window.location.origin}/sisca-v2.users.toggle-status/${$user->id}`;
 
                     const csrfToken = document.createElement('input');
                     csrfToken.type = 'hidden';

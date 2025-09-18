@@ -192,7 +192,7 @@
         <script>
             function confirmDelete(id) {
                 const form = document.getElementById('deleteForm');
-                form.action = `{{ route('sisca-v2.period-checks.index') }}/${id}`;
+                form.action = `${window.location.origin}/sisca-v2.period-checks/${id}`;
                 const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
                 modal.show();
             }
