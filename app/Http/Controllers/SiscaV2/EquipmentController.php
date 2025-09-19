@@ -139,6 +139,7 @@ class EquipmentController extends Controller
             'equipment_type_id' => 'required|exists:tm_equipment_types,id',
             'location_id' => 'required|exists:tm_locations_new,id',
             'period_check_id' => 'nullable|exists:tm_period_checks,id',
+            'expired_date' => 'nullable|date',
             'is_active' => 'required|in:0,1',
         ]);
 
@@ -158,6 +159,7 @@ class EquipmentController extends Controller
             'location_id' => $request->location_id,
             'period_check_id' => $request->period_check_id,
             'qrcode' => $qrCodePath,
+            'expired_date' => $request->expired_date,
             'is_active' => (bool) $request->is_active,
         ]);
 
@@ -189,6 +191,7 @@ class EquipmentController extends Controller
             'equipment_type_id' => 'required|exists:tm_equipment_types,id',
             'location_id' => 'required|exists:tm_locations_new,id',
             'period_check_id' => 'nullable|exists:tm_period_checks,id',
+            'expired_date' => 'nullable|date',
             'is_active' => 'required|in:0,1',
         ]);
 
@@ -198,6 +201,7 @@ class EquipmentController extends Controller
             'equipment_type_id' => $request->equipment_type_id,
             'location_id' => $request->location_id,
             'period_check_id' => $request->period_check_id,
+            'expired_date' => $request->expired_date,
             'is_active' => (bool) $request->is_active,
         ];
 
