@@ -119,7 +119,7 @@
                                 <label class="form-label text-muted fw-bold">Expired Date</label>
                                 <div>
                                     <span
-                                        class="fw-semibold">{{ $equipment->expired_date ? $equipment->expired_date->format('d M Y H:i') : 'N/A' }}</span>
+                                        class="fw-semibold">{{ $equipment->expired_date ? $equipment->expired_date->format('d M Y') : 'N/A' }}</span>
                                 </div>
                             </div>
 
