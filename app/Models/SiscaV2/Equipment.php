@@ -18,7 +18,13 @@ class Equipment extends Model
         'desc',
         'qrcode',
         'period_check_id',
+        'expired_date',
         'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'expired_date' => 'date',
     ];
 
     // Accessor for code (use equipment_code)

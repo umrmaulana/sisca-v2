@@ -116,10 +116,9 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label text-muted fw-bold">Created Date</label>
+                                <label class="form-label text-muted fw-bold">Expired Date</label>
                                 <div>
-                                    <span class="fw-semibold">{{ $equipment->created_at->format('d M Y H:i') }}</span>
-                                    <p class="text-muted small mt-1 mb-0">{{ $equipment->created_at->diffForHumans() }}</p>
+                                    <span class="fw-semibold">{{ $equipment->expired_date->format('d M Y') }}</span>
                                 </div>
                             </div>
 

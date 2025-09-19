@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->foreignId('equipment_type_id')->constrained('tm_equipment_types');
             $table->foreignId('location_id')->constrained('tm_locations_new');
             $table->string('qrcode')->nullable();
+            $table->date('expired_date')->nullable();
             $table->foreignId('period_check_id')->nullable()->constrained('tm_period_checks');
             $table->boolean('is_active')->default(true);
             $table->timestamps();

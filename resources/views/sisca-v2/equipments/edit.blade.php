@@ -143,22 +143,33 @@
                                     <div class="form-text">Optional: Set maintenance period for this equipment</div>
                                 </div>
 
-                                <div class="col-12">
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch">
-                                            <!-- Hidden input to ensure we always get a value -->
-                                            <input type="hidden" name="is_active" value="0">
-                                            <input class="form-check-input @error('is_active') is-invalid @enderror"
-                                                type="checkbox" id="is_active" name="is_active" value="1"
-                                                {{ old('is_active', $equipment->is_active) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="is_active">
-                                                <strong>Active Status</strong>
-                                            </label>
-                                            @error('is_active')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            <div class="form-text">Toggle to activate or deactivate this equipment</div>
-                                        </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="expired_date" class="form-label">
+                                        Expired Date <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="date" class="form-control @error('expired_date') is-invalid @enderror"
+                                        id="expired_date" name="expired_date"
+                                        value="{{ old('expired_date', $equipment->expired_date->format('Y-m-d')) }}"
+                                        required maxlength="20" placeholder="Enter expired date">
+                                    @error('expired_date')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-6 mt-4">
+                                    <div class="form-check form-switch">
+                                        <!-- Hidden input to ensure we always get a value -->
+                                        <input type="hidden" name="is_active" value="0">
+                                        <input class="form-check-input @error('is_active') is-invalid @enderror"
+                                            type="checkbox" id="is_active" name="is_active" value="1"
+                                            {{ old('is_active', $equipment->is_active) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="is_active">
+                                            <strong>Active Status</strong>
+                                        </label>
+                                        @error('is_active')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">Toggle to activate or deactivate this equipment</div>
                                     </div>
                                 </div>
                             </div>
