@@ -118,7 +118,8 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label text-muted fw-bold">Expired Date</label>
                                 <div>
-                                    <span class="fw-semibold">{{ $equipment->expired_date->format('d M Y') }}</span>
+                                    <span
+                                        class="fw-semibold">{{ $equipment->expired_date ? $equipment->expired_date->format('d M Y H:i') : 'N/A' }}</span>
                                 </div>
                             </div>
 

@@ -149,7 +149,7 @@
                                     </label>
                                     <input type="date" class="form-control @error('expired_date') is-invalid @enderror"
                                         id="expired_date" name="expired_date"
-                                        value="{{ old('expired_date', $equipment->expired_date->format('Y-m-d')) }}"
+                                        value="{{ old('expired_date', $equipment->expired_date ? $equipment->expired_date->format('Y-m-d') : '') }}"
                                         required maxlength="20" placeholder="Enter expired date">
                                     @error('expired_date')
                                         <div class="invalid-feedback">{{ $message }}</div>
