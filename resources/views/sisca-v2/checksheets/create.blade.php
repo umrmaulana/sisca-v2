@@ -427,7 +427,7 @@
                                                         </label>
                                                         <div class="upload-container mt-2">
                                                             <!-- Mobile Camera Options -->
-                                                            <div class="mobile-camera-options d-md-none mb-2">
+                                                            <div class="mobile-camera-options mb-2">
                                                                 <div class="btn-group w-100" role="group">
                                                                     <button type="button"
                                                                         class="btn btn-outline-primary btn-sm"
@@ -456,7 +456,8 @@
                                                                         drop</span>
                                                                 </p>
                                                                 <p class="mb-0 text-muted small">
-                                                                    Max 10MB (JPEG, PNG, JPG)
+                                                                    Max 10MB (JPEG, PNG, JPG)<br>
+                                                                    <small class="text-success">⚡ Auto-compressed to 800KB</small>
                                                                 </p>
                                                             </div>
 
@@ -704,6 +705,23 @@
                 color: white;
             }
 
+            .compression-loading {
+                padding: 20px;
+                background-color: rgba(13, 110, 253, 0.05);
+                border-radius: 8px;
+                border: 2px dashed rgba(13, 110, 253, 0.3);
+            }
+
+            .compression-loading .spinner-border-sm {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+
+            .upload-area small {
+                font-size: 0.75rem;
+                color: #6c757d;
+            }
+
             .status-buttons .btn {
                 font-weight: 600;
                 border-width: 2px;
@@ -899,7 +917,83 @@
                 @endif
             });
 
-            // Image preview function
+            // Image compression function
+            function compressImage(file, maxSizeKB = 800, quality = 0.7) {
+                return new Promise((resolve) => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+
+                    img.onload = function() {
+                        // Calculate new dimensions while maintaining aspect ratio
+                        let { width, height } = calculateDimensions(img.width, img.height);
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        // Draw and compress
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convert to blob with compression
+                        canvas.toBlob(function(blob) {
+                            // If still too large, reduce quality further
+                            if (blob.size > maxSizeKB * 1024 && quality > 0.1) {
+                                // Recursive compression with lower quality
+                                compressImage(file, maxSizeKB, quality - 0.1).then(resolve);
+                            } else {
+                                // Create new file object
+                                const compressedFile = new File([blob], file.name, {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now()
+                                });
+                                resolve(compressedFile);
+                            }
+                        }, 'image/jpeg', quality);
+                    };
+
+                    img.src = URL.createObjectURL(file);
+                });
+            }
+
+            // Calculate optimal dimensions for compression
+            function calculateDimensions(width, height, maxWidth = 1920, maxHeight = 1080) {
+                if (width <= maxWidth && height <= maxHeight) {
+                    return { width, height };
+                }
+
+                const ratio = Math.min(maxWidth / width, maxHeight / height);
+                return {
+                    width: Math.round(width * ratio),
+                    height: Math.round(height * ratio)
+                };
+            }
+
+            // Show compression loading indicator
+            function showCompressionLoading(uploadArea, show = true) {
+                const loadingHtml = `
+                    <div class="compression-loading text-center">
+                        <div class="spinner-border spinner-border-sm text-primary mb-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted mb-0">Mengompres gambar...</p>
+                    </div>
+                `;
+                
+                if (show) {
+                    uploadArea.innerHTML = loadingHtml;
+                } else {
+                    // Restore original upload area content
+                    uploadArea.innerHTML = `
+                        <div class="text-center">
+                            <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-1">Click to upload or drag and drop</p>
+                            <small class="text-muted">JPEG, PNG, JPG (Max: 10MB → Compressed to 800KB)</small>
+                        </div>
+                    `;
+                }
+            }
+
+            // Enhanced image preview function with compression
             function previewImage(input, index) {
                 const file = input.files[0];
                 const previewContainer = document.getElementById(`preview-${index}`);
@@ -907,7 +1001,7 @@
                 const uploadArea = input.closest('.upload-container').querySelector('.upload-area');
 
                 if (file) {
-                    // Validate file size (10MB)
+                    // Validate file size (10MB limit before compression)
                     if (file.size > 10 * 1024 * 1024) {
                         showAlert('error', 'File size must be less than 10MB.');
                         input.value = '';
@@ -922,26 +1016,44 @@
                         return;
                     }
 
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        previewImg.src = e.target.result;
-                        previewContainer.classList.remove('d-none');
-                        uploadArea.style.display = 'none';
+                    // Show compression loading
+                    showCompressionLoading(uploadArea, true);
 
-                        // Update the main file input with the selected file
-                        const mainInput = document.getElementById(`photo-${index}`);
-                        const dataTransfer = new DataTransfer();
-                        dataTransfer.items.add(file);
-                        mainInput.files = dataTransfer.files;
+                    // Compress image before preview
+                    compressImage(file, 800, 0.7).then(compressedFile => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            previewImg.src = e.target.result;
+                            previewContainer.classList.remove('d-none');
+                            uploadArea.style.display = 'none';
 
-                        // Remove error state
-                        const item = input.closest('.inspection-item');
-                        const hasSelectedStatus = item.querySelector('input[type="radio"]:checked');
-                        if (hasSelectedStatus) {
-                            item.classList.remove('has-error');
-                        }
-                    };
-                    reader.readAsDataURL(file);
+                            // Update the main file input with the compressed file
+                            const mainInput = document.getElementById(`photo-${index}`);
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(compressedFile);
+                            mainInput.files = dataTransfer.files;
+
+                            // Show compression info
+                            const originalSize = SISCA.formatFileSize ? SISCA.formatFileSize(file.size) : (file.size / 1024).toFixed(1) + 'KB';
+                            const compressedSize = SISCA.formatFileSize ? SISCA.formatFileSize(compressedFile.size) : (compressedFile.size / 1024).toFixed(1) + 'KB';
+                            showAlert('success', 
+                                `Gambar berhasil dikompres: ${originalSize} → ${compressedSize}`
+                            );
+
+                            // Remove error state
+                            const item = input.closest('.inspection-item');
+                            const hasSelectedStatus = item.querySelector('input[type="radio"]:checked');
+                            if (hasSelectedStatus) {
+                                item.classList.remove('has-error');
+                            }
+                        };
+                        reader.readAsDataURL(compressedFile);
+                    }).catch(error => {
+                        console.error('Compression failed:', error);
+                        showAlert('error', 'Gagal mengompres gambar. Silakan coba lagi.');
+                        showCompressionLoading(uploadArea, false);
+                        input.value = '';
+                    });
                 }
             }
 

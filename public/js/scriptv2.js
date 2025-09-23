@@ -532,6 +532,17 @@ function formatNumber(num, decimals = 0) {
     }).format(num);
 }
 
+// Format file size to human readable
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
 // Date formatting
 function formatDate(date, format = "dd/mm/yyyy") {
     const d = new Date(date);
@@ -732,13 +743,87 @@ window.SISCA = {
     showLoading: showLoading,
     formatNumber: formatNumber,
     formatDate: formatDate,
+    formatFileSize: formatFileSize,
     initializeTableSearch: initializeTableSearch,
     fixMixedContentIssues: fixMixedContentIssues,
     // Menu functions
     initializeMenuAccordions: initializeMenuAccordions,
     initializeUserDropdown: initializeUserDropdown,
     expandActiveMenus: expandActiveMenus,
+    // Image compression utility
+    compressImage: compressImage,
 };
+
+// Image compression utility function
+function compressImage(file, maxSizeKB = 800, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!allowedTypes.includes(file.type)) {
+            reject(new Error('Only JPEG, PNG, and JPG files are allowed.'));
+            return;
+        }
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+
+        img.onload = function() {
+            try {
+                // Calculate new dimensions while maintaining aspect ratio
+                const { width, height } = calculateImageDimensions(img.width, img.height);
+                
+                canvas.width = width;
+                canvas.height = height;
+
+                // Draw and compress
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Convert to blob with compression
+                canvas.toBlob(function(blob) {
+                    if (!blob) {
+                        reject(new Error('Failed to compress image'));
+                        return;
+                    }
+
+                    // If still too large, reduce quality further
+                    if (blob.size > maxSizeKB * 1024 && quality > 0.1) {
+                        // Recursive compression with lower quality
+                        compressImage(file, maxSizeKB, quality - 0.1).then(resolve).catch(reject);
+                    } else {
+                        // Create new file object
+                        const compressedFile = new File([blob], file.name, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        resolve(compressedFile);
+                    }
+                }, 'image/jpeg', quality);
+            } catch (error) {
+                reject(error);
+            }
+        };
+
+        img.onerror = function() {
+            reject(new Error('Failed to load image'));
+        };
+
+        img.src = URL.createObjectURL(file);
+    });
+}
+
+// Calculate optimal dimensions for compression
+function calculateImageDimensions(width, height, maxWidth = 1920, maxHeight = 1080) {
+    if (width <= maxWidth && height <= maxHeight) {
+        return { width, height };
+    }
+
+    const ratio = Math.min(maxWidth / width, maxHeight / height);
+    return {
+        width: Math.round(width * ratio),
+        height: Math.round(height * ratio)
+    };
+}
 
 // Monitor body changes for debugging
 const bodyObserver = new MutationObserver(function (mutations) {
