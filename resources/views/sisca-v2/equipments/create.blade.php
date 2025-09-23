@@ -74,11 +74,11 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label for="plant_id" class="form-label">
-                                        Plant <span class="text-danger">*</span>
+                                        Company <span class="text-danger">*</span>
                                     </label>
                                     <select class="form-select @error('plant_id') is-invalid @enderror" id="plant_id"
                                         name="plant_id" required>
-                                        <option value="">Select Plant</option>
+                                        <option value="">Select Company</option>
                                         @foreach ($plants as $plant)
                                             <option value="{{ $plant->id }}"
                                                 {{ old('plant_id') == $plant->id ? 'selected' : '' }}>
@@ -97,7 +97,7 @@
                                     </label>
                                     <select class="form-select @error('area_id') is-invalid @enderror" id="area_id"
                                         name="area_id" required>
-                                        <option value="">Select Plant First</option>
+                                        <option value="">Select Company First</option>
                                     </select>
                                     @error('area_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -304,7 +304,7 @@
                             areaSelect.innerHTML = '<option value="">Error loading areas</option>';
                         });
                 } else {
-                    areaSelect.innerHTML = '<option value="">Select Plant First</option>';
+                    areaSelect.innerHTML = '<option value="">Select Company First</option>';
                 }
             });
 

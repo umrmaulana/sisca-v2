@@ -20,7 +20,7 @@
                             {{ $equipment->equipmentType->equipment_type }}</td>
                     </tr>
                     <tr>
-                        <td><strong>Plant:</strong></td>
+                        <td><strong>Company:</strong></td>
                         <td>{{ $equipment->location->plant->plant_name }}</td>
                     </tr>
                     <tr>

@@ -100,7 +100,7 @@
                             @if (count($plants) > 0) disabled @endif>
                             <option value="">
                                 @if (count($plants) > 0)
-                                    Select plant first
+                                    Select company first
                                 @else
                                     All Areas
                                 @endif
@@ -140,9 +140,9 @@
 
                     @if (count($plants) > 0)
                         <div class="col-md-2">
-                            <label for="plant_id" class="form-label">Plant</label>
+                            <label for="plant_id" class="form-label">Company</label>
                             <select name="plant_id" id="plant_id" class="form-select">
-                                <option value="">All Plants</option>
+                                <option value="">All Companies</option>
                                 @foreach ($plants as $plant)
                                     <option value="{{ $plant->id }}"
                                         {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
@@ -327,7 +327,8 @@
                     if (plantId) {
                         // Make AJAX request to get areas
                         fetch(
-                                `${window.location.origin}/sisca-v2/checksheets/areas-by-plant?plant_id=${plantId}`)
+                                `${window.location.origin}/sisca-v2/checksheets/areas-by-plant?plant_id=${plantId}`
+                            )
                             .then(response => response.json())
                             .then(data => {
                                 areaSelect.innerHTML = '<option value="">All Areas</option>';
@@ -349,7 +350,7 @@
                                 areaSelect.disabled = false;
                             });
                     } else {
-                        areaSelect.innerHTML = '<option value="">Select plant first</option>';
+                        areaSelect.innerHTML = '<option value="">Select company first</option>';
                         areaSelect.disabled = false;
                     }
                 });

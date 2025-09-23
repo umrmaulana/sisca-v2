@@ -102,7 +102,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ Request::is('sisca-v2/plants*') ? 'active' : '' }}"
                         href="{{ route('sisca-v2.plants.index') }}">
-                        <span class="menu-title">Plant</span>
+                        <span class="menu-title">Company</span>
                     </a>
                 </div>
                 <div class="menu-item">

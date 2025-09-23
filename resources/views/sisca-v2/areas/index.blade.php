@@ -27,9 +27,9 @@
                             value="{{ request('search') }}" placeholder="Enter area or plant name...">
                     </div>
                     <div class="col-md-3">
-                        <label for="plant_id" class="form-label">Plant</label>
+                        <label for="plant_id" class="form-label">Company</label>
                         <select class="form-select" id="plant_id" name="plant_id">
-                            <option value="">All Plants</option>
+                            <option value="">All Companies</option>
                             @foreach ($plants as $plant)
                                 <option value="{{ $plant->id }}"
                                     {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
@@ -84,7 +84,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>Area</th>
-                                <th>Plant</th>
+                                <th>Company</th>
                                 <th>Mapping</th>
                                 <th>Status</th>
                                 <th>Created Date</th>
@@ -102,7 +102,7 @@
                                         @if ($area->plant)
                                             <span class="badge bg-info">{{ $area->plant->plant_name }}</span>
                                         @else
-                                            <span class="text-muted fst-italic">No plant assigned</span>
+                                            <span class="text-muted fst-italic">No company assigned</span>
                                         @endif
                                     </td>
                                     <td>

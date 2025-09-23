@@ -19,9 +19,9 @@
                         @if (in_array($userRole, ['Admin', 'Management']))
                             <!-- Plant Filter -->
                             <div class="col-lg-3">
-                                <label for="plant_id" class="form-label">Plant</label>
+                                <label for="plant_id" class="form-label">Company</label>
                                 <select class="form-select" id="plant_id" name="plant_id" onchange="loadAreas()">
-                                    <option value="">All Plants</option>
+                                    <option value="">All Company</option>
                                     @foreach ($plants as $plant)
                                         <option value="{{ $plant->id }}"
                                             {{ $selectedPlantId == $plant->id ? 'selected' : '' }}>
@@ -126,7 +126,7 @@
                     <div class="card shadow">
                         <div class="card-header py-3">
                             <h6 class="card-title m-0 font-weight-bold">
-                                <i class="fas fa-chart-bar"></i> Plant-wise Performance
+                                <i class="fas fa-chart-bar"></i> Company-wise Performance
                             </h6>
                         </div>
                         <div class="card-body">

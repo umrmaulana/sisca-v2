@@ -19,9 +19,9 @@
                         @if (in_array($userRole, ['Admin', 'Management']))
                             <!-- Plant Filter (Admin & Management only) -->
                             <div class="col-lg-3">
-                                <label for="plant_id" class="form-label">Plant</label>
+                                <label for="plant_id" class="form-label">Company</label>
                                 <select class="form-select" id="plant_id" name="plant_id" onchange="loadAreas()">
-                                    <option value="">Select Plant</option>
+                                    <option value="">Select Company</option>
                                     @foreach ($plants as $plant)
                                         <option value="{{ $plant->id }}"
                                             {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
@@ -38,7 +38,7 @@
                                     <option value="">Select Area</option>
                                     @if (request('plant_id') && $areas->count() > 0)
                                         <option value="all" {{ request('area_id') == 'all' ? 'selected' : '' }}>
-                                            All Areas (Plant View)
+                                            All Areas (Company View)
                                         </option>
                                         @foreach ($areas as $area)
                                             <option value="{{ $area->id }}"
@@ -243,14 +243,14 @@
                                             <!-- Debug missing coordinates -->
                                             @if (config('app.debug'))
                                                 <!-- Equipment {{ $equipment->id }} ({{ $equipment->equipment_code }}) missing coordinates:
-                                                        Location: {{ $equipment->location ? 'exists' : 'missing' }}
-                                                        Plant X: {{ $equipment->location->plant_coordinate_x ?? 'null' }}
-                                                        Plant Y: {{ $equipment->location->plant_coordinate_y ?? 'null' }}
-                                                        Area X: {{ $equipment->location->coordinate_x ?? 'null' }}
-                                                        Area Y: {{ $equipment->location->coordinate_y ?? 'null' }}
-                                                        Final X: {{ $coordinateX ?? 'null' }}
-                                                        Final Y: {{ $coordinateY ?? 'null' }}
-                                                        -->
+                                                                                    Location: {{ $equipment->location ? 'exists' : 'missing' }}
+                                                                                    Plant X: {{ $equipment->location->plant_coordinate_x ?? 'null' }}
+                                                                                    Plant Y: {{ $equipment->location->plant_coordinate_y ?? 'null' }}
+                                                                                    Area X: {{ $equipment->location->coordinate_x ?? 'null' }}
+                                                                                    Area Y: {{ $equipment->location->coordinate_y ?? 'null' }}
+                                                                                    Final X: {{ $coordinateX ?? 'null' }}
+                                                                                    Final Y: {{ $coordinateY ?? 'null' }}
+                                                                                    -->
                                             @endif
                                         @endif
                                     @endforeach
@@ -259,9 +259,9 @@
                                 <div class="text-center py-5">
                                     <i class="bi bi-image-fill text-muted" style="font-size: 3rem;"></i>
                                     @if (request('area_id') == 'all' || (!request('area_id') && $selectedPlant))
-                                        <p class="text-muted mt-2">No plant mapping image available for
-                                            {{ $selectedPlant->plant_name ?? 'this plant' }}</p>
-                                        <small class="text-muted">Please upload a plant mapping image in Plant
+                                        <p class="text-muted mt-2">No company mapping image available for
+                                            {{ $selectedPlant->plant_name ?? 'this company' }}</p>
+                                        <small class="text-muted">Please upload a company mapping image in Company
                                             Management</small>
                                     @else
                                         <p class="text-muted mt-2">No area mapping image available for
@@ -465,21 +465,22 @@
                     <i class="bi bi-geo-alt text-muted" style="font-size: 3rem;"></i>
                     @if (in_array($userRole, ['Admin', 'Management']))
                         @if (!$selectedPlant)
-                            <h5 class="mt-3 text-muted">Select Plant to View Mapping</h5>
-                            <p class="text-muted">Please select a plant first to view either the complete plant mapping or
+                            <h5 class="mt-3 text-muted">Select Company to View Mapping</h5>
+                            <p class="text-muted">Please select a Company first to view either the complete company mapping
+                                or
                                 specific area mapping.</p>
                         @else
                             <h5 class="mt-3 text-muted">Select View Mode or Area</h5>
                             <p class="text-muted">
-                                Choose "Whole Plant" view to see the complete plant mapping,
+                                Choose "Whole Company" view to see the complete company mapping,
                                 or select a specific area for detailed area mapping.
                             </p>
                         @endif
                     @else
                         @if (request('view_mode') == 'plant')
-                            <h5 class="mt-3 text-muted">Plant View Available</h5>
-                            <p class="text-muted">View the complete plant mapping with all equipment positioned according
-                                to plant coordinates.</p>
+                            <h5 class="mt-3 text-muted">Company View Available</h5>
+                            <p class="text-muted">View the complete company mapping with all equipment positioned according
+                                to company coordinates.</p>
                         @else
                             <h5 class="mt-3 text-muted">Select Area</h5>
                             <p class="text-muted">Please select an area to view the area mapping and equipment status.</p>
@@ -624,7 +625,7 @@
                                 // Add "All Areas" option for plant view
                                 const allAreasOption = document.createElement('option');
                                 allAreasOption.value = 'all';
-                                allAreasOption.textContent = 'All Areas (Plant View)';
+                                allAreasOption.textContent = 'All Areas (Company View)';
                                 areaSelect.appendChild(allAreasOption);
 
                                 // Add individual areas

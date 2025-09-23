@@ -115,9 +115,9 @@
                         </div>
                         @if (auth('sisca-v2')->user()->role === 'Admin')
                             <div class="col-md-2">
-                                <label for="plant_id" class="form-label">Plant</label>
+                                <label for="plant_id" class="form-label">Company</label>
                                 <select class="form-select" id="plant_id" name="plant_id">
-                                    <option value="">All Plants</option>
+                                    <option value="">All Companies</option>
                                     @foreach ($plants as $plant)
                                         <option value="{{ $plant->id }}"
                                             {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
@@ -181,7 +181,7 @@
                                     <th>Item Check</th>
                                     <th>Original Inspection</th>
                                     <th>Inspector</th>
-                                    <th>Plant/Area</th>
+                                    <th>Company/Area</th>
                                     <th>Date</th>
                                     <th>Status</th>
                                     <th>Actions</th>

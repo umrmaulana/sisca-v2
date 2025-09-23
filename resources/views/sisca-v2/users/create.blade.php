@@ -84,11 +84,11 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label for="plant_id" class="form-label">
-                                        Plant
+                                        Company
                                     </label>
                                     <select class="form-select @error('plant_id') is-invalid @enderror" id="plant_id"
                                         name="plant_id">
-                                        <option value="">Select Plant</option>
+                                        <option value="">Select Company</option>
                                         @foreach ($plants as $plant)
                                             <option value="{{ $plant->id }}"
                                                 {{ old('plant_id') == $plant->id ? 'selected' : '' }}>
@@ -99,7 +99,7 @@
                                     @error('plant_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <div class="form-text">Optional. Assign user to specific plant.</div>
+                                    <div class="form-text">Optional. Assign user to specific company.</div>
                                 </div>
                             </div>
 

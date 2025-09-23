@@ -64,12 +64,12 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="plant_id" class="form-label required">
-                                            Plant
+                                            Company
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select @error('plant_id') is-invalid @enderror" id="plant_id"
                                             name="plant_id" required>
-                                            <option value="">Select Plant</option>
+                                            <option value="">Select Company</option>
                                             @foreach ($plants as $plant)
                                                 <option value="{{ $plant->id }}"
                                                     {{ old('plant_id', $location->plant_id) == $plant->id ? 'selected' : '' }}>
@@ -80,7 +80,7 @@
                                         @error('plant_id')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <div class="form-text">Select the plant this location belongs to</div>
+                                        <div class="form-text">Select the company this location belongs to</div>
                                     </div>
                                 </div>
 
@@ -103,7 +103,7 @@
                                         @error('area_id')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <div class="form-text">Select the area within the plant</div>
+                                        <div class="form-text">Select the area within the company</div>
                                     </div>
                                 </div>
                             </div>
@@ -143,7 +143,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="plant_coordinate_x" class="form-label">X Coordinate (Plant)</label>
+                                        <label for="plant_coordinate_x" class="form-label">X Coordinate (Company)</label>
                                         <input type="number" step="0.000001"
                                             class="form-control @error('plant_coordinate_x') is-invalid @enderror"
                                             id="plant_coordinate_x" name="plant_coordinate_x"
@@ -152,22 +152,22 @@
                                         @error('plant_coordinate_x')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <div class="form-text">X position relative to plant mapping (0-100%)</div>
+                                        <div class="form-text">X position relative to company mapping (0-100%)</div>
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="plant_coordinate_y" class="form-label">Y Coordinate (Plant)</label>
+                                        <label for="plant_coordinate_y" class="form-label">Y Coordinate (Company)</label>
                                         <input type="number" step="0.000001"
                                             class="form-control @error('plant_coordinate_y') is-invalid @enderror"
                                             id="plant_coordinate_y" name="plant_coordinate_y"
                                             value="{{ old('plant_coordinate_y', $location->plant_coordinate_y) }}"
-                                            placeholder="Y coordinate for plant mapping...">
+                                            placeholder="Y coordinate for company mapping...">
                                         @error('plant_coordinate_y')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                        <div class="form-text">Y position relative to plant mapping (0-100%)</div>
+                                        <div class="form-text">Y position relative to company mapping (0-100%)</div>
                                     </div>
                                 </div>
                             </div>
@@ -227,10 +227,10 @@
                         <div id="plantMappingSection" style="display: none;">
                             <div class="mb-3">
                                 <h6 class="text-success mb-2">
-                                    <i class="fas fa-industry me-2"></i>Plant Mapping
+                                    <i class="fas fa-industry me-2"></i>Company Mapping
                                 </h6>
                                 <div class="alert alert-success">
-                                    <small><i class="fas fa-info-circle me-2"></i>Click on plant map to set plant
+                                    <small><i class="fas fa-info-circle me-2"></i>Click on company map to set company
                                         coordinates (0-100%)</small>
                                 </div>
                                 <div class="position-relative border rounded" style="background: #f8f9fa;">
@@ -285,8 +285,8 @@
                         <!-- No Mapping Message -->
                         <div id="noMappingMessage" class="text-center py-5">
                             <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
-                            <h6 class="text-muted">Select Plant and Area</h6>
-                            <p class="text-muted">Choose a plant and area to view mapping interfaces</p>
+                            <h6 class="text-muted">Select Company and Area</h6>
+                            <p class="text-muted">Choose a company and area to view mapping interfaces</p>
                         </div>
                     </div>
                 </div>

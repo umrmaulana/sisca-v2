@@ -80,7 +80,7 @@
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label for="plant_mapping_picture" class="form-label">
-                                    <i class="fas fa-map me-2"></i>Plant Mapping Picture
+                                    <i class="fas fa-map me-2"></i>Company Mapping Picture
                                 </label>
                                 <input type="file"
                                     class="form-control @error('plant_mapping_picture') is-invalid @enderror"
@@ -90,7 +90,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                                 <div class="form-text">
-                                    Upload plant mapping image. Supported formats: JPEG, PNG, JPG, GIF (Max: 10MB)
+                                    Upload company mapping image. Supported formats: JPEG, PNG, JPG, GIF (Max: 10MB)
                                 </div>
                             </div>
                         </div>

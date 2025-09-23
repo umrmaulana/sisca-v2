@@ -54,7 +54,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-4">
-                                    <label class="form-label text-muted">Plant</label>
+                                    <label class="form-label text-muted">Company</label>
                                     <div class="h6 text-info">
                                         @if ($location->plant)
                                             {{ $location->plant->plant_name }}

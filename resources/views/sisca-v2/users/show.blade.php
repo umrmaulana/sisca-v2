@@ -84,7 +84,7 @@
                         <!-- Plant Info -->
                         @if ($user->plant)
                             <div class="mb-3">
-                                <small class="text-muted d-block">Assigned Plant</small>
+                                <small class="text-muted d-block">Assigned Company</small>
                                 <span class="badge bg-info">{{ $user->plant->plant_name }}</span>
                             </div>
                         @endif
@@ -189,12 +189,12 @@
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label text-muted">Assigned Plant</label>
+                                <label class="form-label text-muted">Assigned Company</label>
                                 <p class="fw-bold mb-0">
                                     @if ($user->plant)
                                         <span class="badge bg-info">{{ $user->plant->plant_name }}</span>
                                     @else
-                                        <span class="text-muted fst-italic">No plant assigned</span>
+                                        <span class="text-muted fst-italic">No company assigned</span>
                                     @endif
                                 </p>
                             </div>
@@ -217,7 +217,7 @@
                                         <ul class="mb-0">
                                             <li>Equipment management and oversight</li>
                                             <li>Checksheet supervision and approval</li>
-                                            <li>Team management within assigned plant</li>
+                                            <li>Team management within assigned company</li>
                                             <li>Access to departmental reports</li>
                                         </ul>
                                     @break

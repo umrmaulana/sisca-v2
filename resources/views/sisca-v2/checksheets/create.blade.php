@@ -123,7 +123,7 @@
                                 @endif
                                 @if ($equipment->location->plant)
                                     <tr>
-                                        <td><strong>Plant:</strong></td>
+                                        <td><strong>Company:</strong></td>
                                         <td>{{ $equipment->location->plant->plant_name }}</td>
                                     </tr>
                                 @endif
@@ -804,7 +804,7 @@
                         inspectionItems.forEach((item, index) => {
                             const radioButtons = item.querySelectorAll('input[type="radio"]');
                             const fileInput = item.querySelector(
-                            'input[name*="[picture]"]'); // Main file input
+                                'input[name*="[picture]"]'); // Main file input
                             const hasSelectedStatus = Array.from(radioButtons).some(radio => radio
                                 .checked);
                             const hasUploadedFile = fileInput && fileInput.files.length > 0;

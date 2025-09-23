@@ -94,7 +94,7 @@
                                         $inspection->equipment->location &&
                                             $inspection->equipment->location->area &&
                                             $inspection->equipment->location->area->plant)
-                                        <small class="text-muted d-block">Plant:
+                                        <small class="text-muted d-block">Company:
                                             {{ $inspection->equipment->location->area->plant->plant_name }}</small>
                                     @endif
                                 </div>

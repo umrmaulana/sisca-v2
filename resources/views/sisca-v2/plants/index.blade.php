@@ -1,18 +1,18 @@
 @extends('sisca-v2.layouts.app')
 
-@section('title', 'Plants Management')
+@section('title', 'Companies Management')
 
 @section('content')
     <div class="container-fluid">
         <!-- Page Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h3 class="text-primary mb-1">Plants Management</h3>
-                <p class="text-muted mb-0">Manage all plants in the system</p>
+                <h3 class="text-primary mb-1">Companies Management</h3>
+                <p class="text-muted mb-0">Manage all companies in the system</p>
             </div>
             @can('create', App\Models\SiscaV2\Plant::class)
                 <a href="{{ route('sisca-v2.plants.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Add New Plant
+                    <i class="fas fa-plus me-2"></i>Add New Company
                 </a>
             @endcan
         </div>
@@ -22,9 +22,9 @@
             <div class="card-body">
                 <form method="GET" action="{{ route('sisca-v2.plants.index') }}" class="row g-3">
                     <div class="col-md-5">
-                        <label for="search" class="form-label">Search Plant Name</label>
+                        <label for="search" class="form-label">Search Company Name</label>
                         <input type="text" class="form-control" id="search" name="search"
-                            value="{{ request('search') }}" placeholder="Enter plant name...">
+                            value="{{ request('search') }}" placeholder="Enter company name...">
                     </div>
                     <div class="col-md-4">
                         <label for="status" class="form-label">Status</label>
@@ -49,7 +49,7 @@
         <!-- Plants Table -->
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="card-title mb-0">Plants List</h5>
+                <h5 class="card-title mb-0">Companies List</h5>
             </div>
             <div class="card-body">
                 @if (session('success'))
@@ -71,7 +71,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Plant Name</th>
+                                <th>Company Name</th>
                                 <th>Status</th>
                                 <th>Locations Count</th>
                                 <th>Users Count</th>
@@ -140,11 +140,11 @@
                                     <td colspan="7" class="text-center py-4">
                                         <div class="text-muted">
                                             <i class="fas fa-industry fa-3x mb-3"></i>
-                                            <p class="mb-0">No plants found</p>
+                                            <p class="mb-0">No companies found</p>
                                             @can('create', App\Models\SiscaV2\Plant::class)
                                                 <a href="{{ route('sisca-v2.plants.create') }}"
                                                     class="btn btn-primary btn-sm mt-2">
-                                                    <i class="fas fa-plus me-1"></i>Add First Plant
+                                                    <i class="fas fa-plus me-1"></i>Add First Company
                                                 </a>
                                             @endcan
                                         </div>
@@ -180,7 +180,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete this plant?</p>
+                    <p>Are you sure you want to delete this company?</p>
                     <p class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>This action cannot be undone.
                     </p>
                 </div>

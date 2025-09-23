@@ -29,7 +29,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="plant_name" class="form-label required">
-                                    Plant Name
+                                    Company Name
                                     <span class="text-danger">*</span>
                                 </label>
                                 <input type="text" class="form-control @error('plant_name') is-invalid @enderror"
@@ -81,7 +81,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="plant_mapping_picture" class="form-label">
-                                    <i class="fas fa-map me-2"></i>Plant Mapping Picture
+                                    <i class="fas fa-map me-2"></i>Company Mapping Picture
                                 </label>
                                 <input type="file"
                                     class="form-control @error('plant_mapping_picture') is-invalid @enderror"
@@ -91,7 +91,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                                 <div class="form-text">
-                                    Upload new plant mapping image. Supported formats: JPEG, PNG, JPG, GIF (Max: 10MB)
+                                    Upload new company mapping image. Supported formats: JPEG, PNG, JPG, GIF (Max: 10MB)
                                 </div>
                             </div>
                         </div>
@@ -104,7 +104,7 @@
                                     </label>
                                     <div class="border rounded p-2">
                                         <img src="{{ asset('storage/' . $plant->plant_mapping_picture) }}"
-                                            alt="Current Plant Mapping" class="img-thumbnail"
+                                            alt="Current Company Mapping" class="img-thumbnail"
                                             style="max-height: 150px; cursor: pointer;"
                                             onclick="showImageModal('{{ asset('storage/' . $plant->plant_mapping_picture) }}', '{{ $plant->plant_name }} - Current Mapping')">
                                         <div class="form-text mt-2">Click image to view full size</div>
@@ -137,11 +137,11 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="imageModalLabel">Plant Mapping Image</h5>
+                    <h5 class="modal-title" id="imageModalLabel">Company Mapping Image</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <img id="modalImage" src="" alt="Plant Mapping" class="img-fluid">
+                    <img id="modalImage" src="" alt="Company Mapping" class="img-fluid">
                 </div>
             </div>
         </div>

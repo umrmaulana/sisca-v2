@@ -1,14 +1,14 @@
 @extends('sisca-v2.layouts.app')
 
-@section('title', 'Plant Details')
+@section('title', 'Company Details')
 
 @section('content')
     <div class="container-fluid">
         <!-- Page Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h3 class="text-primary mb-1">Plant Details</h3>
-                <p class="text-muted mb-0">View detailed information about this plant</p>
+                <h3 class="text-primary mb-1">Company Details</h3>
+                <p class="text-muted mb-0">View detailed information about this company</p>
             </div>
             <div class="d-flex gap-2">
                 @can('update', $plant)
@@ -27,13 +27,13 @@
             <div class="col-lg-8">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Plant Information</h5>
+                        <h5 class="card-title mb-0">Company Information</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-4">
-                                    <label class="form-label text-muted">Plant Name</label>
+                                    <label class="form-label text-muted">Company Name</label>
                                     <div class="h5 text-primary">{{ $plant->plant_name }}</div>
                                 </div>
                             </div>
@@ -58,7 +58,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label text-muted">Plant ID</label>
+                                    <label class="form-label text-muted">Company ID</label>
                                     <div class="text-primary fw-bold">#{{ $plant->id }}</div>
                                 </div>
                             </div>
@@ -78,19 +78,19 @@
                             <div class="d-flex gap-2 flex-wrap">
                                 @can('create', App\Models\SiscaV2\Plant::class)
                                     <a href="{{ route('sisca-v2.plants.create') }}" class="btn btn-success">
-                                        <i class="fas fa-plus me-2"></i>Create New Plant
+                                        <i class="fas fa-plus me-2"></i>Create New Company
                                     </a>
                                 @endcan
 
                                 @can('update', $plant)
                                     <a href="{{ route('sisca-v2.plants.edit', $plant) }}" class="btn btn-warning">
-                                        <i class="fas fa-edit me-2"></i>Edit Plant
+                                        <i class="fas fa-edit me-2"></i>Edit Company
                                     </a>
                                 @endcan
 
                                 @can('delete', $plant)
                                     <button type="button" class="btn btn-danger" onclick="confirmDelete()">
-                                        <i class="fas fa-trash me-2"></i>Delete Plant
+                                        <i class="fas fa-trash me-2"></i>Delete Company
                                     </button>
                                 @endcan
                             </div>
@@ -149,7 +149,7 @@
                                 <span class="text-muted">Total Locations:</span>
                                 <span class="badge bg-info">{{ $plant->locations->count() }}</span>
                             </div>
-                            <small class="text-muted">Locations in this plant</small>
+                            <small class="text-muted">Locations in this company</small>
                         </div>
 
                         <div class="mb-3">
@@ -157,7 +157,7 @@
                                 <span class="text-muted">Total Users:</span>
                                 <span class="badge bg-primary">{{ $plant->users->count() }}</span>
                             </div>
-                            <small class="text-muted">Users assigned to this plant</small>
+                            <small class="text-muted">Users assigned to this company</small>
                         </div>
 
                         <div class="mb-3">
@@ -220,12 +220,12 @@
                 <div class="modal-body">
                     <div class="text-center">
                         <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
-                        <h5>Are you sure you want to delete this plant?</h5>
-                        <p class="text-muted">Plant: <strong>{{ $plant->plant_name }}</strong></p>
+                        <h5>Are you sure you want to delete this company?</h5>
+                        <p class="text-muted">Company: <strong>{{ $plant->plant_name }}</strong></p>
                         @if ($plant->locations->count() > 0 || $plant->users->count() > 0)
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                This plant has
+                                This company has
                                 @if ($plant->locations->count() > 0)
                                     <strong>{{ $plant->locations->count() }}</strong> related location(s)
                                 @endif
@@ -249,7 +249,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash me-1"></i>Delete Plant
+                            <i class="fas fa-trash me-1"></i>Delete Company
                         </button>
                     </form>
                 </div>
