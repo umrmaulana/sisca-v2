@@ -457,7 +457,8 @@
                                                                 </p>
                                                                 <p class="mb-0 text-muted small">
                                                                     Max 10MB (JPEG, PNG, JPG)<br>
-                                                                    <small class="text-success">⚡ Auto-compressed to 800KB</small>
+                                                                    <small class="text-success">⚡ Auto-compressed to
+                                                                        800KB</small>
                                                                 </p>
                                                             </div>
 
@@ -926,14 +927,17 @@
 
                     img.onload = function() {
                         // Calculate new dimensions while maintaining aspect ratio
-                        let { width, height } = calculateDimensions(img.width, img.height);
-                        
+                        let {
+                            width,
+                            height
+                        } = calculateDimensions(img.width, img.height);
+
                         canvas.width = width;
                         canvas.height = height;
 
                         // Draw and compress
                         ctx.drawImage(img, 0, 0, width, height);
-                        
+
                         // Convert to blob with compression
                         canvas.toBlob(function(blob) {
                             // If still too large, reduce quality further
@@ -958,7 +962,10 @@
             // Calculate optimal dimensions for compression
             function calculateDimensions(width, height, maxWidth = 1920, maxHeight = 1080) {
                 if (width <= maxWidth && height <= maxHeight) {
-                    return { width, height };
+                    return {
+                        width,
+                        height
+                    };
                 }
 
                 const ratio = Math.min(maxWidth / width, maxHeight / height);
@@ -978,7 +985,7 @@
                         <p class="text-muted mb-0">Mengompres gambar...</p>
                     </div>
                 `;
-                
+
                 if (show) {
                     uploadArea.innerHTML = loadingHtml;
                 } else {
@@ -1034,9 +1041,11 @@
                             mainInput.files = dataTransfer.files;
 
                             // Show compression info
-                            const originalSize = SISCA.formatFileSize ? SISCA.formatFileSize(file.size) : (file.size / 1024).toFixed(1) + 'KB';
-                            const compressedSize = SISCA.formatFileSize ? SISCA.formatFileSize(compressedFile.size) : (compressedFile.size / 1024).toFixed(1) + 'KB';
-                            showAlert('success', 
+                            const originalSize = SISCA.formatFileSize ? SISCA.formatFileSize(file.size) : (file
+                                .size / 1024).toFixed(1) + 'KB';
+                            const compressedSize = SISCA.formatFileSize ? SISCA.formatFileSize(compressedFile
+                                .size) : (compressedFile.size / 1024).toFixed(1) + 'KB';
+                            showAlert('success',
                                 `Gambar berhasil dikompres: ${originalSize} → ${compressedSize}`
                             );
 

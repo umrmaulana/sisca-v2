@@ -534,13 +534,13 @@ function formatNumber(num, decimals = 0) {
 
 // Format file size to human readable
 function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    
+    if (bytes === 0) return "0 Bytes";
+
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
 }
 
 // Date formatting
@@ -758,54 +758,63 @@ window.SISCA = {
 function compressImage(file, maxSizeKB = 800, quality = 0.7) {
     return new Promise((resolve, reject) => {
         // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
         if (!allowedTypes.includes(file.type)) {
-            reject(new Error('Only JPEG, PNG, and JPG files are allowed.'));
+            reject(new Error("Only JPEG, PNG, and JPG files are allowed."));
             return;
         }
 
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
         const img = new Image();
 
-        img.onload = function() {
+        img.onload = function () {
             try {
                 // Calculate new dimensions while maintaining aspect ratio
-                const { width, height } = calculateImageDimensions(img.width, img.height);
-                
+                const { width, height } = calculateImageDimensions(
+                    img.width,
+                    img.height
+                );
+
                 canvas.width = width;
                 canvas.height = height;
 
                 // Draw and compress
                 ctx.drawImage(img, 0, 0, width, height);
-                
-                // Convert to blob with compression
-                canvas.toBlob(function(blob) {
-                    if (!blob) {
-                        reject(new Error('Failed to compress image'));
-                        return;
-                    }
 
-                    // If still too large, reduce quality further
-                    if (blob.size > maxSizeKB * 1024 && quality > 0.1) {
-                        // Recursive compression with lower quality
-                        compressImage(file, maxSizeKB, quality - 0.1).then(resolve).catch(reject);
-                    } else {
-                        // Create new file object
-                        const compressedFile = new File([blob], file.name, {
-                            type: 'image/jpeg',
-                            lastModified: Date.now()
-                        });
-                        resolve(compressedFile);
-                    }
-                }, 'image/jpeg', quality);
+                // Convert to blob with compression
+                canvas.toBlob(
+                    function (blob) {
+                        if (!blob) {
+                            reject(new Error("Failed to compress image"));
+                            return;
+                        }
+
+                        // If still too large, reduce quality further
+                        if (blob.size > maxSizeKB * 1024 && quality > 0.1) {
+                            // Recursive compression with lower quality
+                            compressImage(file, maxSizeKB, quality - 0.1)
+                                .then(resolve)
+                                .catch(reject);
+                        } else {
+                            // Create new file object
+                            const compressedFile = new File([blob], file.name, {
+                                type: "image/jpeg",
+                                lastModified: Date.now(),
+                            });
+                            resolve(compressedFile);
+                        }
+                    },
+                    "image/jpeg",
+                    quality
+                );
             } catch (error) {
                 reject(error);
             }
         };
 
-        img.onerror = function() {
-            reject(new Error('Failed to load image'));
+        img.onerror = function () {
+            reject(new Error("Failed to load image"));
         };
 
         img.src = URL.createObjectURL(file);
@@ -813,7 +822,12 @@ function compressImage(file, maxSizeKB = 800, quality = 0.7) {
 }
 
 // Calculate optimal dimensions for compression
-function calculateImageDimensions(width, height, maxWidth = 1920, maxHeight = 1080) {
+function calculateImageDimensions(
+    width,
+    height,
+    maxWidth = 1920,
+    maxHeight = 1080
+) {
     if (width <= maxWidth && height <= maxHeight) {
         return { width, height };
     }
@@ -821,7 +835,7 @@ function calculateImageDimensions(width, height, maxWidth = 1920, maxHeight = 10
     const ratio = Math.min(maxWidth / width, maxHeight / height);
     return {
         width: Math.round(width * ratio),
-        height: Math.round(height * ratio)
+        height: Math.round(height * ratio),
     };
 }
 
