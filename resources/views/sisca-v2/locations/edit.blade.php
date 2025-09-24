@@ -115,8 +115,7 @@
                                         <input type="text"
                                             class="form-control @error('coordinate_x') is-invalid @enderror"
                                             id="coordinate_x" name="coordinate_x"
-                                            value="{{ old('coordinate_x', $location->coordinate_x) }}"
-                                            readonly>
+                                            value="{{ old('coordinate_x', $location->coordinate_x) }}" readonly>
                                         @error('coordinate_x')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -130,8 +129,7 @@
                                         <input type="text"
                                             class="form-control @error('coordinate_y') is-invalid @enderror"
                                             id="coordinate_y" name="coordinate_y"
-                                            value="{{ old('coordinate_y', $location->coordinate_y) }}"
-                                            readonly>
+                                            value="{{ old('coordinate_y', $location->coordinate_y) }}" readonly>
                                         @error('coordinate_y')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
