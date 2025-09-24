@@ -202,7 +202,7 @@
         <script>
             function confirmDelete(id) {
                 const form = document.getElementById('deleteForm');
-                form.action = `${window.location.origin}/sisca-v2.companies/${id}`;
+                form.action = `${window.location.origin}/sisca-v2/companies/${id}`;
                 const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
                 modal.show();
             }
