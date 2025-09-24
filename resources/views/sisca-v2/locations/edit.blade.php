@@ -112,11 +112,11 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="coordinate_x" class="form-label">X Coordinate (Area)</label>
-                                        <input type="number" step="0.000001"
+                                        <input type="text"
                                             class="form-control @error('coordinate_x') is-invalid @enderror"
                                             id="coordinate_x" name="coordinate_x"
                                             value="{{ old('coordinate_x', $location->coordinate_x) }}"
-                                            placeholder="X coordinate..." readonly>
+                                            readonly>
                                         @error('coordinate_x')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -127,11 +127,11 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="coordinate_y" class="form-label">Y Coordinate (Area)</label>
-                                        <input type="number" step="0.000001"
+                                        <input type="text"
                                             class="form-control @error('coordinate_y') is-invalid @enderror"
                                             id="coordinate_y" name="coordinate_y"
                                             value="{{ old('coordinate_y', $location->coordinate_y) }}"
-                                            placeholder="Y coordinate..." readonly>
+                                            readonly>
                                         @error('coordinate_y')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -144,7 +144,7 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="company_coordinate_x" class="form-label">X Coordinate (Company)</label>
-                                        <input type="number" step="0.000001"
+                                        <input type="number" step="0.01"
                                             class="form-control @error('company_coordinate_x') is-invalid @enderror"
                                             id="company_coordinate_x" name="company_coordinate_x"
                                             value="{{ old('company_coordinate_x', $location->company_coordinate_x) }}"
@@ -160,7 +160,7 @@
                                     <div class="mb-3">
                                         <label for="company_coordinate_y" class="form-label">Y Coordinate
                                             (Company)</label>
-                                        <input type="number" step="0.000001"
+                                        <input type="number" step="0.01"
                                             class="form-control @error('company_coordinate_y') is-invalid @enderror"
                                             id="company_coordinate_y" name="company_coordinate_y"
                                             value="{{ old('company_coordinate_y', $location->company_coordinate_y) }}"
@@ -313,13 +313,16 @@
                 // When company changes
                 $('#company_id').on('change', function() {
                     const companyId = $(this).val();
+                    const currentCompanyId = {{ $location->company_id ?? 'null' }};
 
                     // Clear area dropdown
                     $('#area_id').html('<option value="">Select Area</option>');
 
-                    // Clear company coordinates if company changes
-                    $('#company_coordinate_x, #company_coordinate_y').val('');
-                    $('#companyCoordinateMarker').hide();
+                    // Only clear company coordinates if company actually changes (not on initial load)
+                    if (companyId != currentCompanyId && $('#company_id').data('initialized')) {
+                        $('#company_coordinate_x, #company_coordinate_y').val('');
+                        $('#companyCoordinateMarker').hide();
+                    }
 
                     // Hide area mapping
                     $('#areaMappingSection').hide();
@@ -336,10 +339,13 @@
                 // When area changes
                 $('#area_id').on('change', function() {
                     const areaId = $(this).val();
+                    const currentAreaId = {{ $location->area_id ?? 'null' }};
 
-                    // Clear area coordinates if area changes
-                    $('#coordinate_x, #coordinate_y').val('');
-                    $('#areaCoordinateMarker').hide();
+                    // Only clear area coordinates if area actually changes (not on initial load)
+                    if (areaId != currentAreaId && $('#area_id').data('initialized')) {
+                        $('#coordinate_x, #coordinate_y').val('');
+                        $('#areaCoordinateMarker').hide();
+                    }
 
                     if (areaId) {
                         loadAreaMapping(areaId);
@@ -526,6 +532,12 @@
                 if (existingCompanyId) {
                     $('#company_id').trigger('change');
                 }
+
+                // Mark dropdowns as initialized after initial load
+                setTimeout(() => {
+                    $('#company_id').data('initialized', true);
+                    $('#area_id').data('initialized', true);
+                }, 1000);
             });
         </script>
     @endpush

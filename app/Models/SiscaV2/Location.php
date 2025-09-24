@@ -27,8 +27,8 @@ class Location extends Model
         'is_active' => 'boolean',
         'coordinate_x' => 'decimal:6',
         'coordinate_y' => 'decimal:6',
-        'company_coordinate_x' => 'decimal:6',
-        'company_coordinate_y' => 'decimal:6',
+        'company_coordinate_x' => 'decimal:2',
+        'company_coordinate_y' => 'decimal:2',
     ];
 
     // Accessor for location_name (use location_code as display name)
