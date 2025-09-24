@@ -132,6 +132,7 @@ Route::prefix('sisca-v2')->name('sisca-v2.')->group(function () {
         // Locations Management
         Route::resource('locations', LocationController::class);
         Route::get('locations/areas/{company}', [LocationController::class, 'getAreasByCompany'])->name('locations.areas-by-company');
+        Route::get('locations/company/{company}', [LocationController::class, 'getCompanyData'])->name('locations.company-data');
 
         // Equipments Management
         Route::get('equipments/areas-by-company', [EquipmentController::class, 'getAreasByCompany'])->name('equipments.areas-by-company');

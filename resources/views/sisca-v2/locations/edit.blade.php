@@ -394,12 +394,20 @@
 
                 function loadCompanyMapping(companyId) {
                     fetch(`${window.location.origin}/sisca-v2/locations/company/${companyId}`)
-                        .then(response => response.json())
+                        .then(response => {
+                            console.log('Company API response status:', response.status);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
                         .then(company => {
+                            console.log('Company data received:', company);
                             currentCompanyData = company;
                             if (company.company_mapping_picture) {
                                 const imagePath =
                                     `${window.location.origin}/storage/${company.company_mapping_picture}`;
+                                console.log('Company image path:', imagePath);
                                 $('#companyMappingImage').attr('src', imagePath);
                                 $('#companyMappingSection').show();
                                 $('#noMappingMessage').hide();
@@ -424,6 +432,9 @@
                         .catch(error => {
                             console.error('Error loading company mapping:', error);
                             $('#companyMappingSection').hide();
+                            if (!$('#areaMappingSection').is(':visible')) {
+                                $('#noMappingMessage').show();
+                            }
                         });
                 }
 

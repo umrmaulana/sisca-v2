@@ -18,12 +18,15 @@ class CompanySeeder extends Seeder
         DB::table('tm_companies')->insert([
             [
                 'company_name' => 'PT. AII',
+                'company_mapping_picture' => 'sisca-v2/templates/mapping/sample-company-map.jpg', // Sample mapping picture
+                'company_description' => 'Astra International Indonesia',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'company_name' => 'PT. AIIA',
+                'company_description' => 'Astra International Insurance Agency',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
