@@ -89,30 +89,28 @@
                                         <option value="Management"
                                             {{ old('role', $user->role) == 'Management' ? 'selected' : '' }}>Management
                                         </option>
-                                        <option value="MTE" {{ old('role', $user->role) == 'MTE' ? 'selected' : '' }}>
-                                            MTE</option>
-                                        <option value="User" {{ old('role', $user->role) == 'User' ? 'selected' : '' }}>
-                                            User</option>
+                                        <option value="Pic" {{ old('role', $user->role) == 'Pic' ? 'selected' : '' }}>
+                                            Pic</option>
                                     </select>
                                     @error('role')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="plant_id" class="form-label">
+                                    <label for="company_id" class="form-label">
                                         Company
                                     </label>
-                                    <select class="form-select @error('plant_id') is-invalid @enderror" id="plant_id"
-                                        name="plant_id">
+                                    <select class="form-select @error('company_id') is-invalid @enderror" id="company_id"
+                                        name="company_id">
                                         <option value="">Select Company</option>
-                                        @foreach ($plants as $plant)
-                                            <option value="{{ $plant->id }}"
-                                                {{ old('plant_id', $user->plant_id) == $plant->id ? 'selected' : '' }}>
-                                                {{ $plant->plant_name }}
+                                        @foreach ($companies as $company)
+                                            <option value="{{ $company->id }}"
+                                                {{ old('company_id', $user->company_id) == $company->id ? 'selected' : '' }}>
+                                                {{ $company->company_name }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    @error('plant_id')
+                                    @error('company_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                     <div class="form-text">Optional. Assign user to specific company.</div>
@@ -186,7 +184,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <small class="text-muted">Current Company:</small><br>
-                                        <strong>{{ $user->plant ? $user->plant->plant_name : 'No company assigned' }}</strong>
+                                        <strong>{{ $user->company ? $user->company->company_name : 'No company assigned' }}</strong>
                                     </div>
                                 </div>
                             </div>
@@ -198,8 +196,7 @@
                                     <li><strong>Admin:</strong> Full system access and user management</li>
                                     <li><strong>Supervisor:</strong> Equipment management and checksheet oversight</li>
                                     <li><strong>Management:</strong> Reports and analytics access</li>
-                                    <li><strong>MTE:</strong> Equipment maintenance and technical operations</li>
-                                    <li><strong>User:</strong> Basic checksheet operations</li>
+                                    <li><strong>Pic:</strong> Person in charge of specific tasks</li>
                                 </ul>
                             </div>
 

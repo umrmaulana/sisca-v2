@@ -13,10 +13,10 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('tm_areas', function (Blueprint $table) {
-            $table->unsignedBigInteger('plant_id')->nullable()->after('area_name');
-            $table->string('mapping_picture')->nullable()->after('plant_id');
+            $table->unsignedBigInteger('company_id')->nullable()->after('area_name');
+            $table->string('mapping_picture')->nullable()->after('company_id');
 
-            $table->foreign('plant_id')->references('id')->on('tm_plants')->onDelete('cascade');
+            $table->foreign('company_id')->references('id')->on('tm_companies')->onDelete('cascade');
         });
     }
 
@@ -28,8 +28,8 @@ return new class extends Migration {
     public function down()
     {
         Schema::table('tm_areas', function (Blueprint $table) {
-            $table->dropForeign(['plant_id']);
-            $table->dropColumn(['plant_id', 'mapping_picture']);
+            $table->dropForeign(['company_id']);
+            $table->dropColumn(['company_id', 'mapping_picture']);
         });
     }
 };

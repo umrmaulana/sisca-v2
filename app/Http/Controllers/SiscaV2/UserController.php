@@ -4,7 +4,7 @@ namespace App\Http\Controllers\SiscaV2;
 
 use Illuminate\Routing\Controller;
 use App\Models\SiscaV2\User;
-use App\Models\SiscaV2\Plant;
+use App\Models\SiscaV2\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -40,28 +40,28 @@ class UserController extends Controller
             $query->where('is_active', $request->get('status'));
         }
 
-        // Plant filter
-        if ($request->filled('plant_id')) {
-            $query->where('plant_id', $request->get('plant_id'));
+        // Company filter
+        if ($request->filled('company_id')) {
+            $query->where('company_id', $request->get('company_id'));
         }
 
         // Order by created_at desc for newest first
         $query->orderBy('created_at', 'desc');
 
-        $users = $query->with('plant')->paginate(10)->appends($request->query());
+        $users = $query->with('company')->paginate(10)->appends($request->query());
 
         // Get data for filters
-        $plants = Plant::where('is_active', true)->get();
-        $roles = ['Admin', 'Supervisor', 'Management', 'User', 'MTE'];
+        $companies = Company::where('is_active', true)->get();
+        $roles = ['Admin', 'Supervisor', 'Management', 'User', 'Pic'];
 
-        return view('sisca-v2.users.index', compact('users', 'plants', 'roles'));
+        return view('sisca-v2.users.index', compact('users', 'companies', 'roles'));
     }
 
     public function create()
     {
-        $plants = Plant::where('is_active', true)->get();
-        $roles = ['Admin', 'Supervisor', 'Management', 'User', 'MTE'];
-        return view('sisca-v2.users.create', compact('plants', 'roles'));
+        $companies = Company::where('is_active', true)->get();
+        $roles = ['Admin', 'Supervisor', 'Management', 'User', 'Pic'];
+        return view('sisca-v2.users.create', compact('companies', 'roles'));
     }
 
     public function store(Request $request)
@@ -69,8 +69,8 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'npk' => 'required|string|max:20|unique:users,npk',
-            'role' => 'required|in:Admin,Supervisor,Management,User,MTE',
-            'plant_id' => 'nullable|exists:tm_plants,id',
+            'role' => 'required|in:Admin,Supervisor,Management,User,Pic',
+            'company_id' => 'nullable|exists:tm_companies,id',
             'password' => 'required|string|min:8',
             'is_active' => 'boolean',
         ]);
@@ -94,16 +94,16 @@ class UserController extends Controller
     public function show(User $user)
     {
         // Load relationships if they exist
-        $user->load('plant');
+        $user->load('company');
 
         return view('sisca-v2.users.show', compact('user'));
     }
 
     public function edit(User $user)
     {
-        $plants = Plant::where('is_active', true)->get();
-        $roles = ['Admin', 'Supervisor', 'Management', 'User', 'MTE'];
-        return view('sisca-v2.users.edit', compact('user', 'plants', 'roles'));
+        $companies = Company::where('is_active', true)->get();
+        $roles = ['Admin', 'Supervisor', 'Management', 'User', 'Pic'];
+        return view('sisca-v2.users.edit', compact('user', 'companies', 'roles'));
     }
 
     public function update(Request $request, User $user)
@@ -111,8 +111,8 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'npk' => 'required|string|max:20|unique:users,npk,' . $user->id,
-            'role' => 'required|in:Admin,Supervisor,Management,User,MTE',
-            'plant_id' => 'nullable|exists:tm_plants,id',
+            'role' => 'required|in:Admin,Supervisor,Management,User,Pic',
+            'company_id' => 'nullable|exists:tm_companies,id',
             'password' => 'nullable|string|min:8',
             'is_active' => 'boolean',
         ]);

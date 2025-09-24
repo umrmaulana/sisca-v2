@@ -56,24 +56,24 @@
                             onsubmit="console.log('Form submitted'); return true;" id="locationForm">
                             @csrf
 
-                            <!-- Plant Selection (Hidden for Supervisor) -->
+                            <!-- Company Selection (Hidden for Supervisor) -->
                             @if (auth('sisca-v2')->user()->role === 'Admin' || auth('sisca-v2')->user()->role === 'Management')
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="mb-3">
-                                            <label for="plant_id" class="form-label">Company<span
+                                            <label for="company_id" class="form-label">Company<span
                                                     class="text-danger">*</span></label>
-                                            <select class="form-select @error('plant_id') is-invalid @enderror"
-                                                id="plant_id" name="plant_id" required>
+                                            <select class="form-select @error('company_id') is-invalid @enderror"
+                                                id="company_id" name="company_id" required>
                                                 <option value="">Select Company</option>
-                                                @foreach ($plants as $plant)
-                                                    <option value="{{ $plant->id }}"
-                                                        {{ old('plant_id') == $plant->id ? 'selected' : '' }}>
-                                                        {{ $plant->plant_name }}
+                                                @foreach ($companies as $company)
+                                                    <option value="{{ $company->id }}"
+                                                        {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                                                        {{ $company->company_name }}
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            @error('plant_id')
+                                            @error('company_id')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                             <div class="form-text">Select the company where this location is situated</div>
@@ -81,16 +81,16 @@
                                     </div>
                                 </div>
                             @else
-                                <!-- Hidden plant field for Supervisor -->
-                                <input type="hidden" id="plant_id" name="plant_id"
-                                    value="{{ $plants->first()->id ?? '' }}">
+                                <!-- Hidden company field for Supervisor -->
+                                <input type="hidden" id="company_id" name="company_id"
+                                    value="{{ $companies->first()->id ?? '' }}">
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="mb-3">
                                             <label class="form-label">Assigned Company</label>
                                             <div class="form-control-plaintext">
                                                 <span
-                                                    class="badge bg-info">{{ $plants->first()->plant_name ?? 'No Company Assigned' }}</span>
+                                                    class="badge bg-info">{{ $companies->first()->company_name ?? 'No Company Assigned' }}</span>
                                             </div>
                                             <div class="form-text">You are assigned to this company</div>
                                         </div>
@@ -172,17 +172,17 @@
                                 </div>
                             </div>
 
-                            <!-- Plant Coordinates -->
+                            <!-- Company Coordinates -->
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="plant_coordinate_x" class="form-label">Company X Coordinate</label>
+                                        <label for="company_coordinate_x" class="form-label">Company X Coordinate</label>
                                         <input type="number" step="0.01"
-                                            class="form-control @error('plant_coordinate_x') is-invalid @enderror"
-                                            id="plant_coordinate_x" name="plant_coordinate_x"
-                                            value="{{ old('plant_coordinate_x') }}"
-                                            placeholder="X coordinate for plant mapping...">
-                                        @error('plant_coordinate_x')
+                                            class="form-control @error('company_coordinate_x') is-invalid @enderror"
+                                            id="company_coordinate_x" name="company_coordinate_x"
+                                            value="{{ old('company_coordinate_x') }}"
+                                            placeholder="X coordinate for company mapping...">
+                                        @error('company_coordinate_x')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                         <div class="form-text">X position relative to company mapping (0-100%)</div>
@@ -190,13 +190,13 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="plant_coordinate_y" class="form-label">Company Y Coordinate</label>
+                                        <label for="company_coordinate_y" class="form-label">Company Y Coordinate</label>
                                         <input type="number" step="0.01"
-                                            class="form-control @error('plant_coordinate_y') is-invalid @enderror"
-                                            id="plant_coordinate_y" name="plant_coordinate_y"
-                                            value="{{ old('plant_coordinate_y') }}"
-                                            placeholder="Y coordinate for plant mapping...">
-                                        @error('plant_coordinate_y')
+                                            class="form-control @error('company_coordinate_y') is-invalid @enderror"
+                                            id="company_coordinate_y" name="company_coordinate_y"
+                                            value="{{ old('company_coordinate_y') }}"
+                                            placeholder="Y coordinate for company mapping...">
+                                        @error('company_coordinate_y')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                         <div class="form-text">Y position relative to company mapping (0-100%)</div>
@@ -244,8 +244,8 @@
 
             <!-- Mapping Section -->
             <div class="col-lg-6">
-                <!-- Plant Mapping Section -->
-                <div id="plantMappingSection" class="card mb-3" style="display: none;">
+                <!-- Company Mapping Section -->
+                <div id="companyMappingSection" class="card mb-3" style="display: none;">
                     <div class="card-header" style="background-color: #198754;">
                         <h5 class="card-title mb-0 text-white">
                             <i class="fas fa-industry me-2"></i>Company Mapping
@@ -253,10 +253,10 @@
                     </div>
                     <div class="card-body">
                         <div class="position-relative">
-                            <img id="plantMappingImage" src="" alt="Company Mapping"
+                            <img id="companyMappingImage" src="" alt="Company Mapping"
                                 class="img-fluid border rounded shadow-sm"
                                 style="cursor: crosshair; width: 100%; height: auto;">
-                            <div id="plantCoordinateMarker"
+                            <div id="companyCoordinateMarker"
                                 style="position: absolute; width: 12px; height: 12px; 
                                        background: #28a745; border: 2px solid white; 
                                        border-radius: 50%; transform: translate(-50%, -50%); 
@@ -267,8 +267,8 @@
                         <div class="mt-2 small text-muted">
                             <i class="fas fa-info-circle me-1"></i>
                             Current company coordinates:
-                            <span id="plantCurrentCoords">
-                                X: <span id="plantCoordX">-</span>, Y: <span id="plantCoordY">-</span>
+                            <span id="companyCurrentCoords">
+                                X: <span id="companyCoordX">-</span>, Y: <span id="companyCoordY">-</span>
                             </span>
                         </div>
                         <div class="mt-2 small text-success">
@@ -333,21 +333,21 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            let currentPlantData = null;
+            let currentCompanyData = null;
             let currentAreaData = null;
             const userRole = '{{ auth('sisca-v2')->user()->role }}';
 
-            // Initialize for supervisor (auto-load plant mapping)
+            // Initialize for supervisor (auto-load company mapping)
             if (userRole === 'Supervisor') {
-                const plantId = $('#plant_id').val();
-                if (plantId) {
-                    loadPlantMapping(plantId);
+                const companyId = $('#company_id').val();
+                if (companyId) {
+                    loadCompanyMapping(companyId);
                 }
             }
 
-            // When plant changes (only for Admin/Management)
-            $('#plant_id').on('change', function() {
-                const plantId = $(this).val();
+            // When company changes (only for Admin/Management)
+            $('#company_id').on('change', function() {
+                const companyId = $(this).val();
 
                 // For Admin/Management - clear area dropdown and load areas
                 if (userRole === 'Admin' || userRole === 'Management') {
@@ -355,23 +355,23 @@
                     $('#area_id').html('<option value="">Select Area</option>');
                 }
 
-                // Clear plant coordinates
-                $('#plant_coordinate_x, #plant_coordinate_y').val('');
-                $('#plantCoordinateMarker').hide();
-                $('#plantCoordX, #plantCoordY').text('-');
+                // Clear company coordinates
+                $('#company_coordinate_x, #company_coordinate_y').val('');
+                $('#companyCoordinateMarker').hide();
+                $('#companyCoordX, #companyCoordY').text('-');
 
                 // Hide area mapping
                 $('#areaMappingSection').hide();
 
-                if (plantId) {
-                    loadPlantMapping(plantId);
+                if (companyId) {
+                    loadCompanyMapping(companyId);
 
                     // Only load areas dynamically for Admin/Management
                     if (userRole === 'Admin' || userRole === 'Management') {
-                        loadAreasForPlant(plantId);
+                        loadAreasForCompany(companyId);
                     }
                 } else {
-                    $('#plantMappingSection').hide();
+                    $('#companyMappingSection').hide();
                     $('#noMappingMessage').show();
                 }
             });
@@ -392,26 +392,26 @@
                 }
             });
 
-            // Plant mapping image click handler
-            $(document).on('click', '#plantMappingImage', function(e) {
+            // Company mapping image click handler
+            $(document).on('click', '#companyMappingImage', function(e) {
                 const rect = this.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
 
-                // Calculate relative coordinates (0-100 percentage range for plant)
+                // Calculate relative coordinates (0-100 percentage range for company)
                 const relativeX = (x / rect.width) * 100;
                 const relativeY = (y / rect.height) * 100;
 
                 // Update coordinate inputs
-                $('#plant_coordinate_x').val(relativeX.toFixed(2));
-                $('#plant_coordinate_y').val(relativeY.toFixed(2));
+                $('#company_coordinate_x').val(relativeX.toFixed(2));
+                $('#company_coordinate_y').val(relativeY.toFixed(2));
 
                 // Update display
-                $('#plantCoordX').text(relativeX.toFixed(2));
-                $('#plantCoordY').text(relativeY.toFixed(2));
+                $('#companyCoordX').text(relativeX.toFixed(2));
+                $('#companyCoordY').text(relativeY.toFixed(2));
 
                 // Show marker
-                $('#plantCoordinateMarker').css({
+                $('#companyCoordinateMarker').css({
                     left: x + 'px',
                     top: y + 'px',
                     display: 'block'
@@ -444,35 +444,35 @@
                 });
             });
 
-            function loadPlantMapping(plantId) {
-                fetch(`${window.location.origin}/sisca-v2/locations/plant/${plantId}`)
+            function loadCompanyMapping(companyId) {
+                fetch(`${window.location.origin}/sisca-v2/locations/company/${companyId}`)
                     .then(response => response.json())
-                    .then(plant => {
-                        currentPlantData = plant;
-                        if (plant.plant_mapping_picture) {
+                    .then(company => {
+                        currentCompanyData = company;
+                        if (company.company_mapping_picture) {
                             const imagePath =
-                                `${window.location.origin}/storage/${plant.plant_mapping_picture}`;
-                            $('#plantMappingImage').attr('src', imagePath);
-                            $('#plantMappingSection').show();
+                                `${window.location.origin}/storage/${company.company_mapping_picture}`;
+                            $('#companyMappingImage').attr('src', imagePath);
+                            $('#companyMappingSection').show();
                             $('#noMappingMessage').hide();
                         } else {
-                            $('#plantMappingSection').hide();
+                            $('#companyMappingSection').hide();
                             if (!$('#areaMappingSection').is(':visible')) {
                                 $('#noMappingMessage').show();
                             }
                         }
                     })
                     .catch(error => {
-                        console.error('Error loading plant mapping:', error);
-                        $('#plantMappingSection').hide();
+                        console.error('Error loading company mapping:', error);
+                        $('#companyMappingSection').hide();
                     });
             }
 
             function loadAreaMapping(areaId) {
-                const plantId = $('#plant_id').val();
-                if (!plantId) return;
+                const companyId = $('#company_id').val();
+                if (!companyId) return;
 
-                fetch(`${window.location.origin}/sisca-v2/locations/areas/${plantId}`)
+                fetch(`${window.location.origin}/sisca-v2/locations/areas/${companyId}`)
                     .then(response => response.json())
                     .then(areas => {
                         const area = areas.find(a => a.id == areaId);
@@ -484,7 +484,7 @@
                             $('#noMappingMessage').hide();
                         } else {
                             $('#areaMappingSection').hide();
-                            if (!$('#plantMappingSection').is(':visible')) {
+                            if (!$('#companyMappingSection').is(':visible')) {
                                 $('#noMappingMessage').show();
                             }
                         }
@@ -495,8 +495,8 @@
                     });
             }
 
-            function loadAreasForPlant(plantId) {
-                fetch(`${window.location.origin}/sisca-v2/locations/areas/${plantId}`)
+            function loadAreasForCompany(companyId) {
+                fetch(`${window.location.origin}/sisca-v2/locations/areas/${companyId}`)
                     .then(response => response.json())
                     .then(areas => {
                         areas.forEach(area => {

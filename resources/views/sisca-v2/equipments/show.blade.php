@@ -94,9 +94,9 @@
                                             <small class="text-muted d-block">Area:
                                                 {{ $equipment->location->area->area_name }}</small>
                                         @endif
-                                        @if ($equipment->location && $equipment->location->plant)
+                                        @if ($equipment->location && $equipment->location->company)
                                             <small class="text-muted d-block">Company:
-                                                {{ $equipment->location->plant->plant_name }}</small>
+                                                {{ $equipment->location->company->company_name }}</small>
                                         @endif
                                     </div>
                                 </div>
@@ -216,8 +216,8 @@
                             </div>
                             <div class="mb-3">
                                 <h6 class="text-primary">{{ $equipment->equipment_code }}</h6>
-                                @if ($equipment->location && $equipment->location->plant && $equipment->location->area)
-                                    <small class="text-muted d-block">{{ $equipment->location->plant->plant_name }} -
+                                @if ($equipment->location && $equipment->location->company && $equipment->location->area)
+                                    <small class="text-muted d-block">{{ $equipment->location->company->company_name }} -
                                         {{ $equipment->location->area->area_name }}</small>
                                 @endif
                             </div>
@@ -346,8 +346,8 @@
                             <img src="${qrImage.src}" alt="QR Code">
                             <div class="info">
                                 <strong>{{ $equipment->equipment_code }}</strong><br>
-                                @if ($equipment->location && $equipment->location->plant && $equipment->location->area)
-                                    {{ $equipment->location->plant->plant_name }} - {{ $equipment->location->area->area_name }}
+                                @if ($equipment->location && $equipment->location->company && $equipment->location->area)
+                                    {{ $equipment->location->company->company_name }} - {{ $equipment->location->area->area_name }}
                                 @endif
                             </div>
                         </body>

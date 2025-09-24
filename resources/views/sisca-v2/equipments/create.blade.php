@@ -73,20 +73,20 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label for="plant_id" class="form-label">
+                                    <label for="company_id" class="form-label">
                                         Company <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select @error('plant_id') is-invalid @enderror" id="plant_id"
-                                        name="plant_id" required>
+                                    <select class="form-select @error('company_id') is-invalid @enderror" id="company_id"
+                                        name="company_id" required>
                                         <option value="">Select Company</option>
-                                        @foreach ($plants as $plant)
-                                            <option value="{{ $plant->id }}"
-                                                {{ old('plant_id') == $plant->id ? 'selected' : '' }}>
-                                                {{ $plant->plant_name }}
+                                        @foreach ($companies as $company)
+                                            <option value="{{ $company->id }}"
+                                                {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                                                {{ $company->company_name }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    @error('plant_id')
+                                    @error('company_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -271,8 +271,8 @@
     @push('scripts')
         <script>
             // Cascade dropdown functionality
-            document.getElementById('plant_id').addEventListener('change', function() {
-                const plantId = this.value;
+            document.getElementById('company_id').addEventListener('change', function() {
+                const companyId = this.value;
                 const areaSelect = document.getElementById('area_id');
                 const locationSelect = document.getElementById('location_id');
 
@@ -280,8 +280,8 @@
                 areaSelect.innerHTML = '<option value="">Loading areas...</option>';
                 locationSelect.innerHTML = '<option value="">Select Area First</option>';
 
-                if (plantId) {
-                    fetch(`${window.location.origin}/sisca-v2/equipments/areas-by-plant?plant_id=${plantId}`)
+                if (companyId) {
+                    fetch(`${window.location.origin}/sisca-v2/equipments/areas-by-company?company_id=${companyId}`)
                         .then(response => response.json())
                         .then(data => {
                             areaSelect.innerHTML = '<option value="">Select Area</option>';

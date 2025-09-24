@@ -83,20 +83,20 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="plant_id" class="form-label">
+                                    <label for="company_id" class="form-label">
                                         Company
                                     </label>
-                                    <select class="form-select @error('plant_id') is-invalid @enderror" id="plant_id"
-                                        name="plant_id">
+                                    <select class="form-select @error('company_id') is-invalid @enderror" id="company_id"
+                                        name="company_id">
                                         <option value="">Select Company</option>
-                                        @foreach ($plants as $plant)
-                                            <option value="{{ $plant->id }}"
-                                                {{ old('plant_id') == $plant->id ? 'selected' : '' }}>
-                                                {{ $plant->plant_name }}
+                                        @foreach ($companies as $company)
+                                            <option value="{{ $company->id }}"
+                                                {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                                                {{ $company->company_name }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    @error('plant_id')
+                                    @error('company_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                     <div class="form-text">Optional. Assign user to specific company.</div>
@@ -153,8 +153,7 @@
                                     <li><strong>Admin:</strong> Full system access and user management</li>
                                     <li><strong>Supervisor:</strong> Equipment management and checksheet oversight</li>
                                     <li><strong>Management:</strong> Reports and analytics access</li>
-                                    <li><strong>MTE:</strong> Equipment maintenance and technical operations</li>
-                                    <li><strong>User:</strong> Basic checksheet operations</li>
+                                    <li><strong>Pic:</strong> Person in charge of specific tasks</li>
                                 </ul>
                             </div>
 
@@ -209,8 +208,7 @@
                     'Admin': 'Full system access including user management and system configuration.',
                     'Supervisor': 'Equipment management, checksheet oversight, and team supervision.',
                     'Management': 'Access to reports, analytics, and management dashboards.',
-                    'MTE': 'Equipment maintenance, technical operations, and system maintenance.',
-                    'User': 'Basic checksheet operations and data entry capabilities.'
+                    'Pic': 'Person in charge of specific tasks.'
                 };
 
             });

@@ -148,7 +148,7 @@ class InspectionController extends Controller
         $inspection = Inspection::with([
             'user',
             'equipment.equipmentType',
-            'equipment.location.area.plant',
+            'equipment.location.area.company',
             'details.checksheetTemplate',
             'ngHistories.checksheetTemplate',
             'approvedBy'

@@ -16,7 +16,7 @@ class User extends Authenticatable
         'name',
         'npk',
         'role',
-        'plant_id',
+        'company_id',
         'is_active',
         'email_verified_at',
         'password',
@@ -32,9 +32,9 @@ class User extends Authenticatable
         'is_active' => 'boolean',
     ];
 
-    public function plant()
+    public function company()
     {
-        return $this->belongsTo(Plant::class);
+        return $this->belongsTo(Company::class);
     }
 
     public function inspections()

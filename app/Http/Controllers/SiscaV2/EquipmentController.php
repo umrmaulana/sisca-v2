@@ -7,7 +7,7 @@ use App\Models\SiscaV2\Equipment;
 use App\Models\SiscaV2\EquipmentType;
 use App\Models\SiscaV2\Location;
 use App\Models\SiscaV2\PeriodCheck;
-use App\Models\SiscaV2\Plant;
+use App\Models\SiscaV2\Company;
 use App\Models\SiscaV2\Area;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -37,10 +37,10 @@ class EquipmentController extends Controller
             }
         ]);
 
-        // Apply plant filter for non-admin users
-        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->plant_id) {
+        // Apply company filter for non-admin users
+        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
             $query->whereHas('location', function ($q) use ($user) {
-                $q->where('plant_id', $user->plant_id);
+                $q->where('company_id', $user->company_id);
             });
         }
 
@@ -61,10 +61,10 @@ class EquipmentController extends Controller
             $query->where('equipment_type_id', $request->get('equipment_type_id'));
         }
 
-        // Filter by plant (only for Admin/Management)
-        if ($request->filled('plant_id') && ($user->role === 'Admin' || $user->role === 'Management')) {
+        // Filter by company (only for Admin/Management)
+        if ($request->filled('company_id') && ($user->role === 'Admin' || $user->role === 'Management')) {
             $query->whereHas('location', function ($q) use ($request) {
-                $q->where('plant_id', $request->get('plant_id'));
+                $q->where('company_id', $request->get('company_id'));
             });
         }
 
@@ -94,41 +94,41 @@ class EquipmentController extends Controller
         $equipmentTypes = EquipmentType::where('is_active', true)->get();
         $periodChecks = PeriodCheck::where('is_active', true)->get();
 
-        // Areas dropdown (available for all roles, filtered by plant access)
+        // Areas dropdown (available for all roles, filtered by company access)
         $areas = collect(); // Initialize as empty collection
 
-        // For non-admin users, load areas from their assigned plant
-        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->plant_id) {
-            $areas = Area::with(['plant'])
-                ->where('plant_id', $user->plant_id)
+        // For non-admin users, load areas from their assigned company
+        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
+            $areas = Area::with(['company'])
+                ->where('company_id', $user->company_id)
                 ->where('is_active', true)
                 ->get();
         }
-        // For admin/management, load areas based on selected plant filter
-        elseif (($user->role === 'Admin' || $user->role === 'Management') && $request->plant_id) {
-            $areas = Area::with(['plant'])
-                ->where('plant_id', $request->plant_id)
+        // For admin/management, load areas based on selected company filter
+        elseif (($user->role === 'Admin' || $user->role === 'Management') && $request->company_id) {
+            $areas = Area::with(['company'])
+                ->where('company_id', $request->company_id)
                 ->where('is_active', true)
                 ->get();
         }
 
-        // Plants dropdown (only for Admin/Management)
-        $plants = [];
+        // Companies dropdown (only for Admin/Management)
+        $companies = [];
         if ($user->role === 'Admin' || $user->role === 'Management') {
-            $plants = Plant::where('is_active', true)->get();
+            $companies = Company::where('is_active', true)->get();
         }
 
-        return view('sisca-v2.equipments.index', compact('equipments', 'equipmentTypes', 'areas', 'plants', 'periodChecks'));
+        return view('sisca-v2.equipments.index', compact('equipments', 'equipmentTypes', 'areas', 'companies', 'periodChecks'));
     }
 
     public function create()
     {
         $equipmentTypes = EquipmentType::where('is_active', true)->get();
-        $plants = Plant::where('is_active', true)->get();
+        $companies = Company::where('is_active', true)->get();
         $areas = Area::where('is_active', true)->get();
         $locations = Location::where('is_active', true)->get();
         $periodChecks = PeriodCheck::where('is_active', true)->get();
-        return view('sisca-v2.equipments.create', compact('equipmentTypes', 'plants', 'areas', 'locations', 'periodChecks'));
+        return view('sisca-v2.equipments.create', compact('equipmentTypes', 'companies', 'areas', 'locations', 'periodChecks'));
     }
 
     public function store(Request $request)
@@ -143,13 +143,13 @@ class EquipmentController extends Controller
             'is_active' => 'required|in:0,1',
         ]);
 
-        // Get location with plant and area info for QR code
-        $location = Location::with(['plant', 'area'])->find($request->location_id);
-        $plantName = $location->plant->plant_name ?? null;
+        // Get location with company and area info for QR code
+        $location = Location::with(['company', 'area'])->find($request->location_id);
+        $companyName = $location->company->company_name ?? null;
         $areaName = $location->area->area_name ?? null;
 
         // Generate QR Code with text
-        $qrCodePath = $this->generateQrCode($request->equipment_code, $plantName, $areaName);
+        $qrCodePath = $this->generateQrCode($request->equipment_code, $companyName, $areaName);
 
         // Create equipment
         $equipment = Equipment::create([
@@ -169,18 +169,18 @@ class EquipmentController extends Controller
 
     public function show(Equipment $equipment)
     {
-        $equipment->load(['equipmentType', 'location.plant', 'location.area', 'periodCheck', 'inspections.user']);
+        $equipment->load(['equipmentType', 'location.company', 'location.area', 'periodCheck', 'inspections.user']);
         return view('sisca-v2.equipments.show', compact('equipment'));
     }
 
     public function edit(Equipment $equipment)
     {
         $equipmentTypes = EquipmentType::where('is_active', true)->get();
-        $plants = Plant::where('is_active', true)->get();
+        $companies = Company::where('is_active', true)->get();
         $areas = Area::where('is_active', true)->get();
         $locations = Location::where('is_active', true)->get();
         $periodChecks = PeriodCheck::where('is_active', true)->get();
-        return view('sisca-v2.equipments.edit', compact('equipment', 'equipmentTypes', 'plants', 'areas', 'locations', 'periodChecks'));
+        return view('sisca-v2.equipments.edit', compact('equipment', 'equipmentTypes', 'companies', 'areas', 'locations', 'periodChecks'));
     }
 
     public function update(Request $request, Equipment $equipment)
@@ -212,13 +212,13 @@ class EquipmentController extends Controller
                 Storage::disk('public')->delete($equipment->qrcode);
             }
 
-            // Get location with plant and area info for QR code
-            $location = Location::with(['plant', 'area'])->find($request->location_id);
-            $plantName = $location->plant->plant_name ?? null;
+            // Get location with company and area info for QR code
+            $location = Location::with(['company', 'area'])->find($request->location_id);
+            $companyName = $location->company->company_name ?? null;
             $areaName = $location->area->area_name ?? null;
 
             // Generate new QR code with text
-            $updateData['qrcode'] = $this->generateQrCode($request->equipment_code, $plantName, $areaName);
+            $updateData['qrcode'] = $this->generateQrCode($request->equipment_code, $companyName, $areaName);
         }
 
         $equipment->update($updateData);
@@ -243,7 +243,7 @@ class EquipmentController extends Controller
     /**
      * Generate QR code for equipment with text overlay using Endroid QrCode
      */
-    private function generateQrCode($equipmentCode, $plantName = null, $areaName = null)
+    private function generateQrCode($equipmentCode, $companyName = null, $areaName = null)
     {
         // Create directory if not exists
         $qrDir = 'sisca-v2/qrcode';
@@ -297,20 +297,20 @@ class EquipmentController extends Controller
             $equipX = ($canvasWidth - $equipWidth) / 2;
             imagestring($canvas, $fontSize, $equipX, $textY, $equipText, $black);
 
-            // Add plant and area info if available
-            if ($plantName && $areaName) {
+            // Add company and area info if available
+            if ($companyName && $areaName) {
                 $textY += 25;
-                $locationText = $plantName . " - " . $areaName;
+                $locationText = $companyName . " - " . $areaName;
                 $fontSize2 = 3; // Smaller font for location
                 $locationWidth = imagefontwidth($fontSize2) * strlen($locationText);
                 $locationX = ($canvasWidth - $locationWidth) / 2;
                 imagestring($canvas, $fontSize2, $locationX, $textY, $locationText, $gray);
-            } elseif ($plantName) {
+            } elseif ($companyName) {
                 $textY += 25;
                 $fontSize2 = 3;
-                $plantWidth = imagefontwidth($fontSize2) * strlen($plantName);
-                $plantX = ($canvasWidth - $plantWidth) / 2;
-                imagestring($canvas, $fontSize2, $plantX, $textY, $plantName, $gray);
+                $companyWidth = imagefontwidth($fontSize2) * strlen($companyName);
+                $companyX = ($canvasWidth - $companyWidth) / 2;
+                imagestring($canvas, $fontSize2, $companyX, $textY, $companyName, $gray);
             }
 
             // Save image to storage
@@ -327,7 +327,7 @@ class EquipmentController extends Controller
 
         } catch (\Exception $e) {
             // Fallback: create simple text-based image
-            $this->generateFallbackQrCode($equipmentCode, $plantName, $areaName, $qrPath);
+            $this->generateFallbackQrCode($equipmentCode, $companyName, $areaName, $qrPath);
         }
 
         return $qrPath;
@@ -336,7 +336,7 @@ class EquipmentController extends Controller
     /**
      * Fallback QR code generation if main method fails
      */
-    private function generateFallbackQrCode($equipmentCode, $plantName, $areaName, $qrPath)
+    private function generateFallbackQrCode($equipmentCode, $companyName, $areaName, $qrPath)
     {
         // Create simple image with text only
         $canvasWidth = 300;
@@ -374,10 +374,10 @@ class EquipmentController extends Controller
         $codeX = ($canvasWidth - $codeWidth) / 2;
         imagestring($canvas, $fontSize, $codeX, $textY, $equipmentCode, $black);
 
-        // Add plant and area info if available
-        if ($plantName && $areaName) {
+        // Add company and area info if available
+        if ($companyName && $areaName) {
             $textY += 40;
-            $locationText = $plantName . " - " . $areaName;
+            $locationText = $companyName . " - " . $areaName;
             $locationWidth = imagefontwidth(3) * strlen($locationText);
             $locationX = ($canvasWidth - $locationWidth) / 2;
             imagestring($canvas, 3, $locationX, $textY, $locationText, $gray);
@@ -396,26 +396,26 @@ class EquipmentController extends Controller
     }
 
     /**
-     * Get areas by plant ID for cascade dropdown
+     * Get areas by company ID for cascade dropdown
      */
-    public function getAreasByPlant(Request $request)
+    public function getAreasByCompany(Request $request)
     {
-        $plantId = $request->get('plant_id');
+        $companyId = $request->get('company_id');
         $user = auth('sisca-v2')->user();
 
-        if (!$plantId) {
+        if (!$companyId) {
             return response()->json(['areas' => []]);
         }
 
-        // Check if user has access to this plant
+        // Check if user has access to this company
         if ($user->role !== 'Admin' && $user->role !== 'Management') {
-            if ($user->plant_id && $user->plant_id != $plantId) {
-                return response()->json(['error' => 'Unauthorized access to this plant'], 403);
+            if ($user->company_id && $user->company_id != $companyId) {
+                return response()->json(['error' => 'Unauthorized access to this company'], 403);
             }
         }
 
         try {
-            $areas = Area::where('plant_id', $plantId)
+            $areas = Area::where('company_id', $companyId)
                 ->where('is_active', true)
                 ->get()
                 ->map(function ($area) {
@@ -427,7 +427,7 @@ class EquipmentController extends Controller
 
             return response()->json(['areas' => $areas]);
         } catch (\Exception $e) {
-            \Log::error('Error loading areas by plant: ' . $e->getMessage());
+            \Log::error('Error loading areas by company: ' . $e->getMessage());
             return response()->json(['error' => 'Error loading areas'], 500);
         }
     }
@@ -449,10 +449,10 @@ class EquipmentController extends Controller
     {
         try {
             $equipmentCode = 'TEST-QR-' . time();
-            $plantName = 'Test Plant';
+            $companyName = 'Test Company';
             $areaName = 'Test Area';
 
-            $qrPath = $this->generateQrCode($equipmentCode, $plantName, $areaName);
+            $qrPath = $this->generateQrCode($equipmentCode, $companyName, $areaName);
 
             if (Storage::disk('public')->exists($qrPath)) {
                 $qrUrl = asset('storage/' . $qrPath);

@@ -68,7 +68,7 @@
                                     </span>
                                 @break
 
-                                @case('MTE')
+                                @case('Pic')
                                     <span class="badge bg-success">
                                         <i class="fas fa-tools me-1"></i>{{ $user->role }}
                                     </span>
@@ -81,11 +81,11 @@
                             @endswitch
                         </div>
 
-                        <!-- Plant Info -->
-                        @if ($user->plant)
+                        <!-- Company Info -->
+                        @if ($user->company)
                             <div class="mb-3">
                                 <small class="text-muted d-block">Assigned Company</small>
-                                <span class="badge bg-info">{{ $user->plant->plant_name }}</span>
+                                <span class="badge bg-info">{{ $user->company->company_name }}</span>
                             </div>
                         @endif
 
@@ -175,7 +175,7 @@
                                             </span>
                                         @break
 
-                                        @case('MTE')
+                                        @case('Pic')
                                             <span class="badge bg-success">
                                                 <i class="fas fa-tools me-1"></i>{{ $user->role }}
                                             </span>
@@ -191,8 +191,8 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label text-muted">Assigned Company</label>
                                 <p class="fw-bold mb-0">
-                                    @if ($user->plant)
-                                        <span class="badge bg-info">{{ $user->plant->plant_name }}</span>
+                                    @if ($user->company)
+                                        <span class="badge bg-info">{{ $user->company->company_name }}</span>
                                     @else
                                         <span class="text-muted fst-italic">No company assigned</span>
                                     @endif
@@ -231,127 +231,126 @@
                                         </ul>
                                     @break
 
-                                    @case('MTE')
+                                    @case('Pic')
                                         <ul class="mb-0">
-                                            <li>Equipment maintenance and technical operations</li>
-                                            <li>Technical checksheet management</li>
-                                            <li>System maintenance tasks</li>
-                                            <li>Equipment configuration access</li>
+                                            <li>Person in charge of specific tasks</li>
+                                            <li>Task management and tracking</li>
+                                            <li>Collaboration with team members</li>
+                                            <li>Access to relevant reports</li>
                                         </ul>
-                                    @break
 
-                                    @default
-                                        <ul class="mb-0">
-                                            <li>Basic checksheet operations</li>
-                                            <li>Data entry and form submission</li>
-                                            <li>View assigned equipment information</li>
-                                            <li>Basic reporting access</li>
-                                        </ul>
-                                @endswitch
+                                        @default
+                                            <ul class="mb-0">
+                                                <li>Basic checksheet operations</li>
+                                                <li>Data entry and form submission</li>
+                                                <li>View assigned equipment information</li>
+                                                <li>Basic reporting access</li>
+                                            </ul>
+                                    @endswitch
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Account Status & Dates -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-clock me-2"></i>Account Information
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label text-muted">Account Status</label>
-                                <div>
-                                    @if ($user->is_active)
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-check me-1"></i>Active
-                                        </span>
-                                    @else
-                                        <span class="badge bg-secondary">
-                                            <i class="fas fa-times me-1"></i>Inactive
-                                        </span>
-                                    @endif
+                    <!-- Account Status & Dates -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-clock me-2"></i>Account Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Account Status</label>
+                                    <div>
+                                        @if ($user->is_active)
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Active
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-times me-1"></i>Inactive
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label text-muted">Account Created</label>
-                                <p class="fw-bold mb-0">{{ $user->created_at->format('d M Y, H:i') }}</p>
-                                <small class="text-muted">{{ $user->created_at->diffForHumans() }}</small>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label text-muted">Last Updated</label>
-                                <p class="fw-bold mb-0">{{ $user->updated_at->format('d M Y, H:i') }}</p>
-                                <small class="text-muted">{{ $user->updated_at->diffForHumans() }}</small>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label text-muted">Password Updated</label>
-                                <p class="fw-bold mb-0">
-                                    @if ($user->updated_at)
-                                        {{ $user->updated_at->format('d M Y, H:i') }}
-                                        <small class="text-muted d-block">{{ $user->updated_at->diffForHumans() }}</small>
-                                    @else
-                                        <span class="text-muted fst-italic">Never changed</span>
-                                    @endif
-                                </p>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Account Created</label>
+                                    <p class="fw-bold mb-0">{{ $user->created_at->format('d M Y, H:i') }}</p>
+                                    <small class="text-muted">{{ $user->created_at->diffForHumans() }}</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Last Updated</label>
+                                    <p class="fw-bold mb-0">{{ $user->updated_at->format('d M Y, H:i') }}</p>
+                                    <small class="text-muted">{{ $user->updated_at->diffForHumans() }}</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Password Updated</label>
+                                    <p class="fw-bold mb-0">
+                                        @if ($user->updated_at)
+                                            {{ $user->updated_at->format('d M Y, H:i') }}
+                                            <small class="text-muted d-block">{{ $user->updated_at->diffForHumans() }}</small>
+                                        @else
+                                            <span class="text-muted fst-italic">Never changed</span>
+                                        @endif
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    @push('scripts')
-        <script>
-            function toggleUserStatus(status) {
-                const action = status ? 'activate' : 'deactivate';
-                const message = status ?
-                    'Are you sure you want to activate this user? They will regain access to the system.' :
-                    'Are you sure you want to deactivate this user? They will lose access to the system.';
+        @push('scripts')
+            <script>
+                function toggleUserStatus(status) {
+                    const action = status ? 'activate' : 'deactivate';
+                    const message = status ?
+                        'Are you sure you want to activate this user? They will regain access to the system.' :
+                        'Are you sure you want to deactivate this user? They will lose access to the system.';
 
-                if (confirm(message)) {
-                    // Create a form to toggle status
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = `${window.location.origin}/sisca-v2.users.toggle-status/${$user->id}`;
+                    if (confirm(message)) {
+                        // Create a form to toggle status
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `${window.location.origin}/sisca-v2.users.toggle-status/${$user->id}`;
 
-                    const csrfToken = document.createElement('input');
-                    csrfToken.type = 'hidden';
-                    csrfToken.name = '_token';
-                    csrfToken.value = '{{ csrf_token() }}';
-                    form.appendChild(csrfToken);
+                        const csrfToken = document.createElement('input');
+                        csrfToken.type = 'hidden';
+                        csrfToken.name = '_token';
+                        csrfToken.value = '{{ csrf_token() }}';
+                        form.appendChild(csrfToken);
 
-                    const statusInput = document.createElement('input');
-                    statusInput.type = 'hidden';
-                    statusInput.name = 'is_active';
-                    statusInput.value = status;
-                    form.appendChild(statusInput);
+                        const statusInput = document.createElement('input');
+                        statusInput.type = 'hidden';
+                        statusInput.name = 'is_active';
+                        statusInput.value = status;
+                        form.appendChild(statusInput);
 
-                    document.body.appendChild(form);
-                    form.submit();
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
                 }
-            }
 
-            // Copy user ID to clipboard
-            function copyUserId() {
-                navigator.clipboard.writeText('{{ $user->id }}').then(function() {
-                    // Show toast or alert
-                    alert('User ID copied to clipboard!');
-                });
-            }
-
-            // Copy email to clipboard
-            function copyEmail() {
-                @if ($user->email)
-                    navigator.clipboard.writeText('{{ $user->email }}').then(function() {
-                        alert('Email copied to clipboard!');
+                // Copy user ID to clipboard
+                function copyUserId() {
+                    navigator.clipboard.writeText('{{ $user->id }}').then(function() {
+                        // Show toast or alert
+                        alert('User ID copied to clipboard!');
                     });
-                @endif
-            }
-        </script>
-    @endpush
+                }
 
-@endsection
+                // Copy email to clipboard
+                function copyEmail() {
+                    @if ($user->email)
+                        navigator.clipboard.writeText('{{ $user->email }}').then(function() {
+                            alert('Email copied to clipboard!');
+                        });
+                    @endif
+                }
+            </script>
+        @endpush
+
+    @endsection

@@ -17,15 +17,15 @@
                 <form method="GET" action="{{ route('sisca-v2.dashboard') }}" id="filterForm">
                     <div class="row g-3">
                         @if (in_array($userRole, ['Admin', 'Management']))
-                            <!-- Plant Filter -->
+                            <!-- Company Filter -->
                             <div class="col-lg-3">
-                                <label for="plant_id" class="form-label">Company</label>
-                                <select class="form-select" id="plant_id" name="plant_id" onchange="loadAreas()">
+                                <label for="company_id" class="form-label">Company</label>
+                                <select class="form-select" id="company_id" name="company_id" onchange="loadAreas()">
                                     <option value="">All Company</option>
-                                    @foreach ($plants as $plant)
-                                        <option value="{{ $plant->id }}"
-                                            {{ $selectedPlantId == $plant->id ? 'selected' : '' }}>
-                                            {{ $plant->plant_name }}
+                                    @foreach ($companies as $company)
+                                        <option value="{{ $company->id }}"
+                                            {{ $selectedCompanyId == $company->id ? 'selected' : '' }}>
+                                            {{ $company->company_name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -121,7 +121,7 @@
             </div>
 
             @if (in_array($userRole, ['Admin', 'Management']))
-                <!-- Plant-wise Performance Chart -->
+                <!-- Company-wise Performance Chart -->
                 <div class="col-lg-6 mb-4">
                     <div class="card shadow">
                         <div class="card-header py-3">
@@ -130,7 +130,7 @@
                             </h6>
                         </div>
                         <div class="card-body">
-                            <canvas id="plantPerformanceChart" height="300"></canvas>
+                            <canvas id="companyPerformanceChart" height="300"></canvas>
                         </div>
                     </div>
                 </div>
@@ -256,16 +256,16 @@
                 }]
             },
             @if (in_array($userRole, ['Admin', 'Management']))
-                plantData: {
+                companyData: {
                     labels: [
-                        @foreach ($equipmentSummaryAll->groupBy('plant') as $plant => $items)
-                            '{{ $plant }}',
+                        @foreach ($equipmentSummaryAll->groupBy('company') as $company => $items)
+                            '{{ $company }}',
                         @endforeach
                     ],
                     datasets: [{
                         label: 'Approved',
                         data: [
-                            @foreach ($equipmentSummaryAll->groupBy('plant') as $plant => $items)
+                            @foreach ($equipmentSummaryAll->groupBy('company') as $company => $items)
                                 {{ $items->where('status', 'approved')->count() }},
                             @endforeach
                         ],
@@ -273,7 +273,7 @@
                     }, {
                         label: 'Pending',
                         data: [
-                            @foreach ($equipmentSummaryAll->groupBy('plant') as $plant => $items)
+                            @foreach ($equipmentSummaryAll->groupBy('company') as $company => $items)
                                 {{ $items->where('status', 'pending')->count() }},
                             @endforeach
                         ],
@@ -281,7 +281,7 @@
                     }, {
                         label: 'Rejected',
                         data: [
-                            @foreach ($equipmentSummaryAll->groupBy('plant') as $plant => $items)
+                            @foreach ($equipmentSummaryAll->groupBy('company') as $company => $items)
                                 {{ $items->where('status', 'rejected')->count() }},
                             @endforeach
                         ],
@@ -289,7 +289,7 @@
                     }, {
                         label: 'Not Inspected',
                         data: [
-                            @foreach ($equipmentSummaryAll->groupBy('plant') as $plant => $items)
+                            @foreach ($equipmentSummaryAll->groupBy('company') as $company => $items)
                                 {{ $items->where('status', 'not_inspected')->count() }},
                             @endforeach
                         ],
@@ -373,11 +373,11 @@
         });
 
         @if (in_array($userRole, ['Admin', 'Management']))
-            // Plant Performance Chart
-            const plantCtx = document.getElementById('plantPerformanceChart').getContext('2d');
-            new Chart(plantCtx, {
+            // Company Performance Chart
+            const companyCtx = document.getElementById('companyPerformanceChart').getContext('2d');
+            new Chart(companyCtx, {
                 type: 'bar',
-                data: chartData.plantData,
+                data: chartData.companyData,
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -599,32 +599,32 @@
             });
         @endforeach
 
-        // Load areas when plant changes (for Admin/Management)
+        // Load areas when company changes (for Admin/Management)
         function loadAreas() {
-            const plantId = document.getElementById('plant_id')?.value;
+            const companyId = document.getElementById('company_id')?.value;
             const equipmentTypeId = document.getElementById('equipment_type_id')?.value;
 
-            if (plantId) {
-                loadAreasByPlantAndType(plantId, equipmentTypeId);
+            if (companyId) {
+                loadAreasByCompanyAndType(companyId, equipmentTypeId);
             }
         }
 
-        // Load areas when plant changes (for Admin/Management)
+        // Load areas when company changes (for Admin/Management)
         function loadAreas() {
-            const plantId = document.getElementById('plant_id')?.value;
+            const companyId = document.getElementById('company_id')?.value;
             const equipmentTypeId = document.getElementById('equipment_type_id')?.value;
 
-            if (plantId) {
-                loadAreasByPlantAndType(plantId, equipmentTypeId);
+            if (companyId) {
+                loadAreasByCompanyAndType(companyId, equipmentTypeId);
             }
         }
 
         // Load areas when equipment type changes
         function loadAreasWithEquipmentType() {
             @if (in_array($userRole, ['Admin', 'Management']))
-                const plantId = document.getElementById('plant_id')?.value;
+                const companyId = document.getElementById('company_id')?.value;
             @else
-                const plantId = '{{ $user->plant_id ?? '' }}';
+                const companyId = '{{ $user->company_id ?? '' }}';
             @endif
             const equipmentTypeId = document.getElementById('equipment_type_id')?.value;
 
@@ -634,13 +634,13 @@
                 areaSelect.value = '';
             }
 
-            if (plantId) {
-                loadAreasByPlantAndType(plantId, equipmentTypeId);
+            if (companyId) {
+                loadAreasByCompanyAndType(companyId, equipmentTypeId);
             }
         }
 
-        // Generic function to load areas based on plant and equipment type
-        function loadAreasByPlantAndType(plantId, equipmentTypeId = '') {
+        // Generic function to load areas based on company and equipment type
+        function loadAreasByCompanyAndType(companyId, equipmentTypeId = '') {
             const areaSelect = document.getElementById('area_id');
 
             if (!areaSelect) {
@@ -652,8 +652,8 @@
             areaSelect.innerHTML = '<option value="">Loading areas...</option>';
             areaSelect.disabled = true;
 
-            if (plantId) {
-                let url = `${window.location.origin}/sisca-v2/dashboard/areas-by-plant?plant_id=${plantId}`;
+            if (companyId) {
+                let url = `${window.location.origin}/sisca-v2/dashboard/areas-by-company?company_id=${companyId}`;
                 if (equipmentTypeId) {
                     url += `&equipment_type_id=${equipmentTypeId}`;
                 }
@@ -732,15 +732,15 @@
         // Initialize area loading on page load
         document.addEventListener('DOMContentLoaded', function() {
             @if (in_array($userRole, ['Admin', 'Management']))
-                const initialPlantId = document.getElementById('plant_id')?.value;
+                const initialCompanyId = document.getElementById('company_id')?.value;
             @else
-                const initialPlantId = '{{ $user->plant_id ?? '' }}';
+                const initialCompanyId = '{{ $user->company_id ?? '' }}';
             @endif
             const initialEquipmentTypeId = document.getElementById('equipment_type_id')?.value;
 
-            if (initialPlantId) {
+            if (initialCompanyId) {
                 setTimeout(() => {
-                    loadAreasByPlantAndType(initialPlantId, initialEquipmentTypeId);
+                    loadAreasByCompanyAndType(initialCompanyId, initialEquipmentTypeId);
                 }, 100);
             }
         });

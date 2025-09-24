@@ -30,15 +30,15 @@
                 <form method="GET" action="{{ route('sisca-v2.summary-report.index') }}" id="filterForm">
                     <div class="row g-3 mb-3">
                         @if (in_array($userRole, ['Admin', 'Management']))
-                            <!-- Plant Filter -->
+                            <!-- Company Filter -->
                             <div class="col-lg-3">
-                                <label for="plant_id" class="form-label fw-bold">Company</label>
-                                <select class="form-select" id="plant_id" name="plant_id" onchange="loadAreas()">
+                                <label for="company_id" class="form-label fw-bold">Company</label>
+                                <select class="form-select" id="company_id" name="company_id" onchange="loadAreas()">
                                     <option value="">All Companies</option>
-                                    @foreach ($plants as $plant)
-                                        <option value="{{ $plant->id }}"
-                                            {{ $selectedPlantId == $plant->id ? 'selected' : '' }}>
-                                            {{ $plant->plant_name }}
+                                    @foreach ($companies as $company)
+                                        <option value="{{ $company->id }}"
+                                            {{ $selectedCompanyId == $company->id ? 'selected' : '' }}>
+                                            {{ $company->company_name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -607,22 +607,22 @@
 
     @push('scripts')
         <script>
-            // Load areas when plant changes (for Admin/Management)
+            // Load areas when company changes (for Admin/Management)
             function loadAreas() {
-                const plantId = document.getElementById('plant_id')?.value;
+                const companyId = document.getElementById('company_id')?.value;
                 const equipmentTypeId = document.getElementById('equipment_type_id')?.value;
 
-                if (plantId) {
-                    loadAreasByPlantAndType(plantId, equipmentTypeId);
+                if (companyId) {
+                    loadAreasByCompanyAndType(companyId, equipmentTypeId);
                 }
             }
 
             // Load areas when equipment type changes
             function loadAreasWithEquipmentType() {
                 @if (in_array($userRole, ['Admin', 'Management']))
-                    const plantId = document.getElementById('plant_id')?.value;
+                    const companyId = document.getElementById('company_id')?.value;
                 @else
-                    const plantId = '{{ $user->plant_id ?? '' }}';
+                    const companyId = '{{ $user->company_id ?? '' }}';
                 @endif
                 const equipmentTypeId = document.getElementById('equipment_type_id')?.value;
 
@@ -632,13 +632,13 @@
                     areaSelect.value = '';
                 }
 
-                if (plantId) {
-                    loadAreasByPlantAndType(plantId, equipmentTypeId);
+                if (companyId) {
+                    loadAreasByCompanyAndType(companyId, equipmentTypeId);
                 }
             }
 
-            // Generic function to load areas based on plant and equipment type
-            function loadAreasByPlantAndType(plantId, equipmentTypeId = '') {
+            // Generic function to load areas based on company and equipment type
+            function loadAreasByCompanyAndType(companyId, equipmentTypeId = '') {
                 const areaSelect = document.getElementById('area_id');
 
                 if (!areaSelect) {
@@ -650,8 +650,8 @@
                 areaSelect.innerHTML = '<option value="">Loading areas...</option>';
                 areaSelect.disabled = true;
 
-                if (plantId) {
-                    let url = `${window.location.origin}/sisca-v2/summary-report/areas-by-plant?plant_id=${plantId}`;
+                if (companyId) {
+                    let url = `${window.location.origin}/sisca-v2/summary-report/areas-by-company?company_id=${companyId}`;
                     if (equipmentTypeId) {
                         url += `&equipment_type_id=${equipmentTypeId}`;
                     }
@@ -718,7 +718,7 @@
                             areaSelect.appendChild(errorOption);
                         });
                 } else {
-                    // No plant selected, reset to default state
+                    // No company selected, reset to default state
                     areaSelect.innerHTML = '<option value="">All Areas</option>';
                     areaSelect.disabled = false;
                 }
@@ -966,18 +966,18 @@
                     });
                 });
 
-                // Load areas on page load if plant is already selected
+                // Load areas on page load if company is already selected
                 @if (in_array($userRole, ['Admin', 'Management']))
-                    const initialPlantId = document.getElementById('plant_id')?.value;
+                    const initialCompanyId = document.getElementById('company_id')?.value;
                 @else
-                    const initialPlantId = '{{ $user->plant_id ?? '' }}';
+                    const initialCompanyId = '{{ $user->company_id ?? '' }}';
                 @endif
                 const initialEquipmentTypeId = document.getElementById('equipment_type_id')?.value;
 
-                if (initialPlantId) {
+                if (initialCompanyId) {
                     // Add a small delay to ensure DOM is fully loaded
                     setTimeout(() => {
-                        loadAreasByPlantAndType(initialPlantId, initialEquipmentTypeId);
+                        loadAreasByCompanyAndType(initialCompanyId, initialEquipmentTypeId);
                     }, 100);
                 }
             });

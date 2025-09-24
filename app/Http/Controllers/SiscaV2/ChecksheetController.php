@@ -10,7 +10,7 @@ use App\Models\SiscaV2\ChecksheetTemplate;
 use App\Models\SiscaV2\PeriodCheck;
 use App\Models\SiscaV2\User;
 use App\Models\SiscaV2\EquipmentType;
-use App\Models\SiscaV2\Plant;
+use App\Models\SiscaV2\Company;
 use App\Models\SiscaV2\Area;
 use App\Models\SiscaV2\Location;
 use App\Models\SiscaV2\InspectionNgHistory;
@@ -37,16 +37,16 @@ class ChecksheetController extends Controller
 
         $equipmentCode = $request->get('code');
 
-        // Build query for recent inspections based on user's plant
+        // Build query for recent inspections based on user's company
         $inspectionsQuery = Inspection::with([
             'user',
             'equipment.equipmentType',
-            'equipment.location.plant',
+            'equipment.location.company',
             'equipment.location.area',
             'details'
         ])->whereHas('equipment.location', function ($query) use ($user) {
-            if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->plant_id) {
-                $query->where('plant_id', $user->plant_id);
+            if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
+                $query->where('company_id', $user->company_id);
             }
         });
 
@@ -65,9 +65,9 @@ class ChecksheetController extends Controller
             $inspectionsQuery->whereYear('inspection_date', $request->year);
         }
 
-        if ($request->plant_id && ($user->role === 'Admin' || $user->role === 'Management')) {
+        if ($request->company_id && ($user->role === 'Admin' || $user->role === 'Management')) {
             $inspectionsQuery->whereHas('equipment.location', function ($query) use ($request) {
-                $query->where('plant_id', $request->plant_id);
+                $query->where('company_id', $request->company_id);
             });
         }
 
@@ -82,37 +82,37 @@ class ChecksheetController extends Controller
         // Append query parameters to pagination links
         $recentInspections->appends($request->query());
 
-        // Get filter data based on user's plant access
+        // Get filter data based on user's company access
         $equipmentTypesQuery = EquipmentType::where('is_active', true);
-        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->plant_id) {
+        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
             $equipmentTypesQuery->whereHas('equipments.location', function ($query) use ($user) {
-                $query->where('plant_id', $user->plant_id);
+                $query->where('company_id', $user->company_id);
             });
         }
         $equipmentTypes = $equipmentTypesQuery->get();
 
-        // Areas dropdown (available for all roles, filtered by plant access)
+        // Areas dropdown (available for all roles, filtered by company access)
         $areas = collect(); // Initialize as empty collection
 
-        // For non-admin users, load areas from their assigned plant
-        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->plant_id) {
-            $areas = Area::with(['plant'])
-                ->where('plant_id', $user->plant_id)
+        // For non-admin users, load areas from their assigned company
+        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
+            $areas = Area::with(['company'])
+                ->where('company_id', $user->company_id)
                 ->where('is_active', true)
                 ->get();
         }
-        // For admin/management, load areas based on selected plant filter
-        elseif (($user->role === 'Admin' || $user->role === 'Management') && $request->plant_id) {
-            $areas = Area::with(['plant'])
-                ->where('plant_id', $request->plant_id)
+        // For admin/management, load areas based on selected company filter
+        elseif (($user->role === 'Admin' || $user->role === 'Management') && $request->company_id) {
+            $areas = Area::with(['company'])
+                ->where('company_id', $request->company_id)
                 ->where('is_active', true)
                 ->get();
         }
 
-        // Plants dropdown (only for Admin/Management)
-        $plants = [];
+        // Companies dropdown (only for Admin/Management)
+        $companies = [];
         if ($user->role === 'Admin' || $user->role === 'Management') {
-            $plants = Plant::where('is_active', true)->get();
+            $companies = Company::where('is_active', true)->get();
         }
 
         // Check if scanning equipment
@@ -129,7 +129,7 @@ class ChecksheetController extends Controller
             'recentInspections',
             'equipmentTypes',
             'areas',
-            'plants'
+            'companies'
         ));
     }
 
@@ -153,14 +153,14 @@ class ChecksheetController extends Controller
                 ->with('error', 'Equipment code is required.');
         }
 
-        // Find equipment by code with plant filter
+        // Find equipment by code with company filter
         $equipmentQuery = Equipment::where('equipment_code', $equipmentCode)
-            ->with(['equipmentType', 'location.plant', 'location.area', 'periodCheck']);
+            ->with(['equipmentType', 'location.company', 'location.area', 'periodCheck']);
 
-        // Apply plant filter for non-admin users
-        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->plant_id) {
+        // Apply company filter for non-admin users
+        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
             $equipmentQuery->whereHas('location', function ($query) use ($user) {
-                $query->where('plant_id', $user->plant_id);
+                $query->where('company_id', $user->company_id);
             });
         }
 
@@ -601,7 +601,7 @@ class ChecksheetController extends Controller
         $inspection = Inspection::with([
             'user',
             'equipment.equipmentType',
-            'equipment.location.plant',
+            'equipment.location.company',
             'equipment.location.area',
             'details.checksheetTemplate'
         ])->findOrFail($id);
@@ -619,12 +619,12 @@ class ChecksheetController extends Controller
         $query = Inspection::with([
             'user',
             'equipment.equipmentType',
-            'equipment.location.plant',
+            'equipment.location.company',
             'equipment.location.area'
         ])->whereHas('equipment.location', function ($locationQuery) use ($user) {
-            // Filter by user's plant if not Admin/Management
-            if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->plant_id) {
-                $locationQuery->where('plant_id', $user->plant_id);
+            // Filter by user's company if not Admin/Management
+            if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
+                $locationQuery->where('company_id', $user->company_id);
             }
         })->orderBy('created_at', 'desc');
 
@@ -647,10 +647,10 @@ class ChecksheetController extends Controller
             $query->where('user_id', $request->inspector_id);
         }
 
-        // Filter by plant (only for Admin/Management)
-        if ($request->plant_id && ($user->role === 'Admin' || $user->role === 'Management')) {
+        // Filter by company (only for Admin/Management)
+        if ($request->company_id && ($user->role === 'Admin' || $user->role === 'Management')) {
             $query->whereHas('equipment.location', function ($locationQuery) use ($request) {
-                $locationQuery->where('plant_id', $request->plant_id);
+                $locationQuery->where('company_id', $request->company_id);
             });
         }
 
@@ -666,42 +666,42 @@ class ChecksheetController extends Controller
         // Append query parameters to pagination links
         $inspections->appends($request->query());
 
-        // Get data for filters based on user's plant access
-        $equipmentsQuery = Equipment::with(['equipmentType', 'location.plant'])->where('is_active', true);
-        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->plant_id) {
+        // Get data for filters based on user's company access
+        $equipmentsQuery = Equipment::with(['equipmentType', 'location.company'])->where('is_active', true);
+        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
             $equipmentsQuery->whereHas('location', function ($query) use ($user) {
-                $query->where('plant_id', $user->plant_id);
+                $query->where('company_id', $user->company_id);
             });
         }
         $equipments = $equipmentsQuery->get();
 
         $inspectors = User::where('role', 'Pic')->get();
 
-        // Areas dropdown (available for all roles, filtered by plant access)
+        // Areas dropdown (available for all roles, filtered by company access)
         $areas = collect(); // Initialize as empty collection
 
-        // For non-admin users, load areas from their assigned plant
-        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->plant_id) {
-            $areas = Area::with(['plant'])
-                ->where('plant_id', $user->plant_id)
+        // For non-admin users, load areas from their assigned company
+        if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
+            $areas = Area::with(['company'])
+                ->where('company_id', $user->company_id)
                 ->where('is_active', true)
                 ->get();
         }
-        // For admin/management, load areas based on selected plant filter
-        elseif (($user->role === 'Admin' || $user->role === 'Management') && $request->plant_id) {
-            $areas = Area::with(['plant'])
-                ->where('plant_id', $request->plant_id)
+        // For admin/management, load areas based on selected company filter
+        elseif (($user->role === 'Admin' || $user->role === 'Management') && $request->company_id) {
+            $areas = Area::with(['company'])
+                ->where('company_id', $request->company_id)
                 ->where('is_active', true)
                 ->get();
         }
 
-        // Plants dropdown (only for Admin/Management)
-        $plants = [];
+        // Companies dropdown (only for Admin/Management)
+        $companies = [];
         if ($user->role === 'Admin' || $user->role === 'Management') {
-            $plants = Plant::where('is_active', true)->get();
+            $companies = Company::where('is_active', true)->get();
         }
 
-        return view('sisca-v2.checksheets.history', compact('inspections', 'equipments', 'inspectors', 'areas', 'plants'));
+        return view('sisca-v2.checksheets.history', compact('inspections', 'equipments', 'inspectors', 'areas', 'companies'));
     }
 
     /**
@@ -710,7 +710,7 @@ class ChecksheetController extends Controller
     public function getEquipment($code)
     {
         $equipment = Equipment::where('equipment_code', $code)
-            ->with(['equipmentType', 'location.plant', 'location.area', 'periodCheck'])
+            ->with(['equipmentType', 'location.company', 'location.area', 'periodCheck'])
             ->first();
 
         if (!$equipment) {
@@ -727,25 +727,25 @@ class ChecksheetController extends Controller
     }
 
     /**
-     * Get areas by plant via AJAX
+     * Get areas by company via AJAX
      */
-    public function getAreasByPlant(Request $request)
+    public function getAreasByCompany(Request $request)
     {
-        $plantId = $request->get('plant_id');
+        $companyId = $request->get('company_id');
         $user = auth('sisca-v2')->user();
 
-        if (!$plantId) {
+        if (!$companyId) {
             return response()->json(['areas' => []]);
         }
 
-        // Check if user has access to this plant
+        // Check if user has access to this company
         if ($user->role !== 'Admin' && $user->role !== 'Management') {
-            if ($user->plant_id && $user->plant_id != $plantId) {
-                return response()->json(['error' => 'Unauthorized access to this plant'], 403);
+            if ($user->company_id && $user->company_id != $companyId) {
+                return response()->json(['error' => 'Unauthorized access to this company'], 403);
             }
         }
 
-        $areas = Area::where('plant_id', $plantId)
+        $areas = Area::where('company_id', $companyId)
             ->where('is_active', true)
             ->get()
             ->map(function ($area) {
@@ -812,16 +812,16 @@ class ChecksheetController extends Controller
         $query = InspectionNgHistory::with([
             'originalInspection.user',
             'equipment.equipmentType',
-            'equipment.location.plant',
+            'equipment.location.company',
             'equipment.location.area',
             'checksheetTemplate',
             'user'
         ]);
 
-        // Apply plant filter for non-admin users
-        if ($user->role !== 'Admin' && $user->plant_id) {
+        // Apply company filter for non-admin users
+        if ($user->role !== 'Admin' && $user->company_id) {
             $query->whereHas('equipment.location', function ($locationQuery) use ($user) {
-                $locationQuery->where('plant_id', $user->plant_id);
+                $locationQuery->where('company_id', $user->company_id);
             });
         }
 
@@ -838,9 +838,9 @@ class ChecksheetController extends Controller
             });
         }
 
-        if ($request->plant_id && $user->role === 'Admin') {
+        if ($request->company_id && $user->role === 'Admin') {
             $query->whereHas('equipment.location', function ($locationQuery) use ($request) {
-                $locationQuery->where('plant_id', $request->plant_id);
+                $locationQuery->where('company_id', $request->company_id);
             });
         }
 
@@ -863,21 +863,21 @@ class ChecksheetController extends Controller
 
         // Get filter data
         $equipmentTypesQuery = EquipmentType::where('is_active', true);
-        if ($user->role !== 'Admin' && $user->plant_id) {
+        if ($user->role !== 'Admin' && $user->company_id) {
             $equipmentTypesQuery->whereHas('equipments.location', function ($query) use ($user) {
-                $query->where('plant_id', $user->plant_id);
+                $query->where('company_id', $user->company_id);
             });
         }
         $equipmentTypes = $equipmentTypesQuery->get();
 
         $inspectors = User::where('role', 'Pic')->get();
 
-        // Plants dropdown (only for Admin)
-        $plants = [];
+        // Companies dropdown (only for Admin)
+        $companies = [];
         if ($user->role === 'Admin') {
-            $plants = Plant::where('is_active', true)->get();
+            $companies = Company::where('is_active', true)->get();
         }
 
-        return view('sisca-v2.ng-history.index', compact('ngHistories', 'equipmentTypes', 'inspectors', 'plants'));
+        return view('sisca-v2.ng-history.index', compact('ngHistories', 'equipmentTypes', 'inspectors', 'companies'));
     }
 }

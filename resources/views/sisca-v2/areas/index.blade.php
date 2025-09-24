@@ -24,16 +24,16 @@
                     <div class="col-md-4">
                         <label for="search" class="form-label">Search Area</label>
                         <input type="text" class="form-control" id="search" name="search"
-                            value="{{ request('search') }}" placeholder="Enter area or plant name...">
+                            value="{{ request('search') }}" placeholder="Enter area or company name...">
                     </div>
                     <div class="col-md-3">
-                        <label for="plant_id" class="form-label">Company</label>
-                        <select class="form-select" id="plant_id" name="plant_id">
+                        <label for="company_id" class="form-label">Company</label>
+                        <select class="form-select" id="company_id" name="company_id">
                             <option value="">All Companies</option>
-                            @foreach ($plants as $plant)
-                                <option value="{{ $plant->id }}"
-                                    {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
-                                    {{ $plant->plant_name }}
+                            @foreach ($companies as $company)
+                                <option value="{{ $company->id }}"
+                                    {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                                    {{ $company->company_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -99,8 +99,8 @@
                                         <div class="fw-bold text-primary">{{ $area->area_name }}</div>
                                     </td>
                                     <td>
-                                        @if ($area->plant)
-                                            <span class="badge bg-info">{{ $area->plant->plant_name }}</span>
+                                        @if ($area->company)
+                                            <span class="badge bg-info">{{ $area->company->company_name }}</span>
                                         @else
                                             <span class="text-muted fst-italic">No company assigned</span>
                                         @endif

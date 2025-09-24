@@ -97,9 +97,9 @@
                     <div class="col-md-3">
                         <label for="area_id" class="form-label">Area</label>
                         <select name="area_id" id="area_id" class="form-select"
-                            @if (count($plants) > 0) disabled @endif>
+                            @if (count($companies) > 0) disabled @endif>
                             <option value="">
-                                @if (count($plants) > 0)
+                                @if (count($companies) > 0)
                                     Select company first
                                 @else
                                     All Areas
@@ -138,22 +138,22 @@
                         </select>
                     </div>
 
-                    @if (count($plants) > 0)
+                    @if (count($companies) > 0)
                         <div class="col-md-2">
-                            <label for="plant_id" class="form-label">Company</label>
-                            <select name="plant_id" id="plant_id" class="form-select">
+                            <label for="company_id" class="form-label">Company</label>
+                            <select name="company_id" id="company_id" class="form-select">
                                 <option value="">All Companies</option>
-                                @foreach ($plants as $plant)
-                                    <option value="{{ $plant->id }}"
-                                        {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
-                                        {{ $plant->plant_name }}
+                                @foreach ($companies as $company)
+                                    <option value="{{ $company->id }}"
+                                        {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                                        {{ $company->company_name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                     @endif
 
-                    <div class="col-md-{{ count($plants) > 0 ? '12' : '2' }} d-flex align-items-end">
+                    <div class="col-md-{{ count($companies) > 0 ? '12' : '2' }} d-flex align-items-end">
                         <button type="submit" class="btn btn-outline-primary me-2">
                             <i class="fas fa-search me-1"></i>Search
                         </button>
@@ -215,7 +215,7 @@
                                                 <td>
                                                     <div>
                                                         <small
-                                                            class="text-muted">{{ $inspection->equipment->location->plant->plant_name }}</small><br>
+                                                            class="text-muted">{{ $inspection->equipment->location->company->company_name }}</small><br>
                                                         {{ $inspection->equipment->location->area->area_name }}
                                                     </div>
                                                 </td>
@@ -312,22 +312,22 @@
                 });
             }, 5000);
 
-            // Handle plant change for area filtering
-            const plantSelect = document.getElementById('plant_id');
+            // Handle company change for area filtering
+            const companySelect = document.getElementById('company_id');
             const areaSelect = document.getElementById('area_id');
 
-            if (plantSelect && areaSelect) {
-                plantSelect.addEventListener('change', function() {
-                    const plantId = this.value;
+            if (companySelect && areaSelect) {
+                companySelect.addEventListener('change', function() {
+                    const companyId = this.value;
 
                     // Clear current options
                     areaSelect.innerHTML = '<option value="">Loading...</option>';
                     areaSelect.disabled = true;
 
-                    if (plantId) {
+                    if (companyId) {
                         // Make AJAX request to get areas
                         fetch(
-                                `${window.location.origin}/sisca-v2/checksheets/areas-by-plant?plant_id=${plantId}`
+                                `${window.location.origin}/sisca-v2/checksheets/areas-by-company?company_id=${companyId}`
                             )
                             .then(response => response.json())
                             .then(data => {
@@ -355,9 +355,9 @@
                     }
                 });
 
-                // Auto filter on page load if plant is selected
-                if (plantSelect.value) {
-                    plantSelect.dispatchEvent(new Event('change'));
+                // Auto filter on page load if company is selected
+                if (companySelect.value) {
+                    companySelect.dispatchEvent(new Event('change'));
                 }
             }
         });

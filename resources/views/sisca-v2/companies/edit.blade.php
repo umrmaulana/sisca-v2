@@ -10,7 +10,7 @@
                 <h3 class="text-primary mb-1">Edit Company</h3>
                 <p class="text-muted mb-0">Update company information</p>
             </div>
-            <a href="{{ route('sisca-v2.plants.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('sisca-v2.companies.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to List
             </a>
         </div>
@@ -21,21 +21,23 @@
                 <h5 class="card-title mb-0">Company Information</h5>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('sisca-v2.plants.update', $plant) }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('sisca-v2.companies.update', $company) }}"
+                    enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="plant_name" class="form-label required">
+                                <label for="company_name" class="form-label required">
                                     Company Name
                                     <span class="text-danger">*</span>
                                 </label>
-                                <input type="text" class="form-control @error('plant_name') is-invalid @enderror"
-                                    id="plant_name" name="plant_name" value="{{ old('plant_name', $plant->plant_name) }}"
+                                <input type="text" class="form-control @error('company_name') is-invalid @enderror"
+                                    id="company_name" name="company_name"
+                                    value="{{ old('company_name', $company->company_name) }}"
                                     placeholder="Enter company name..." required>
-                                @error('plant_name')
+                                @error('company_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                                 <div class="form-text">The name of the company (e.g., Company 1, Main Company)
@@ -48,7 +50,7 @@
                                 <div class="form-check form-switch">
                                     <input class="form-check-input @error('is_active') is-invalid @enderror" type="checkbox"
                                         id="is_active" name="is_active" value="1"
-                                        {{ old('is_active', $plant->is_active) ? 'checked' : '' }}>
+                                        {{ old('is_active', $company->is_active) ? 'checked' : '' }}>
                                     <label class="form-check-label" for="is_active">
                                         <strong>Active Status</strong>
                                     </label>
@@ -64,12 +66,12 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="mb-3">
-                                <label for="plant_description" class="form-label">
+                                <label for="company_description" class="form-label">
                                     <i class="fas fa-file-text me-2"></i>Description
                                 </label>
-                                <textarea class="form-control @error('plant_description') is-invalid @enderror" id="plant_description"
-                                    name="plant_description" rows="3" placeholder="Enter company description...">{{ old('plant_description', $plant->plant_description) }}</textarea>
-                                @error('plant_description')
+                                <textarea class="form-control @error('company_description') is-invalid @enderror" id="company_description"
+                                    name="company_description" rows="3" placeholder="Enter company description...">{{ old('company_description', $company->company_description) }}</textarea>
+                                @error('company_description')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                                 <div class="form-text">Optional description about the company</div>
@@ -80,14 +82,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="plant_mapping_picture" class="form-label">
+                                <label for="company_mapping_picture" class="form-label">
                                     <i class="fas fa-map me-2"></i>Company Mapping Picture
                                 </label>
                                 <input type="file"
-                                    class="form-control @error('plant_mapping_picture') is-invalid @enderror"
-                                    id="plant_mapping_picture" name="plant_mapping_picture"
+                                    class="form-control @error('company_mapping_picture') is-invalid @enderror"
+                                    id="company_mapping_picture" name="company_mapping_picture"
                                     accept="image/jpeg,image/png,image/jpg,image/gif">
-                                @error('plant_mapping_picture')
+                                @error('company_mapping_picture')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                                 <div class="form-text">
@@ -96,17 +98,17 @@
                             </div>
                         </div>
 
-                        @if ($plant->plant_mapping_picture)
+                        @if ($company->company_mapping_picture)
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">
                                         <i class="fas fa-image me-2"></i>Current Mapping Picture
                                     </label>
                                     <div class="border rounded p-2">
-                                        <img src="{{ asset('storage/' . $plant->plant_mapping_picture) }}"
+                                        <img src="{{ asset('storage/' . $company->company_mapping_picture) }}"
                                             alt="Current Company Mapping" class="img-thumbnail"
                                             style="max-height: 150px; cursor: pointer;"
-                                            onclick="showImageModal('{{ asset('storage/' . $plant->plant_mapping_picture) }}', '{{ $plant->plant_name }} - Current Mapping')">
+                                            onclick="showImageModal('{{ asset('storage/' . $company->company_mapping_picture) }}', '{{ $company->company_name }} - Current Mapping')">
                                         <div class="form-text mt-2">Click image to view full size</div>
                                     </div>
                                 </div>
@@ -118,7 +120,7 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="d-flex justify-content-end gap-2">
-                                <a href="{{ route('sisca-v2.plants.index') }}" class="btn btn-outline-danger">
+                                <a href="{{ route('sisca-v2.companies.index') }}" class="btn btn-outline-danger">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </a>
                                 <button type="submit" class="btn btn-primary">

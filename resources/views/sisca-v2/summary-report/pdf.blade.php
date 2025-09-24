@@ -436,7 +436,7 @@
         <div class="header">
             <h1>Equipment Inspection Annual Summary Report</h1>
             <h2>Year {{ $year }}</h2>
-            <p><strong>Company:</strong> {{ $plantName }} | <strong>Area:</strong> {{ $areaName }}</p>
+            <p><strong>Company:</strong> {{ $companyName }} | <strong>Area:</strong> {{ $areaName }}</p>
             @if ($equipmentTypeName !== 'All Equipment Types')
                 <p><strong>Equipment Type:</strong> {{ $equipmentTypeName }}</p>
             @endif
@@ -451,7 +451,7 @@
                 </div>
                 <div class="info-item">
                     <span class="info-label">Company:</span>
-                    <span class="info-value">{{ $plantName }}</span>
+                    <span class="info-value">{{ $companyName }}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Area:</span>

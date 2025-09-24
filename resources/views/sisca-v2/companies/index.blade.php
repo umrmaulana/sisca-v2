@@ -10,8 +10,8 @@
                 <h3 class="text-primary mb-1">Companies Management</h3>
                 <p class="text-muted mb-0">Manage all companies in the system</p>
             </div>
-            @can('create', App\Models\SiscaV2\Plant::class)
-                <a href="{{ route('sisca-v2.plants.create') }}" class="btn btn-primary">
+            @can('create', App\Models\SiscaV2\Company::class)
+                <a href="{{ route('sisca-v2.companies.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Add New Company
                 </a>
             @endcan
@@ -20,7 +20,7 @@
         <!-- Search and Filter -->
         <div class="card mb-4">
             <div class="card-body">
-                <form method="GET" action="{{ route('sisca-v2.plants.index') }}" class="row g-3">
+                <form method="GET" action="{{ route('sisca-v2.companies.index') }}" class="row g-3">
                     <div class="col-md-5">
                         <label for="search" class="form-label">Search Company Name</label>
                         <input type="text" class="form-control" id="search" name="search"
@@ -38,7 +38,7 @@
                         <button type="submit" class="btn btn-outline-primary me-2">
                             <i class="fas fa-search me-1"></i>Search
                         </button>
-                        <a href="{{ route('sisca-v2.plants.index') }}" class="btn btn-outline-danger">
+                        <a href="{{ route('sisca-v2.companies.index') }}" class="btn btn-outline-danger">
                             <i class="fas fa-times me-1"></i>Clear
                         </a>
                     </div>
@@ -46,7 +46,7 @@
             </div>
         </div>
 
-        <!-- Plants Table -->
+        <!-- Company Table -->
         <div class="card mb-4">
             <div class="card-header">
                 <h5 class="card-title mb-0">Companies List</h5>
@@ -80,14 +80,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($plants as $index => $plant)
+                            @forelse($companies as $index => $company)
                                 <tr>
-                                    <td>{{ $plants->firstItem() + $index }}</td>
+                                    <td>{{ $companies->firstItem() + $index }}</td>
                                     <td>
-                                        <div class="fw-bold text-primary">{{ $plant->plant_name }}</div>
+                                        <div class="fw-bold text-primary">{{ $company->company_name }}</div>
                                     </td>
                                     <td>
-                                        @if ($plant->is_active)
+                                        @if ($company->is_active)
                                             <span class="badge bg-success">
                                                 <i class="fas fa-check me-1"></i>Active
                                             </span>
@@ -99,36 +99,36 @@
                                     </td>
                                     <td>
                                         <span
-                                            class="badge bg-info">{{ $plant->locations_count ?? $plant->locations->count() }}</span>
+                                            class="badge bg-info">{{ $company->locations_count ?? $company->locations->count() }}</span>
                                     </td>
                                     <td>
                                         <span
-                                            class="badge bg-primary">{{ $plant->users_count ?? $plant->users->count() }}</span>
+                                            class="badge bg-primary">{{ $company->users_count ?? $company->users->count() }}</span>
                                     </td>
                                     <td>
                                         <small class="text-muted">
-                                            {{ $plant->created_at->format('d M Y, H:i') }}
+                                            {{ $company->created_at->format('d M Y, H:i') }}
                                         </small>
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            @can('view', $plant)
-                                                <a href="{{ route('sisca-v2.plants.show', $plant) }}"
+                                            @can('view', $company)
+                                                <a href="{{ route('sisca-v2.companies.show', $company) }}"
                                                     class="btn btn-outline-info" title="View Details">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             @endcan
 
-                                            @can('update', $plant)
-                                                <a href="{{ route('sisca-v2.plants.edit', $plant) }}"
+                                            @can('update', $company)
+                                                <a href="{{ route('sisca-v2.companies.edit', $company) }}"
                                                     class="btn btn-outline-warning" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                             @endcan
 
-                                            @can('delete', $plant)
+                                            @can('delete', $company)
                                                 <button type="button" class="btn btn-outline-danger"
-                                                    onclick="confirmDelete({{ $plant->id }})" title="Delete">
+                                                    onclick="confirmDelete({{ $company->id }})" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             @endcan
@@ -141,8 +141,8 @@
                                         <div class="text-muted">
                                             <i class="fas fa-industry fa-3x mb-3"></i>
                                             <p class="mb-0">No companies found</p>
-                                            @can('create', App\Models\SiscaV2\Plant::class)
-                                                <a href="{{ route('sisca-v2.plants.create') }}"
+                                            @can('create', App\Models\SiscaV2\Company::class)
+                                                <a href="{{ route('sisca-v2.companies.create') }}"
                                                     class="btn btn-primary btn-sm mt-2">
                                                     <i class="fas fa-plus me-1"></i>Add First Company
                                                 </a>
@@ -156,14 +156,14 @@
                 </div>
 
                 <!-- Pagination -->
-                @if ($plants->hasPages())
+                @if ($companies->hasPages())
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-3">
                         <div class="text-muted small">
-                            Showing {{ $plants->firstItem() }} to {{ $plants->lastItem() }}
-                            of {{ $plants->total() }} results
+                            Showing {{ $companies->firstItem() }} to {{ $companies->lastItem() }}
+                            of {{ $companies->total() }} results
                         </div>
                         <div class="pagination-wrapper">
-                            {{ $plants->links() }}
+                            {{ $companies->links() }}
                         </div>
                     </div>
                 @endif
@@ -202,7 +202,7 @@
         <script>
             function confirmDelete(id) {
                 const form = document.getElementById('deleteForm');
-                form.action = `${window.location.origin}/sisca-v2.plants/${id}`;
+                form.action = `${window.location.origin}/sisca-v2.companies/${id}`;
                 const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
                 modal.show();
             }
@@ -220,7 +220,7 @@
 
     @push('styles')
         <style>
-            /* Custom pagination styling for plants */
+            /* Custom pagination styling for companies */
             .pagination-wrapper .pagination {
                 margin: 0;
             }

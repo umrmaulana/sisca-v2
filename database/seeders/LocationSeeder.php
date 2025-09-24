@@ -15,8 +15,8 @@ class LocationSeeder extends Seeder
      */
     public function run()
     {
-        // Get plant and area IDs
-        $plants = DB::table('tm_plants')->pluck('id', 'plant_name');
+        // Get company and area IDs
+        $companies = DB::table('tm_companies')->pluck('id', 'company_name');
         $areas = DB::table('tm_areas')->get();
 
 
@@ -24,7 +24,7 @@ class LocationSeeder extends Seeder
             // Aisin Indonesia
             [
                 'location_code' => 'AII-LOC-001',
-                'plant_id' => $plants->first(),
+                'company_id' => $companies->first(),
                 'area_id' => $areas->where('area_name', 'Area 1 AII')->first()->id,
                 'pos' => 'K2',
                 'coordinate_x' => 150,

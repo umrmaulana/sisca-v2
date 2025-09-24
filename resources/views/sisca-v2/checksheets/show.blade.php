@@ -95,7 +95,7 @@
                                 {{ $inspection->equipment->location->location_code ?? 'N/A' }}<br>
                                 <small class="text-muted">
                                     {{ $inspection->equipment->location->area->area_name ?? '' }} -
-                                    {{ $inspection->equipment->location->plant->plant_name ?? '' }}
+                                    {{ $inspection->equipment->location->company->company_name ?? '' }}
                                 </small>
                             </div>
                             <div class="col-md-3">

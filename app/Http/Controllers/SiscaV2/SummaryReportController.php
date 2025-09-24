@@ -5,7 +5,7 @@ namespace App\Http\Controllers\SiscaV2;
 use Illuminate\Routing\Controller;
 use App\Models\SiscaV2\Inspection;
 use App\Models\SiscaV2\Equipment;
-use App\Models\SiscaV2\Plant;
+use App\Models\SiscaV2\Company;
 use App\Models\SiscaV2\Area;
 use App\Models\SiscaV2\EquipmentType;
 use Illuminate\Http\Request;
@@ -38,21 +38,21 @@ class SummaryReportController extends Controller
         // Filter defaults
         $selectedYear = $request->get('year', date('Y'));
         $selectedStatus = $request->get('status', 'all');
-        $selectedPlantId = null;
+        $selectedCompanyId = null;
         $selectedAreaId = $request->get('area_id');
         $selectedEquipmentTypeId = $request->get('equipment_type_id');
         $searchEquipment = $request->get('search_equipment', '');
 
-        // Get plants based on role
-        $plants = collect();
+        // Get companies based on role
+        $companies = collect();
         if (in_array($userRole, ['Admin', 'Management'])) {
-            $plants = Plant::where('is_active', true)->orderBy('plant_name')->get();
-            $selectedPlantId = $request->get('plant_id');
+            $companies = Company::where('is_active', true)->orderBy('company_name')->get();
+            $selectedCompanyId = $request->get('company_id');
         } else {
-            // For Supervisor, use their plant_id
-            $selectedPlantId = $user->plant_id;
-            if ($selectedPlantId) {
-                $plants = Plant::where('id', $selectedPlantId)->where('is_active', true)->get();
+            // For Supervisor, use their company_id
+            $selectedCompanyId = $user->company_id;
+            if ($selectedCompanyId) {
+                $companies = Company::where('id', $selectedCompanyId)->where('is_active', true)->get();
             }
         }
 
@@ -64,12 +64,12 @@ class SummaryReportController extends Controller
                 ->orderBy('equipment_name')
                 ->get();
         } else {
-            // PIC & Supervisor only see equipment types available in their plant
-            if ($user->plant_id) {
+            // PIC & Supervisor only see equipment types available in their company
+            if ($user->company_id) {
                 $equipmentTypes = EquipmentType::where('is_active', true)
                     ->whereHas('equipments', function ($q) use ($user) {
                         $q->whereHas('location.area', function ($loc) use ($user) {
-                            $loc->where('plant_id', $user->plant_id);
+                            $loc->where('company_id', $user->company_id);
                         });
                     })
                     ->orderBy('equipment_name')
@@ -77,10 +77,10 @@ class SummaryReportController extends Controller
             }
         }
 
-        // Get areas for selected plant (with equipment type filtering)
+        // Get areas for selected company (with equipment type filtering)
         $areas = collect();
-        if ($selectedPlantId) {
-            $areasQuery = Area::where('plant_id', $selectedPlantId)
+        if ($selectedCompanyId) {
+            $areasQuery = Area::where('company_id', $selectedCompanyId)
                 ->where('is_active', true);
 
             // If equipment type is selected, only show areas that have equipment of that type
@@ -98,7 +98,7 @@ class SummaryReportController extends Controller
         $inspectionsQuery = Inspection::with([
             'user',
             'equipment.equipmentType',
-            'equipment.location.area.plant',
+            'equipment.location.area.company',
             'details.checksheetTemplate',
             'approvedBy'
         ]);
@@ -108,10 +108,10 @@ class SummaryReportController extends Controller
         $endOfYear = Carbon::createFromDate($selectedYear, 12, 31)->endOfYear();
         $inspectionsQuery->whereBetween('inspection_date', [$startOfYear, $endOfYear]);
 
-        // Plant filter
-        if ($selectedPlantId) {
-            $inspectionsQuery->whereHas('equipment.location.area', function ($q) use ($selectedPlantId) {
-                $q->where('plant_id', $selectedPlantId);
+        // Company filter
+        if ($selectedCompanyId) {
+            $inspectionsQuery->whereHas('equipment.location.area', function ($q) use ($selectedCompanyId) {
+                $q->where('company_id', $selectedCompanyId);
             });
         }
 
@@ -158,17 +158,17 @@ class SummaryReportController extends Controller
         $rejectedInspections = $inspectionsQuery->where('status', 'rejected')->count();
 
         // Get annual equipment summary data with pagination
-        $equipmentSummaryData = $this->getAnnualEquipmentSummaryWithPagination($selectedPlantId, $selectedAreaId, $selectedEquipmentTypeId, $selectedYear, $searchEquipment, $request);
+        $equipmentSummaryData = $this->getAnnualEquipmentSummaryWithPagination($selectedCompanyId, $selectedAreaId, $selectedEquipmentTypeId, $selectedYear, $searchEquipment, $request);
 
         return view('sisca-v2.summary-report.index', compact(
             'inspections',
             'allInspections',
-            'plants',
+            'companies',
             'areas',
             'equipmentTypes',
             'selectedYear',
             'selectedStatus',
-            'selectedPlantId',
+            'selectedCompanyId',
             'selectedAreaId',
             'selectedEquipmentTypeId',
             'user',
@@ -343,12 +343,12 @@ class SummaryReportController extends Controller
         ]);
     }
 
-    public function getAreasByPlant(Request $request)
+    public function getAreasByCompany(Request $request)
     {
-        $plantId = $request->get('plant_id');
+        $companyId = $request->get('company_id');
         $equipmentTypeId = $request->get('equipment_type_id');
 
-        $areasQuery = Area::where('plant_id', $plantId)
+        $areasQuery = Area::where('company_id', $companyId)
             ->where('is_active', true);
 
         // If equipment type is selected, only show areas that have equipment of that type
@@ -379,29 +379,29 @@ class SummaryReportController extends Controller
 
         // Get the same filters as index
         $selectedYear = $request->get('year', date('Y'));
-        $selectedPlantId = null;
+        $selectedCompanyId = null;
         $selectedAreaId = $request->get('area_id');
         $selectedEquipmentTypeId = $request->get('equipment_type_id');
         $searchEquipment = $request->get('search_equipment', '');
 
-        // Get plant based on role
+        // Get company based on role
         if (in_array($userRole, ['Admin', 'Management'])) {
-            $selectedPlantId = $request->get('plant_id');
+            $selectedCompanyId = $request->get('company_id');
         } else {
-            $selectedPlantId = $user->plant_id;
+            $selectedCompanyId = $user->company_id;
         }
 
         // Get annual equipment summary data
-        $equipmentSummary = $this->getAnnualEquipmentSummary($selectedPlantId, $selectedAreaId, $selectedEquipmentTypeId, $selectedYear, $searchEquipment);
+        $equipmentSummary = $this->getAnnualEquipmentSummary($selectedCompanyId, $selectedAreaId, $selectedEquipmentTypeId, $selectedYear, $searchEquipment);
 
-        // Get plant and area names for PDF header
-        $plantName = $selectedPlantId ? Plant::find($selectedPlantId)->plant_name : 'All Plants';
+        // Get company and area names for PDF header
+        $companyName = $selectedCompanyId ? Company::find($selectedCompanyId)->company_name : 'All Companies';
         $areaName = $selectedAreaId ? Area::find($selectedAreaId)->area_name : 'All Areas';
         $equipmentTypeName = $selectedEquipmentTypeId ? EquipmentType::find($selectedEquipmentTypeId)->equipment_name : 'All Equipment Types';
 
         $data = [
             'equipmentSummary' => $equipmentSummary,
-            'plantName' => $plantName,
+            'companyName' => $companyName,
             'areaName' => $areaName,
             'equipmentTypeName' => $equipmentTypeName,
             'year' => $selectedYear,
@@ -412,23 +412,23 @@ class SummaryReportController extends Controller
         $pdf = Pdf::loadView('sisca-v2.summary-report.pdf', $data);
         $pdf->setPaper('A4', 'landscape');
 
-        $filename = "Annual_Summary_Report_{$selectedYear}_{$plantName}.pdf";
+        $filename = "Annual_Summary_Report_{$selectedYear}_{$companyName}.pdf";
 
         return $pdf->download($filename);
     }
 
-    private function getAnnualEquipmentSummary($plantId, $areaId, $equipmentTypeId, $year, $searchEquipment = '')
+    private function getAnnualEquipmentSummary($companyId, $areaId, $equipmentTypeId, $year, $searchEquipment = '')
     {
         $startOfYear = Carbon::createFromDate($year, 1, 1)->startOfYear();
         $endOfYear = Carbon::createFromDate($year, 12, 31)->endOfYear();
 
         // Build equipment query
-        $equipmentQuery = Equipment::with(['equipmentType', 'location.area.plant']);
+        $equipmentQuery = Equipment::with(['equipmentType', 'location.area.company']);
 
         // Apply filters
-        if ($plantId) {
-            $equipmentQuery->whereHas('location.area', function ($q) use ($plantId) {
-                $q->where('plant_id', $plantId);
+        if ($companyId) {
+            $equipmentQuery->whereHas('location.area.company', function ($q) use ($companyId) {
+                $q->where('id', $companyId);
             });
         }
 
@@ -507,7 +507,7 @@ class SummaryReportController extends Controller
                 'equipment_type' => $equipment->equipmentType->equipment_name ?? 'Unknown',
                 'location' => $equipment->location->location_code ?? 'Unknown',
                 'area' => $equipment->location->area->area_name ?? 'Unknown',
-                'plant' => $equipment->location->area->plant->plant_name ?? 'Unknown',
+                'company' => $equipment->location->area->company->company_name ?? 'Unknown',
                 'expired_date' => $equipment->expired_date ? Carbon::parse($equipment->expired_date)->format('Y-m-d') : null,
                 'monthly_data' => $monthlyData,
                 'has_inspections' => $hasInspections,
@@ -518,18 +518,18 @@ class SummaryReportController extends Controller
         return collect($summary);
     }
 
-    private function getAnnualEquipmentSummaryWithPagination($plantId, $areaId, $equipmentTypeId, $year, $searchEquipment = '', $request = null)
+    private function getAnnualEquipmentSummaryWithPagination($companyId, $areaId, $equipmentTypeId, $year, $searchEquipment = '', $request = null)
     {
         $startOfYear = Carbon::createFromDate($year, 1, 1)->startOfYear();
         $endOfYear = Carbon::createFromDate($year, 12, 31)->endOfYear();
 
         // Build equipment query
-        $equipmentQuery = Equipment::with(['equipmentType', 'location.area.plant']);
+        $equipmentQuery = Equipment::with(['equipmentType', 'location.area.company']);
 
         // Apply filters
-        if ($plantId) {
-            $equipmentQuery->whereHas('location.area', function ($q) use ($plantId) {
-                $q->where('plant_id', $plantId);
+        if ($companyId) {
+            $equipmentQuery->whereHas('location.area.company', function ($q) use ($companyId) {
+                $q->where('id', $companyId);
             });
         }
 
@@ -610,7 +610,7 @@ class SummaryReportController extends Controller
                 'location' => $equipment->location->location_name ?? '-',
                 'area' => $equipment->location->area->area_name ?? '-',
                 'pos' => $equipment->location->pos ?? '-',
-                'plant' => $equipment->location->area->plant->plant_name ?? '-',
+                'company' => $equipment->location->area->company->company_name ?? '-',
                 'expired_date' => $equipment->expired_date ? Carbon::parse($equipment->expired_date)->format('Y-m-d') : null,
                 'monthly_data' => $monthlyData
             ];

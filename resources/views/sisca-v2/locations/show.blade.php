@@ -56,8 +56,8 @@
                                 <div class="mb-4">
                                     <label class="form-label text-muted">Company</label>
                                     <div class="h6 text-info">
-                                        @if ($location->plant)
-                                            {{ $location->plant->plant_name }}
+                                        @if ($location->company)
+                                            {{ $location->company->company_name }}
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif

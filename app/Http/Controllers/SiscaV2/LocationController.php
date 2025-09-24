@@ -4,7 +4,7 @@ namespace App\Http\Controllers\SiscaV2;
 
 use Illuminate\Routing\Controller;
 use App\Models\SiscaV2\Location;
-use App\Models\SiscaV2\Plant;
+use App\Models\SiscaV2\Company;
 use App\Models\SiscaV2\Area;
 use Illuminate\Http\Request;
 
@@ -13,25 +13,25 @@ class LocationController extends Controller
     public function __construct()
     {
         // Only Admin and Supervisor can create, update, delete
-        $this->middleware('role:Admin')->except(['index', 'show', 'getAreasByPlant', 'getPlantData']);
+        $this->middleware('role:Admin')->except(['index', 'show', 'getAreasByCompany', 'getCompanyData']);
         // All roles can view (index, show) and use AJAX helper
-        $this->middleware('role:Admin,Supervisor,Management')->only(['index', 'show', 'getAreasByPlant', 'getPlantData']);
+        $this->middleware('role:Admin,Supervisor,Management')->only(['index', 'show', 'getAreasByCompany', 'getCompanyData']);
     }
 
     public function index(Request $request)
     {
         $user = auth('sisca-v2')->user();
 
-        $query = Location::with(['plant', 'area']);
+        $query = Location::with(['company', 'area']);
 
-        // Apply plant filter for non-admin users
-        if ($user->role === 'Supervisor' && $user->plant_id) {
-            $query->where('plant_id', $user->plant_id);
+        // Apply company filter for non-admin users
+        if ($user->role === 'Supervisor' && $user->company_id) {
+            $query->where('company_id', $user->company_id);
         }
 
-        // Filter by plant (for Admin/Management or when specified)
-        if ($request->filled('plant_id')) {
-            $query->where('plant_id', $request->plant_id);
+        // Filter by area (for Admin/Management or when specified)
+        if ($request->filled('area_id')) {
+            $query->where('area_id', $request->area_id);
         }
 
         // Filter by area
@@ -46,53 +46,53 @@ class LocationController extends Controller
 
         $locations = $query->paginate(10)->appends($request->query());
 
-        // Plants dropdown (only for Admin/Management)
-        $plants = collect();
+        // Companies dropdown (only for Admin/Management)
+        $companies = collect();
         if ($user->role === 'Admin' || $user->role === 'Management') {
-            $plants = Plant::where('is_active', true)->get();
-        } elseif ($user->role === 'Supervisor' && $user->plant_id) {
-            $plants = Plant::where('id', $user->plant_id)->where('is_active', true)->get();
+            $companies = Company::where('is_active', true)->get();
+        } elseif ($user->role === 'Supervisor' && $user->company_id) {
+            $companies = Company::where('id', $user->company_id)->where('is_active', true)->get();
         }
 
-        // Areas dropdown (filtered by accessible plants)
+        // Areas dropdown (filtered by accessible companies)
         $areas = collect();
         if ($user->role === 'Admin' || $user->role === 'Management') {
             $areas = Area::where('is_active', true)->get();
-        } elseif ($user->role === 'Supervisor' && $user->plant_id) {
-            $areas = Area::where('plant_id', $user->plant_id)->where('is_active', true)->get();
+        } elseif ($user->role === 'Supervisor' && $user->company_id) {
+            $areas = Area::where('company_id', $user->company_id)->where('is_active', true)->get();
         }
 
-        return view('sisca-v2.locations.index', compact('locations', 'plants', 'areas'));
+        return view('sisca-v2.locations.index', compact('locations', 'companies', 'areas'));
     }
 
     public function create(Request $request)
     {
         // $user = auth('sisca-v2')->user();
 
-        // // For supervisor, auto-select their assigned plant
-        // if ($user->role === 'Supervisor' && $user->plant_id) {
-        //     $plants = Plant::where('id', $user->plant_id)
+        // // For supervisor, auto-select their assigned company
+        // if ($user->role === 'Supervisor' && $user->company_id) {
+        //     $companies = Company::where('id', $user->company_id)
         //         ->where('is_active', true)
         //         ->get();
 
-        //     // Auto-load areas for supervisor's plant
-        //     $areas = Area::where('plant_id', $user->plant_id)
+        //     // Auto-load areas for supervisor's company
+        //     $areas = Area::where('company_id', $user->company_id)
         //         ->where('is_active', true)
         //         ->get();
         // } else {
-        //     // For Admin/Management - show all plants
+        //     // For Admin/Management - show all companies
         // }
-        $plants = Plant::where('is_active', true)->get();
+        $companies = Company::where('is_active', true)->get();
 
-        // Get areas based on selected plant
+        // Get areas based on selected company
         $areas = collect();
-        if ($request->filled('plant_id')) {
+        if ($request->filled('company_id')) {
             $areas = Area::where('is_active', true)
-                ->where('plant_id', $request->plant_id)
+                ->where('company_id', $request->company_id)
                 ->get();
         }
 
-        return view('sisca-v2.locations.create', compact('plants', 'areas'));
+        return view('sisca-v2.locations.create', compact('companies', 'areas'));
     }
 
     public function store(Request $request)
@@ -101,43 +101,43 @@ class LocationController extends Controller
 
         $request->validate([
             'location_name' => 'required|string|max:100',
-            'plant_id' => 'required|exists:tm_plants,id',
+            'company_id' => 'required|exists:tm_companies,id',
             'area_id' => 'required|exists:tm_areas,id',
             'coordinate_x' => 'nullable|numeric|between:-999999.999999,999999.999999',
             'coordinate_y' => 'nullable|numeric|between:-999999.999999,999999.999999',
-            'plant_coordinate_x' => 'nullable|numeric|between:-999999.999999,999999.999999',
-            'plant_coordinate_y' => 'nullable|numeric|between:-999999.999999,999999.999999',
+            'company_coordinate_x' => 'nullable|numeric|between:-999999.999999,999999.999999',
+            'company_coordinate_y' => 'nullable|numeric|between:-999999.999999,999999.999999',
         ]);
 
-        // For supervisor, ensure they can only create locations in their assigned plant
-        if ($user->role === 'Supervisor' && $user->plant_id) {
-            if ($request->plant_id != $user->plant_id) {
+        // For supervisor, ensure they can only create locations in their assigned company
+        if ($user->role === 'Supervisor' && $user->company_id) {
+            if ($request->company_id != $user->company_id) {
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', 'You can only create locations in your assigned plant.');
+                    ->with('error', 'You can only create locations in your assigned company.');
             }
         }
 
-        // Validate area belongs to the selected plant
+        // Validate area belongs to the selected company
         $area = Area::where('id', $request->area_id)
-            ->where('plant_id', $request->plant_id)
+            ->where('company_id', $request->company_id)
             ->first();
 
         if (!$area) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Selected area does not belong to the selected plant.');
+                ->with('error', 'Selected area does not belong to the selected company.');
         }
 
         // Prepare data for insertion
         $data = [
             'location_code' => $request->location_name, // Map location_name to location_code
-            'plant_id' => $request->plant_id,
+            'company_id' => $request->company_id,
             'area_id' => $request->area_id,
             'coordinate_x' => $request->coordinate_x,
             'coordinate_y' => $request->coordinate_y,
-            'plant_coordinate_x' => $request->plant_coordinate_x,
-            'plant_coordinate_y' => $request->plant_coordinate_y,
+            'company_coordinate_x' => $request->company_coordinate_x,
+            'company_coordinate_y' => $request->company_coordinate_y,
             'pos' => $request->pos ?? null,
             'is_active' => $request->has('is_active') ? true : false,
         ];
@@ -161,7 +161,7 @@ class LocationController extends Controller
 
     public function show(Location $location)
     {
-        $location->load(['plant', 'area', 'equipments']);
+        $location->load(['company', 'area', 'equipments']);
         return view('sisca-v2.locations.show', compact('location'));
     }
 
@@ -169,44 +169,44 @@ class LocationController extends Controller
     {
         $user = auth('sisca-v2')->user();
 
-        // For supervisor, ensure they can only edit locations in their assigned plant
-        if ($user->role === 'Supervisor' && $user->plant_id) {
-            if ($location->plant_id != $user->plant_id) {
+        // For supervisor, ensure they can only edit locations in their assigned company
+        if ($user->role === 'Supervisor' && $user->company_id) {
+            if ($location->company_id != $user->company_id) {
                 return redirect()->route('sisca-v2.locations.index')
-                    ->with('error', 'You can only edit locations in your assigned plant.');
+                    ->with('error', 'You can only edit locations in your assigned company.');
             }
         }
 
-        $plants = Plant::where('is_active', true)->get();
+        $companies = Company::where('is_active', true)->get();
         $areas = Area::where('is_active', true)
-            ->where('plant_id', $location->plant_id)
+            ->where('company_id', $location->company_id)
             ->get();
 
-        return view('sisca-v2.locations.edit', compact('location', 'plants', 'areas'));
+        return view('sisca-v2.locations.edit', compact('location', 'companies', 'areas'));
     }
 
     public function update(Request $request, Location $location)
     {
         $user = auth('sisca-v2')->user();
 
-        // For supervisor, ensure they can only update locations in their assigned plant
-        if ($user->role === 'Supervisor' && $user->plant_id) {
-            if ($location->plant_id != $user->plant_id || $request->plant_id != $user->plant_id) {
+        // For supervisor, ensure they can only update locations in their assigned company
+        if ($user->role === 'Supervisor' && $user->company_id) {
+            if ($location->company_id != $user->company_id || $request->company_id != $user->company_id) {
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', 'You can only update locations in your assigned plant.');
+                    ->with('error', 'You can only update locations in your assigned company.');
             }
         }
 
         $request->validate([
             'location_code' => 'required|string|max:100|unique:tm_locations_new,location_code,' . $location->id,
-            'plant_id' => 'required|exists:tm_plants,id',
+            'company_id' => 'required|exists:tm_companies,id',
             'area_id' => 'required|exists:tm_areas,id',
             'pos' => 'nullable|string|max:255',
             'coordinate_x' => 'nullable|numeric|between:-999999.999999,999999.999999',
             'coordinate_y' => 'nullable|numeric|between:-999999.999999,999999.999999',
-            'plant_coordinate_x' => 'nullable|numeric|between:-999999.999999,999999.999999',
-            'plant_coordinate_y' => 'nullable|numeric|between:-999999.999999,999999.999999',
+            'company_coordinate_x' => 'nullable|numeric|between:-999999.999999,999999.999999',
+            'company_coordinate_y' => 'nullable|numeric|between:-999999.999999,999999.999999',
         ]);
 
         $data = $request->all();
@@ -243,27 +243,27 @@ class LocationController extends Controller
         }
     }
 
-    // AJAX method to get areas by plant
-    public function getAreasByPlant($plantId)
+    // AJAX method to get areas by company
+    public function getAreasByCompany($companyId)
     {
-        $areas = Area::where('plant_id', $plantId)
+        $areas = Area::where('company_id', $companyId)
             ->where('is_active', true)
             ->get(['id', 'area_name', 'mapping_picture']);
 
         return response()->json($areas);
     }
 
-    // AJAX method to get plant data
-    public function getPlantData($plantId)
+    // AJAX method to get company data
+    public function getCompanyData($companyId)
     {
-        $plant = Plant::where('id', $plantId)
+        $company = Company::where('id', $companyId)
             ->where('is_active', true)
-            ->first(['id', 'plant_name', 'plant_mapping_picture']);
+            ->first(['id', 'company_name', 'company_mapping_picture']);
 
-        if (!$plant) {
-            return response()->json(['error' => 'Plant not found'], 404);
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
         }
 
-        return response()->json($plant);
+        return response()->json($company);
     }
 }

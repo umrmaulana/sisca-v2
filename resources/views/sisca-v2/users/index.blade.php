@@ -38,13 +38,13 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label for="plant_id" class="form-label">Company</label>
-                        <select class="form-select" id="plant_id" name="plant_id">
+                        <label for="company_id" class="form-label">Company</label>
+                        <select class="form-select" id="company_id" name="company_id">
                             <option value="">All Companies</option>
-                            @foreach ($plants as $plant)
-                                <option value="{{ $plant->id }}"
-                                    {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
-                                    {{ $plant->plant_name }}
+                            @foreach ($companies as $company)
+                                <option value="{{ $company->id }}"
+                                    {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                                    {{ $company->company_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -141,8 +141,8 @@
                                         @endswitch
                                     </td>
                                     <td>
-                                        @if ($user->plant)
-                                            <span class="badge bg-info">{{ $user->plant->plant_name }}</span>
+                                        @if ($user->company)
+                                            <span class="badge bg-info">{{ $user->company->company_name }}</span>
                                         @else
                                             <span class="text-muted fst-italic">No company</span>
                                         @endif

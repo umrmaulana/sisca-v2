@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('tm_locations_new', function (Blueprint $table) {
             $table->id();
             $table->char('location_code', 20)->unique();
-            $table->foreignId('plant_id')->constrained('tm_plants');
+            $table->foreignId('company_id')->constrained('tm_companies');
             $table->foreignId('area_id')->constrained('tm_areas');
             $table->string('pos')->nullable();
             $table->decimal('coordinate_x', 10, 6)->nullable();

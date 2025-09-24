@@ -63,9 +63,9 @@
         </div>
 
         <div
-            class="menu-item menu-accordion {{ Request::is('sisca-v2/equipments*', 'sisca-v2/equipment-types*', 'sisca-v2/locations*', 'sisca-v2/plants*', 'sisca-v2/areas*', 'sisca-v2/checksheet-templates*', 'sisca-v2/period-checks*') ? 'show' : '' }}">
+            class="menu-item menu-accordion {{ Request::is('sisca-v2/equipments*', 'sisca-v2/equipment-types*', 'sisca-v2/locations*', 'sisca-v2/companies*', 'sisca-v2/areas*', 'sisca-v2/checksheet-templates*', 'sisca-v2/period-checks*') ? 'show' : '' }}">
             <div
-                class="menu-link {{ Request::is('sisca-v2/equipments*', 'sisca-v2/equipment-types*', 'sisca-v2/locations*', 'sisca-v2/plants*', 'sisca-v2/areas*', 'sisca-v2/checksheet-templates*', 'sisca-v2/period-checks*') ? 'active' : '' }}">
+                class="menu-link {{ Request::is('sisca-v2/equipments*', 'sisca-v2/equipment-types*', 'sisca-v2/locations*', 'sisca-v2/companies*', 'sisca-v2/areas*', 'sisca-v2/checksheet-templates*', 'sisca-v2/period-checks*') ? 'active' : '' }}">
                 <span class="menu-icon">
                     <i class="bi bi-database-fill-gear"></i>
                 </span>
@@ -100,8 +100,8 @@
                     </a>
                 </div>
                 <div class="menu-item">
-                    <a class="menu-link {{ Request::is('sisca-v2/plants*') ? 'active' : '' }}"
-                        href="{{ route('sisca-v2.plants.index') }}">
+                    <a class="menu-link {{ Request::is('sisca-v2/companies*') ? 'active' : '' }}"
+                        href="{{ route('sisca-v2.companies.index') }}">
                         <span class="menu-title">Company</span>
                     </a>
                 </div>

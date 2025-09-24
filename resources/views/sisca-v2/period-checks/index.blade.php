@@ -210,7 +210,6 @@
 
     @push('styles')
         <style>
-            /* Custom pagination styling for plants */
             .pagination-wrapper .pagination {
                 margin: 0;
             }

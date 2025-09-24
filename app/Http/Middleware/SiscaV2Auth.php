@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\SiscaV2\PeriodCheckController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SiscaV2\PlantController;
+use App\Http\Controllers\SiscaV2\CompanyController;
 use App\Http\Controllers\SiscaV2\AreaController;
 use App\Http\Controllers\SiscaV2\EquipmentTypeController;
 use App\Http\Controllers\SiscaV2\LocationController;
@@ -62,7 +62,7 @@ Route::prefix('sisca-v2')->name('sisca-v2.')->group(function () {
         // Dashboard Routes
         // ===============================
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('dashboard/areas-by-plant', [DashboardController::class, 'getAreasByPlant'])->name('dashboard.areas-by-plant');
+        Route::get('dashboard/areas-by-company', [DashboardController::class, 'getAreasByCompany'])->name('dashboard.areas-by-company');
 
         // ===============================
         // Checksheet Management
@@ -74,7 +74,7 @@ Route::prefix('sisca-v2')->name('sisca-v2.')->group(function () {
             Route::get('/show/{id}', [ChecksheetController::class, 'show'])->name('show');
             Route::get('/history', [ChecksheetController::class, 'history'])->name('history');
             Route::get('/equipment/{code}', [ChecksheetController::class, 'getEquipment'])->name('equipment');
-            Route::get('/areas-by-plant', [ChecksheetController::class, 'getAreasByPlant'])->name('areas-by-plant');
+            Route::get('/areas-by-company', [ChecksheetController::class, 'getAreasByCompany'])->name('areas-by-company');
             Route::post('/approve/{id}', [ChecksheetController::class, 'approve'])->name('approve');
             Route::get('/ng-history/{equipmentId}', [ChecksheetController::class, 'ngHistory'])->name('ng-history');
         });
@@ -84,7 +84,7 @@ Route::prefix('sisca-v2')->name('sisca-v2.')->group(function () {
         // ===============================
         Route::prefix('mapping-area')->name('mapping-area.')->group(function () {
             Route::get('/', [App\Http\Controllers\SiscaV2\MappingAreaController::class, 'index'])->name('index');
-            Route::get('/areas-by-plant', [App\Http\Controllers\SiscaV2\MappingAreaController::class, 'getAreasByPlant'])->name('areas-by-plant');
+            Route::get('/areas-by-company', [App\Http\Controllers\SiscaV2\MappingAreaController::class, 'getAreasByCompany'])->name('areas-by-company');
         });
 
         // ===============================
@@ -98,7 +98,7 @@ Route::prefix('sisca-v2')->name('sisca-v2.')->group(function () {
             Route::post('/{id}/reject', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'reject'])->name('reject');
             Route::post('/bulk-approve', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'bulkApprove'])->name('bulk-approve');
             Route::post('/bulk-reject', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'bulkReject'])->name('bulk-reject');
-            Route::get('/areas-by-plant', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'getAreasByPlant'])->name('areas-by-plant');
+            Route::get('/areas-by-company', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'getAreasByCompany'])->name('areas-by-company');
             Route::get('/export-pdf', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'exportPdf'])->name('export-pdf');
         });
 
@@ -111,8 +111,8 @@ Route::prefix('sisca-v2')->name('sisca-v2.')->group(function () {
         // Master Data Management (Admin/Management Only)
         // ===============================
 
-        // Plants Management
-        Route::resource('plants', PlantController::class);
+        // Companies Management
+        Route::resource('companies', CompanyController::class);
 
         // Areas Management
         Route::resource('areas', AreaController::class);
@@ -131,11 +131,11 @@ Route::prefix('sisca-v2')->name('sisca-v2.')->group(function () {
 
         // Locations Management
         Route::resource('locations', LocationController::class);
-        Route::get('locations/areas/{plant}', [LocationController::class, 'getAreasByPlant'])->name('locations.areas-by-plant');
-        Route::get('locations/plant/{plant}', [LocationController::class, 'getPlantData'])->name('locations.plant-data');
+        Route::get('locations/areas/{company}', [LocationController::class, 'getAreasByCompany'])->name('locations.areas-by-company');
+        Route::get('locations/company/{company}', [LocationController::class, 'getCompanyData'])->name('locations.company-data');
 
         // Equipments Management
-        Route::get('equipments/areas-by-plant', [EquipmentController::class, 'getAreasByPlant'])->name('equipments.areas-by-plant');
+        Route::get('equipments/areas-by-company', [EquipmentController::class, 'getAreasByCompany'])->name('equipments.areas-by-company');
         Route::get('equipments/locations-by-area', [EquipmentController::class, 'getLocationsByArea'])->name('equipments.locations-by-area');
         Route::get('equipments/test-qr', [EquipmentController::class, 'testQrGeneration'])->name('equipments.test-qr');
         Route::resource('equipments', EquipmentController::class);
@@ -168,9 +168,9 @@ Route::prefix('sisca-v2')->name('sisca-v2.')->group(function () {
         // API Routes for AJAX calls
         // ===============================
         Route::prefix('api')->name('api.')->group(function () {
-            Route::get('plants', function () {
-                return response()->json(\App\Models\SiscaV2\Plant::where('is_active', true)->get());
-            })->name('plants');
+            Route::get('companies', function () {
+                return response()->json(\App\Models\SiscaV2\Company::where('is_active', true)->get());
+            })->name('companies');
 
             Route::get('areas', function () {
                 return response()->json(\App\Models\SiscaV2\Area::where('is_active', true)->get());
@@ -185,7 +185,7 @@ Route::prefix('sisca-v2')->name('sisca-v2.')->group(function () {
             })->name('equipments');
 
             Route::get('locations', function () {
-                return response()->json(\App\Models\SiscaV2\Location::where('is_active', true)->with(['plant', 'area'])->get());
+                return response()->json(\App\Models\SiscaV2\Location::where('is_active', true)->with(['company', 'area'])->get());
             })->name('locations');
 
             Route::get('checksheet-templates', function () {

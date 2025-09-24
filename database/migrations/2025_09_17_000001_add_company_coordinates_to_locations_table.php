@@ -13,9 +13,9 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('tm_locations_new', function (Blueprint $table) {
-            // Koordinat relatif terhadap gambar plant (untuk plant-level mapping)
-            $table->decimal('plant_coordinate_x', 8, 6)->nullable()->after('coordinate_y');
-            $table->decimal('plant_coordinate_y', 8, 6)->nullable()->after('plant_coordinate_x');
+            // Koordinat relatif terhadap gambar company (untuk company-level mapping)
+            $table->decimal('company_coordinate_x', 8, 6)->nullable()->after('coordinate_y');
+            $table->decimal('company_coordinate_y', 8, 6)->nullable()->after('company_coordinate_x');
         });
     }
 
@@ -27,7 +27,7 @@ return new class extends Migration {
     public function down()
     {
         Schema::table('tm_locations_new', function (Blueprint $table) {
-            $table->dropColumn(['plant_coordinate_x', 'plant_coordinate_y']);
+            $table->dropColumn(['company_coordinate_x', 'company_coordinate_y']);
         });
     }
 };

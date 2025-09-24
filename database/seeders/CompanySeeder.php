@@ -6,7 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class PlantSeeder extends Seeder
+class CompanySeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,15 +15,15 @@ class PlantSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('tm_plants')->insert([
+        DB::table('tm_companies')->insert([
             [
-                'plant_name' => 'PT. AII',
+                'company_name' => 'PT. AII',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'plant_name' => 'PT. AIIA',
+                'company_name' => 'PT. AIIA',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),

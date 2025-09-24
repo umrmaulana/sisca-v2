@@ -41,8 +41,8 @@
                                 <div class="mb-4">
                                     <label class="form-label text-muted">Company</label>
                                     <div class="h6">
-                                        @if ($area->plant)
-                                            {{ $area->plant->plant_name }}
+                                        @if ($area->company)
+                                            {{ $area->company->company_name }}
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif

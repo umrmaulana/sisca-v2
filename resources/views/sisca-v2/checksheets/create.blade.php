@@ -121,10 +121,10 @@
                                         <td>{{ $equipment->location->area->area_name }}</td>
                                     </tr>
                                 @endif
-                                @if ($equipment->location->plant)
+                                @if ($equipment->location->company)
                                     <tr>
                                         <td><strong>Company:</strong></td>
-                                        <td>{{ $equipment->location->plant->plant_name }}</td>
+                                        <td>{{ $equipment->location->company->company_name }}</td>
                                     </tr>
                                 @endif
                             @endif

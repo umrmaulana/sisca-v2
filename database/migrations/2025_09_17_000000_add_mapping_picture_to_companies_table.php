@@ -12,9 +12,9 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::table('tm_plants', function (Blueprint $table) {
-            $table->string('plant_mapping_picture')->nullable()->after('plant_name');
-            $table->text('plant_description')->nullable()->after('plant_mapping_picture');
+        Schema::table('tm_companies', function (Blueprint $table) {
+            $table->string('company_mapping_picture')->nullable()->after('company_name');
+            $table->text('company_description')->nullable()->after('company_mapping_picture');
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration {
      */
     public function down()
     {
-        Schema::table('tm_plants', function (Blueprint $table) {
-            $table->dropColumn(['plant_mapping_picture', 'plant_description']);
+        Schema::table('tm_companies', function (Blueprint $table) {
+            $table->dropColumn(['company_mapping_picture', 'company_description']);
         });
     }
 };

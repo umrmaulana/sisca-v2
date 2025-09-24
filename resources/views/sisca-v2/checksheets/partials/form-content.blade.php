@@ -21,7 +21,7 @@
                     </tr>
                     <tr>
                         <td><strong>Company:</strong></td>
-                        <td>{{ $equipment->location->plant->plant_name }}</td>
+                        <td>{{ $equipment->location->company->company_name }}</td>
                     </tr>
                     <tr>
                         <td><strong>Area:</strong></td>

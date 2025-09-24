@@ -45,21 +45,21 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="plant_id" class="form-label required">
+                                <label for="company_id" class="form-label required">
                                     Company
                                     <span class="text-danger">*</span>
                                 </label>
-                                <select class="form-select @error('plant_id') is-invalid @enderror" id="plant_id"
-                                    name="plant_id" required>
+                                <select class="form-select @error('company_id') is-invalid @enderror" id="company_id"
+                                    name="company_id" required>
                                     <option value="">Select Company</option>
-                                    @foreach ($plants as $plant)
-                                        <option value="{{ $plant->id }}"
-                                            {{ old('plant_id', $area->plant_id) == $plant->id ? 'selected' : '' }}>
-                                            {{ $plant->plant_name }}
+                                    @foreach ($companies as $company)
+                                        <option value="{{ $company->id }}"
+                                            {{ old('company_id', $area->company_id) == $company->id ? 'selected' : '' }}>
+                                            {{ $company->company_name }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('plant_id')
+                                @error('company_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                                 <div class="form-text">Select the company this area belongs to</div>

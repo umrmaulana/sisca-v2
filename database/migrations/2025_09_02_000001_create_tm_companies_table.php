@@ -10,9 +10,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('tm_plants', function (Blueprint $table) {
+        Schema::create('tm_companies', function (Blueprint $table) {
             $table->id();
-            $table->string('plant_name');
+            $table->string('company_name');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
@@ -23,6 +23,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('tm_plants');
+        Schema::dropIfExists('tm_companies');
     }
 };

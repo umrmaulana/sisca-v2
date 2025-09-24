@@ -29,13 +29,13 @@
                         </div>
                         @if (auth('sisca-v2')->user()->role === 'Admin' || auth('sisca-v2')->user()->role === 'Management')
                             <div class="col-md-3">
-                                <label for="plant_id" class="form-label">Company</label>
-                                <select class="form-select" id="plant_id" name="plant_id">
+                                <label for="company_id" class="form-label">Company</label>
+                                <select class="form-select" id="company_id" name="company_id">
                                     <option value="">All Companies</option>
-                                    @foreach ($plants as $plant)
-                                        <option value="{{ $plant->id }}"
-                                            {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
-                                            {{ $plant->plant_name }}
+                                    @foreach ($companies as $company)
+                                        <option value="{{ $company->id }}"
+                                            {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                                            {{ $company->company_name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -113,8 +113,8 @@
                                             <div class="fw-bold text-primary">{{ $location->location_code }}</div>
                                         </td>
                                         <td>
-                                            @if ($location->plant)
-                                                <span class="badge bg-info">{{ $location->plant->plant_name }}</span>
+                                            @if ($location->company)
+                                                <span class="badge bg-info">{{ $location->company->company_name }}</span>
                                             @else
                                                 <span class="badge">-</span>
                                             @endif

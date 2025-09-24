@@ -115,13 +115,13 @@
                         </div>
                         @if (auth('sisca-v2')->user()->role === 'Admin')
                             <div class="col-md-2">
-                                <label for="plant_id" class="form-label">Company</label>
-                                <select class="form-select" id="plant_id" name="plant_id">
+                                <label for="company_id" class="form-label">Company</label>
+                                <select class="form-select" id="company_id" name="company_id">
                                     <option value="">All Companies</option>
-                                    @foreach ($plants as $plant)
-                                        <option value="{{ $plant->id }}"
-                                            {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
-                                            {{ $plant->plant_name }}
+                                    @foreach ($companies as $company)
+                                        <option value="{{ $company->id }}"
+                                            {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                                            {{ $company->company_name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -225,7 +225,7 @@
                                         </td>
                                         <td>
                                             <div class="d-flex flex-column">
-                                                <strong>{{ $history->equipment->location->plant->plant_name ?? 'N/A' }}</strong>
+                                                <strong>{{ $history->equipment->location->company->company_name ?? 'N/A' }}</strong>
                                                 <small
                                                     class="text-muted">{{ $history->equipment->location->area->area_name ?? '' }}</small>
                                             </div>
@@ -277,7 +277,7 @@
                         <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
                         <h5 class="text-muted">No NG History Found</h5>
                         <p class="text-muted">
-                            @if (request()->hasAny(['equipment_code', 'equipment_type_id', 'plant_id', 'inspector_id', 'from_date', 'to_date']))
+                            @if (request()->hasAny(['equipment_code', 'equipment_type_id', 'company_id', 'inspector_id', 'from_date', 'to_date']))
                                 No NG history records match your filter criteria.
                             @else
                                 Great! No NG items have been recorded yet.

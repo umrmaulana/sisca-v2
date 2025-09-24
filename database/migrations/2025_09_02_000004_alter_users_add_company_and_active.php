@@ -12,8 +12,8 @@ return new class extends Migration {
             $table->string('role')->change();
 
             // Add new columns
-            $table->foreignId('plant_id')->nullable()->after('role')->constrained('tm_plants');
-            $table->boolean('is_active')->default(true)->after('plant_id');
+            $table->foreignId('company_id')->nullable()->after('role')->constrained('tm_companies');
+            $table->boolean('is_active')->default(true)->after('company_id');
         });
     }
 
@@ -21,11 +21,11 @@ return new class extends Migration {
     {
         Schema::table('users', function (Blueprint $table) {
             // Drop foreign key and new columns
-            $table->dropForeign(['plant_id']);
-            $table->dropColumn(['plant_id', 'is_active']);
+            $table->dropForeign(['company_id']);
+            $table->dropColumn(['company_id', 'is_active']);
 
             // Revert role back to enum
-            $table->enum('role', ['Admin', 'User', 'MTE'])->change();
+            $table->enum('role', ['Admin', 'User', 'Management', 'Supervisor', 'Pic'])->change();
         });
     }
 };

@@ -63,21 +63,21 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="plant_id" class="form-label required">
+                                        <label for="company_id" class="form-label required">
                                             Company
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <select class="form-select @error('plant_id') is-invalid @enderror" id="plant_id"
-                                            name="plant_id" required>
+                                        <select class="form-select @error('company_id') is-invalid @enderror"
+                                            id="company_id" name="company_id" required>
                                             <option value="">Select Company</option>
-                                            @foreach ($plants as $plant)
-                                                <option value="{{ $plant->id }}"
-                                                    {{ old('plant_id', $location->plant_id) == $plant->id ? 'selected' : '' }}>
-                                                    {{ $plant->plant_name }}
+                                            @foreach ($companies as $company)
+                                                <option value="{{ $company->id }}"
+                                                    {{ old('company_id', $location->company_id) == $company->id ? 'selected' : '' }}>
+                                                    {{ $company->company_name }}
                                                 </option>
                                             @endforeach
                                         </select>
-                                        @error('plant_id')
+                                        @error('company_id')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                         <div class="form-text">Select the company this location belongs to</div>
@@ -143,13 +143,13 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="plant_coordinate_x" class="form-label">X Coordinate (Company)</label>
+                                        <label for="company_coordinate_x" class="form-label">X Coordinate (Company)</label>
                                         <input type="number" step="0.000001"
-                                            class="form-control @error('plant_coordinate_x') is-invalid @enderror"
-                                            id="plant_coordinate_x" name="plant_coordinate_x"
-                                            value="{{ old('plant_coordinate_x', $location->plant_coordinate_x) }}"
-                                            placeholder="X coordinate for plant mapping...">
-                                        @error('plant_coordinate_x')
+                                            class="form-control @error('company_coordinate_x') is-invalid @enderror"
+                                            id="company_coordinate_x" name="company_coordinate_x"
+                                            value="{{ old('company_coordinate_x', $location->company_coordinate_x) }}"
+                                            placeholder="X coordinate for company mapping...">
+                                        @error('company_coordinate_x')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                         <div class="form-text">X position relative to company mapping (0-100%)</div>
@@ -158,13 +158,14 @@
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="plant_coordinate_y" class="form-label">Y Coordinate (Company)</label>
+                                        <label for="company_coordinate_y" class="form-label">Y Coordinate
+                                            (Company)</label>
                                         <input type="number" step="0.000001"
-                                            class="form-control @error('plant_coordinate_y') is-invalid @enderror"
-                                            id="plant_coordinate_y" name="plant_coordinate_y"
-                                            value="{{ old('plant_coordinate_y', $location->plant_coordinate_y) }}"
+                                            class="form-control @error('company_coordinate_y') is-invalid @enderror"
+                                            id="company_coordinate_y" name="company_coordinate_y"
+                                            value="{{ old('company_coordinate_y', $location->company_coordinate_y) }}"
                                             placeholder="Y coordinate for company mapping...">
-                                        @error('plant_coordinate_y')
+                                        @error('company_coordinate_y')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                         <div class="form-text">Y position relative to company mapping (0-100%)</div>
@@ -223,8 +224,8 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <!-- Plant Mapping Section -->
-                        <div id="plantMappingSection" style="display: none;">
+                        <!-- Company Mapping Section -->
+                        <div id="companyMappingSection" style="display: none;">
                             <div class="mb-3">
                                 <h6 class="text-success mb-2">
                                     <i class="fas fa-industry me-2"></i>Company Mapping
@@ -234,20 +235,20 @@
                                         coordinates (0-100%)</small>
                                 </div>
                                 <div class="position-relative border rounded" style="background: #f8f9fa;">
-                                    <img id="plantMappingImage" src="" alt="Plant Mapping" class="img-fluid"
+                                    <img id="companyMappingImage" src="" alt="Company Mapping" class="img-fluid"
                                         style="width: 100%; cursor: crosshair; border-radius: 8px;">
-                                    <div id="plantCoordinateMarker"
+                                    <div id="companyCoordinateMarker"
                                         style="position: absolute; display: none; z-index: 10;">
                                         <div
                                             style="width: 12px; height: 12px; background-color: #28a745; border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
                                         </div>
                                     </div>
                                 </div>
-                                @if ($location->plant_coordinate_x && $location->plant_coordinate_y)
+                                @if ($location->company_coordinate_x && $location->company_coordinate_y)
                                     <small class="text-success mt-2 d-block">
-                                        Current plant coordinates:
-                                        X={{ number_format($location->plant_coordinate_x, 2) }}%,
-                                        Y={{ number_format($location->plant_coordinate_y, 2) }}%
+                                        Current company coordinates:
+                                        X={{ number_format($location->company_coordinate_x, 2) }}%,
+                                        Y={{ number_format($location->company_coordinate_y, 2) }}%
                                     </small>
                                 @endif
                             </div>
@@ -297,37 +298,37 @@
     @push('scripts')
         <script>
             $(document).ready(function() {
-                let currentPlantData = null;
+                let currentCompanyData = null;
                 let currentAreaData = null;
 
                 // Initialize existing coordinates markers
-                @if ($location->plant && $location->plant->plant_mapping_picture)
-                    loadPlantMapping({{ $location->plant_id }});
+                @if ($location->company && $location->company->company_mapping_picture)
+                    loadCompanyMapping({{ $location->company_id }});
                 @endif
 
                 @if ($location->area && $location->area->mapping_picture)
                     loadAreaMapping({{ $location->area_id }});
                 @endif
 
-                // When plant changes
-                $('#plant_id').on('change', function() {
-                    const plantId = $(this).val();
+                // When company changes
+                $('#company_id').on('change', function() {
+                    const companyId = $(this).val();
 
                     // Clear area dropdown
                     $('#area_id').html('<option value="">Select Area</option>');
 
-                    // Clear plant coordinates if plant changes
-                    $('#plant_coordinate_x, #plant_coordinate_y').val('');
-                    $('#plantCoordinateMarker').hide();
+                    // Clear company coordinates if company changes
+                    $('#company_coordinate_x, #company_coordinate_y').val('');
+                    $('#companyCoordinateMarker').hide();
 
                     // Hide area mapping
                     $('#areaMappingSection').hide();
 
-                    if (plantId) {
-                        loadPlantMapping(plantId);
-                        loadAreasForPlant(plantId);
+                    if (companyId) {
+                        loadCompanyMapping(companyId);
+                        loadAreasForCompany(companyId);
                     } else {
-                        $('#plantMappingSection').hide();
+                        $('#companyMappingSection').hide();
                         $('#noMappingMessage').show();
                     }
                 });
@@ -347,22 +348,22 @@
                     }
                 });
 
-                // Plant mapping image click handler
-                $(document).on('click', '#plantMappingImage', function(e) {
+                // Company mapping image click handler
+                $(document).on('click', '#companyMappingImage', function(e) {
                     const rect = this.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
 
-                    // Calculate relative coordinates (0-100 percentage range for plant)
+                    // Calculate relative coordinates (0-100 percentage range for company)
                     const relativeX = (x / rect.width) * 100;
                     const relativeY = (y / rect.height) * 100;
 
                     // Update coordinate inputs
-                    $('#plant_coordinate_x').val(relativeX.toFixed(2));
-                    $('#plant_coordinate_y').val(relativeY.toFixed(2));
+                    $('#company_coordinate_x').val(relativeX.toFixed(2));
+                    $('#company_coordinate_y').val(relativeY.toFixed(2));
 
                     // Show marker
-                    $('#plantCoordinateMarker').css({
+                    $('#companyCoordinateMarker').css({
                         left: x + 'px',
                         top: y + 'px',
                         display: 'block'
@@ -391,45 +392,46 @@
                     });
                 });
 
-                function loadPlantMapping(plantId) {
-                    fetch(`${window.location.origin}/sisca-v2/locations/plant/${plantId}`)
+                function loadCompanyMapping(companyId) {
+                    fetch(`${window.location.origin}/sisca-v2/locations/company/${companyId}`)
                         .then(response => response.json())
-                        .then(plant => {
-                            currentPlantData = plant;
-                            if (plant.plant_mapping_picture) {
+                        .then(company => {
+                            currentCompanyData = company;
+                            if (company.company_mapping_picture) {
                                 const imagePath =
-                                    `${window.location.origin}/storage/${plant.plant_mapping_picture}`;
-                                $('#plantMappingImage').attr('src', imagePath);
-                                $('#plantMappingSection').show();
+                                    `${window.location.origin}/storage/${company.company_mapping_picture}`;
+                                $('#companyMappingImage').attr('src', imagePath);
+                                $('#companyMappingSection').show();
                                 $('#noMappingMessage').hide();
 
-                                // Restore existing plant coordinates
-                                @if ($location->plant_coordinate_x && $location->plant_coordinate_y)
-                                    if (plantId == {{ $location->plant_id }}) {
+                                // Restore existing company coordinates
+                                @if ($location->company_coordinate_x && $location->company_coordinate_y)
+                                    if (companyId == {{ $location->company_id }}) {
                                         setTimeout(() => {
-                                            updatePlantMarkerPosition({{ $location->plant_coordinate_x }},
-                                                {{ $location->plant_coordinate_y }});
+                                            updateCompanyMarkerPosition(
+                                                {{ $location->company_coordinate_x }},
+                                                {{ $location->company_coordinate_y }});
                                         }, 100);
                                     }
                                 @endif
                             } else {
-                                $('#plantMappingSection').hide();
+                                $('#companyMappingSection').hide();
                                 if (!currentAreaData || !currentAreaData.mapping_picture) {
                                     $('#noMappingMessage').show();
                                 }
                             }
                         })
                         .catch(error => {
-                            console.error('Error loading plant mapping:', error);
-                            $('#plantMappingSection').hide();
+                            console.error('Error loading company mapping:', error);
+                            $('#companyMappingSection').hide();
                         });
                 }
 
                 function loadAreaMapping(areaId) {
-                    const plantId = $('#plant_id').val();
-                    if (!plantId) return;
+                    const companyId = $('#company_id').val();
+                    if (!companyId) return;
 
-                    fetch(`${window.location.origin}/sisca-v2/locations/areas/${plantId}`)
+                    fetch(`${window.location.origin}/sisca-v2/locations/areas/${companyId}`)
                         .then(response => response.json())
                         .then(areas => {
                             const area = areas.find(a => a.id == areaId);
@@ -459,8 +461,8 @@
                         });
                 }
 
-                function loadAreasForPlant(plantId) {
-                    fetch(`${window.location.origin}/sisca-v2/locations/areas/${plantId}`)
+                function loadAreasForCompany(companyId) {
+                    fetch(`${window.location.origin}/sisca-v2/locations/areas/${companyId}`)
                         .then(response => response.json())
                         .then(areas => {
                             areas.forEach(area => {
@@ -470,7 +472,7 @@
 
                             // Re-select current area if editing
                             @if ($location->area_id)
-                                if (plantId == {{ $location->plant_id }}) {
+                                if (companyId == {{ $location->company_id }}) {
                                     $('#area_id').val({{ $location->area_id }}).trigger('change');
                                 }
                             @endif
@@ -478,14 +480,14 @@
                         .catch(error => console.error('Error loading areas:', error));
                 }
 
-                function updatePlantMarkerPosition(relativeX, relativeY) {
-                    const image = $('#plantMappingImage')[0];
+                function updateCompanyMarkerPosition(relativeX, relativeY) {
+                    const image = $('#companyMappingImage')[0];
                     if (image && image.complete) {
                         const rect = image.getBoundingClientRect();
                         const x = (relativeX / 100) * rect.width;
                         const y = (relativeY / 100) * rect.height;
 
-                        $('#plantCoordinateMarker').css({
+                        $('#companyCoordinateMarker').css({
                             left: x + 'px',
                             top: y + 'px',
                             display: 'block'
@@ -509,9 +511,9 @@
                 }
 
                 // Initialize page
-                const existingPlantId = $('#plant_id').val();
-                if (existingPlantId) {
-                    $('#plant_id').trigger('change');
+                const existingCompanyId = $('#company_id').val();
+                if (existingCompanyId) {
+                    $('#company_id').trigger('change');
                 }
             });
         </script>

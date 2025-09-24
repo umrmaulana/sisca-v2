@@ -13,13 +13,13 @@ class Location extends Model
 
     protected $fillable = [
         'location_code',
-        'plant_id',
+        'company_id',
         'area_id',
         'pos',
         'coordinate_x',
         'coordinate_y',
-        'plant_coordinate_x',
-        'plant_coordinate_y',
+        'company_coordinate_x',
+        'company_coordinate_y',
         'is_active',
     ];
 
@@ -27,8 +27,8 @@ class Location extends Model
         'is_active' => 'boolean',
         'coordinate_x' => 'decimal:6',
         'coordinate_y' => 'decimal:6',
-        'plant_coordinate_x' => 'decimal:6',
-        'plant_coordinate_y' => 'decimal:6',
+        'company_coordinate_x' => 'decimal:6',
+        'company_coordinate_y' => 'decimal:6',
     ];
 
     // Accessor for location_name (use location_code as display name)
@@ -37,9 +37,9 @@ class Location extends Model
         return $this->location_code;
     }
 
-    public function plant()
+    public function company()
     {
-        return $this->belongsTo(Plant::class);
+        return $this->belongsTo(Company::class);
     }
 
     public function area()

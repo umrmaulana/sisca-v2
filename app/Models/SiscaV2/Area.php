@@ -13,7 +13,7 @@ class Area extends Model
 
     protected $fillable = [
         'area_name',
-        'plant_id',
+        'company_id',
         'mapping_picture',
         'is_active',
     ];
@@ -27,8 +27,8 @@ class Area extends Model
         return $this->hasMany(Location::class);
     }
 
-    public function plant()
+    public function company()
     {
-        return $this->belongsTo(Plant::class);
+        return $this->belongsTo(Company::class);
     }
 }

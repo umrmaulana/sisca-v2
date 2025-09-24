@@ -5,16 +5,16 @@ namespace App\Models\SiscaV2;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Plant extends Model
+class Company extends Model
 {
     use HasFactory;
 
-    protected $table = 'tm_plants';
+    protected $table = 'tm_companies';
 
     protected $fillable = [
-        'plant_name',
-        'plant_mapping_picture',
-        'plant_description',
+        'company_name',
+        'company_mapping_picture',
+        'company_description',
         'is_active',
     ];
 

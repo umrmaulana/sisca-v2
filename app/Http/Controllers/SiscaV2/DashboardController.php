@@ -4,7 +4,7 @@ namespace App\Http\Controllers\SiscaV2;
 
 use Illuminate\Routing\Controller;
 use App\Models\SiscaV2\Equipment;
-use App\Models\SiscaV2\Plant;
+use App\Models\SiscaV2\Company;
 use App\Models\SiscaV2\Area;
 use App\Models\SiscaV2\EquipmentType;
 use Illuminate\Http\Request;
@@ -26,20 +26,20 @@ class DashboardController extends Controller
         // Filter defaults
         $selectedMonth = $request->get('month', date('m'));
         $selectedYear = $request->get('year', date('Y'));
-        $selectedPlantId = null;
+        $selectedCompanyId = null;
         $selectedAreaId = $request->get('area_id');
         $selectedEquipmentTypeId = $request->get('equipment_type_id');
 
-        // Get plants based on role
-        $plants = collect();
+        // Get companies based on role
+        $companies = collect();
         if (in_array($userRole, ['Admin', 'Management'])) {
-            $plants = Plant::where('is_active', true)->orderBy('plant_name')->get();
-            $selectedPlantId = $request->get('plant_id');
+            $companies = Company::where('is_active', true)->orderBy('company_name')->get();
+            $selectedCompanyId = $request->get('company_id');
         } else {
-            // For Supervisor, use their plant_id
-            $selectedPlantId = $user->plant_id;
-            if ($selectedPlantId) {
-                $plants = Plant::where('id', $selectedPlantId)->where('is_active', true)->get();
+            // For Supervisor, use their company_id
+            $selectedCompanyId = $user->company_id;
+            if ($selectedCompanyId) {
+                $companies = Company::where('id', $selectedCompanyId)->where('is_active', true)->get();
             }
         }
 
@@ -49,20 +49,20 @@ class DashboardController extends Controller
             // Admin & Management can see all equipment types
             $equipmentTypes = EquipmentType::where('is_active', true)->get();
         } else {
-            // PIC & Supervisor only see equipment types available in their plant
-            if ($user->plant_id) {
+            // PIC & Supervisor only see equipment types available in their company
+            if ($user->company_id) {
                 $equipmentTypes = EquipmentType::where('is_active', true)
                     ->whereHas('equipments.location.area', function ($q) use ($user) {
-                        $q->where('plant_id', $user->plant_id);
+                        $q->where('company_id', $user->company_id);
                     })
                     ->get();
             }
         }
 
-        // Get areas for selected plant (with equipment type filtering)
+        // Get areas for selected company (with equipment type filtering)
         $areas = collect();
-        if ($selectedPlantId) {
-            $areasQuery = Area::where('plant_id', $selectedPlantId)
+        if ($selectedCompanyId) {
+            $areasQuery = Area::where('company_id', $selectedCompanyId)
                 ->where('is_active', true);
 
             // If equipment type is selected, only show areas that have equipment of that type
@@ -77,21 +77,21 @@ class DashboardController extends Controller
         }
 
         // Get all equipment summary for chart calculations (without pagination)
-        $equipmentSummaryAll = $this->getEquipmentSummary($selectedPlantId, $selectedAreaId, $selectedEquipmentTypeId, $selectedMonth, $selectedYear);
+        $equipmentSummaryAll = $this->getEquipmentSummary($selectedCompanyId, $selectedAreaId, $selectedEquipmentTypeId, $selectedMonth, $selectedYear);
 
         // Get monthly trends data
-        $monthlyTrendsByEquipmentType = $this->getMonthlyTrendsByEquipmentType($selectedPlantId, $selectedAreaId);
+        $monthlyTrendsByEquipmentType = $this->getMonthlyTrendsByEquipmentType($selectedCompanyId, $selectedAreaId);
 
         // Get monthly status data by equipment type
-        $monthlyStatusByEquipmentType = $this->getMonthlyStatusByEquipmentType($selectedPlantId, $selectedAreaId, $selectedEquipmentTypeId);
+        $monthlyStatusByEquipmentType = $this->getMonthlyStatusByEquipmentType($selectedCompanyId, $selectedAreaId, $selectedEquipmentTypeId);
 
         return view('sisca-v2.dashboard', compact(
             'user',
             'userRole',
-            'plants',
+            'companies',
             'areas',
             'equipmentTypes',
-            'selectedPlantId',
+            'selectedCompanyId',
             'selectedAreaId',
             'selectedEquipmentTypeId',
             'selectedMonth',
@@ -102,18 +102,18 @@ class DashboardController extends Controller
         ));
     }
 
-    private function getEquipmentSummary($plantId, $areaId, $equipmentTypeId, $month, $year)
+    private function getEquipmentSummary($companyId, $areaId, $equipmentTypeId, $month, $year)
     {
         $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth();
 
         // Build equipment query
-        $equipmentQuery = Equipment::with(['equipmentType', 'location.area.plant']);
+        $equipmentQuery = Equipment::with(['equipmentType', 'location.area.company']);
 
         // Apply filters
-        if ($plantId) {
-            $equipmentQuery->whereHas('location.area', function ($q) use ($plantId) {
-                $q->where('plant_id', $plantId);
+        if ($companyId) {
+            $equipmentQuery->whereHas('location.area.company', function ($q) use ($companyId) {
+                $q->where('id', $companyId);
             });
         }
 
@@ -161,7 +161,7 @@ class DashboardController extends Controller
                 'equipment_name' => $equipment->desc ?? '',
                 'location' => $equipment->location->location_code ?? 'Unknown',
                 'area' => $equipment->location->area->area_name ?? 'Unknown',
-                'plant' => $equipment->location->area->plant->plant_name ?? 'Unknown',
+                'company' => $equipment->location->area->company->company_name ?? 'Unknown',
                 'status' => $status,
                 'inspection_date' => $inspectionDate,
                 'ng_count' => $ngCount,
@@ -172,7 +172,7 @@ class DashboardController extends Controller
         return collect($summary);
     }
 
-    private function getMonthlyTrendsByEquipmentType($plantId, $areaId)
+    private function getMonthlyTrendsByEquipmentType($companyId, $areaId)
     {
         $trends = [];
         $equipmentTypes = [];
@@ -180,11 +180,11 @@ class DashboardController extends Controller
         // Get equipment types first based on filters
         $equipmentTypeQuery = EquipmentType::where('is_active', true);
 
-        if ($plantId || $areaId) {
-            $equipmentTypeQuery->whereHas('equipments', function ($q) use ($plantId, $areaId) {
-                if ($plantId) {
-                    $q->whereHas('location.area', function ($sq) use ($plantId) {
-                        $sq->where('plant_id', $plantId);
+        if ($companyId || $areaId) {
+            $equipmentTypeQuery->whereHas('equipments', function ($q) use ($companyId, $areaId) {
+                if ($companyId) {
+                    $q->whereHas('location.area.company', function ($sq) use ($companyId) {
+                        $sq->where('id', $companyId);
                     });
                 }
                 if ($areaId) {
@@ -216,10 +216,10 @@ class DashboardController extends Controller
                         $q->where('equipment_type_id', $equipmentType->id);
                     });
 
-                // Apply plant filter
-                if ($plantId) {
-                    $inspectionsQuery->whereHas('equipment.location.area', function ($q) use ($plantId) {
-                        $q->where('plant_id', $plantId);
+                // Apply company filter
+                if ($companyId) {
+                    $inspectionsQuery->whereHas('equipment.location.area.company', function ($q) use ($companyId) {
+                        $q->where('id', $companyId);
                     });
                 }
 
@@ -242,16 +242,16 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getMonthlyStatusByEquipmentType($plantId, $areaId, $equipmentTypeId = null)
+    private function getMonthlyStatusByEquipmentType($companyId, $areaId, $equipmentTypeId = null)
     {
         $equipmentTypeQuery = EquipmentType::where('is_active', true);
 
         // Apply filters
-        if ($plantId || $areaId) {
-            $equipmentTypeQuery->whereHas('equipments', function ($q) use ($plantId, $areaId) {
-                if ($plantId) {
-                    $q->whereHas('location.area', function ($sq) use ($plantId) {
-                        $sq->where('plant_id', $plantId);
+        if ($companyId || $areaId) {
+            $equipmentTypeQuery->whereHas('equipments', function ($q) use ($companyId, $areaId) {
+                if ($companyId) {
+                    $q->whereHas('location.area.company', function ($sq) use ($companyId) {
+                        $sq->where('id', $companyId);
                     });
                 }
                 if ($areaId) {
@@ -284,10 +284,10 @@ class DashboardController extends Controller
                 $equipmentQuery = Equipment::where('equipment_type_id', $equipmentType->id)
                     ->where('is_active', true);
 
-                // Apply plant/area filters
-                if ($plantId) {
-                    $equipmentQuery->whereHas('location.area', function ($q) use ($plantId) {
-                        $q->where('plant_id', $plantId);
+                // Apply company/area filters
+                if ($companyId) {
+                    $equipmentQuery->whereHas('location.area.company', function ($q) use ($companyId) {
+                        $q->where('id', $companyId);
                     });
                 }
 
@@ -345,12 +345,12 @@ class DashboardController extends Controller
         return collect($statusData);
     }
 
-    public function getAreasByPlant(Request $request)
+    public function getAreasByCompany(Request $request)
     {
-        $plantId = $request->get('plant_id');
+        $companyId = $request->get('company_id');
         $equipmentTypeId = $request->get('equipment_type_id');
 
-        $areasQuery = Area::where('plant_id', $plantId)
+        $areasQuery = Area::where('company_id', $companyId)
             ->where('is_active', true);
 
         // If equipment type is selected, only show areas that have equipment of that type

@@ -11,19 +11,19 @@
                 <p class="text-muted mb-0">View detailed information about this company</p>
             </div>
             <div class="d-flex gap-2">
-                @can('update', $plant)
-                    <a href="{{ route('sisca-v2.plants.edit', $plant) }}" class="btn btn-warning">
+                @can('update', $company)
+                    <a href="{{ route('sisca-v2.companies.edit', $company) }}" class="btn btn-warning">
                         <i class="fas fa-edit me-2"></i>Edit
                     </a>
                 @endcan
-                <a href="{{ route('sisca-v2.plants.index') }}" class="btn btn-outline-secondary">
+                <a href="{{ route('sisca-v2.companies.index') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Back to List
                 </a>
             </div>
         </div>
 
         <div class="row">
-            <!-- Plant Information -->
+            <!-- Company Information -->
             <div class="col-lg-8">
                 <div class="card">
                     <div class="card-header">
@@ -34,14 +34,14 @@
                             <div class="col-md-6">
                                 <div class="mb-4">
                                     <label class="form-label text-muted">Company Name</label>
-                                    <div class="h5 text-primary">{{ $plant->plant_name }}</div>
+                                    <div class="h5 text-primary">{{ $company->company_name }}</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-4">
                                     <label class="form-label text-muted">Status</label>
                                     <div>
-                                        @if ($plant->is_active)
+                                        @if ($company->is_active)
                                             <span class="badge bg-success fs-6">
                                                 <i class="fas fa-check me-1"></i>Active
                                             </span>
@@ -59,7 +59,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label text-muted">Company ID</label>
-                                    <div class="text-primary fw-bold">#{{ $plant->id }}</div>
+                                    <div class="text-primary fw-bold">#{{ $company->id }}</div>
                                 </div>
                             </div>
                         </div>
@@ -67,7 +67,7 @@
                 </div>
 
                 <!-- Action Buttons -->
-                @can('update', $plant)
+                @can('update', $company)
                     <div class="card mt-4">
                         <div class="card-header">
                             <h6 class="card-title mb-0">
@@ -76,19 +76,19 @@
                         </div>
                         <div class="card-body">
                             <div class="d-flex gap-2 flex-wrap">
-                                @can('create', App\Models\SiscaV2\Plant::class)
-                                    <a href="{{ route('sisca-v2.plants.create') }}" class="btn btn-success">
+                                @can('create', App\Models\SiscaV2\Company::class)
+                                    <a href="{{ route('sisca-v2.companies.create') }}" class="btn btn-success">
                                         <i class="fas fa-plus me-2"></i>Create New Company
                                     </a>
                                 @endcan
 
-                                @can('update', $plant)
-                                    <a href="{{ route('sisca-v2.plants.edit', $plant) }}" class="btn btn-warning">
+                                @can('update', $company)
+                                    <a href="{{ route('sisca-v2.companies.edit', $company) }}" class="btn btn-warning">
                                         <i class="fas fa-edit me-2"></i>Edit Company
                                     </a>
                                 @endcan
 
-                                @can('delete', $plant)
+                                @can('delete', $company)
                                     <button type="button" class="btn btn-danger" onclick="confirmDelete()">
                                         <i class="fas fa-trash me-2"></i>Delete Company
                                     </button>
@@ -112,25 +112,25 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="text-muted">Created Date:</span>
-                                <span class="fw-bold">{{ $plant->created_at->format('d M Y') }}</span>
+                                <span class="fw-bold">{{ $company->created_at->format('d M Y') }}</span>
                             </div>
-                            <small class="text-muted">{{ $plant->created_at->format('H:i:s') }}
-                                ({{ $plant->created_at->diffForHumans() }})</small>
+                            <small class="text-muted">{{ $company->created_at->format('H:i:s') }}
+                                ({{ $company->created_at->diffForHumans() }})</small>
                         </div>
 
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="text-muted">Last Updated:</span>
-                                <span class="fw-bold">{{ $plant->updated_at->format('d M Y') }}</span>
+                                <span class="fw-bold">{{ $company->updated_at->format('d M Y') }}</span>
                             </div>
-                            <small class="text-muted">{{ $plant->updated_at->format('H:i:s') }}
-                                ({{ $plant->updated_at->diffForHumans() }})</small>
+                            <small class="text-muted">{{ $company->updated_at->format('H:i:s') }}
+                                ({{ $company->updated_at->diffForHumans() }})</small>
                         </div>
 
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted">Record ID:</span>
-                                <span class="fw-bold text-primary">#{{ $plant->id }}</span>
+                                <span class="fw-bold text-primary">#{{ $company->id }}</span>
                             </div>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted">Total Locations:</span>
-                                <span class="badge bg-info">{{ $plant->locations->count() }}</span>
+                                <span class="badge bg-info">{{ $company->locations->count() }}</span>
                             </div>
                             <small class="text-muted">Locations in this company</small>
                         </div>
@@ -155,7 +155,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted">Total Users:</span>
-                                <span class="badge bg-primary">{{ $plant->users->count() }}</span>
+                                <span class="badge bg-primary">{{ $company->users->count() }}</span>
                             </div>
                             <small class="text-muted">Users assigned to this company</small>
                         </div>
@@ -163,7 +163,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted">Active Status:</span>
-                                @if ($plant->is_active)
+                                @if ($company->is_active)
                                     <span class="badge bg-success">Active</span>
                                 @else
                                     <span class="badge bg-secondary">Inactive</span>
@@ -172,9 +172,9 @@
                             <small class="text-muted">Current operational status</small>
                         </div>
 
-                        @if ($plant->locations->count() > 0)
+                        @if ($company->locations->count() > 0)
                             <div class="mt-3">
-                                <a href="{{ route('sisca-v2.locations.index', ['plant_id' => $plant->id]) }}"
+                                <a href="{{ route('sisca-v2.locations.index', ['company_id' => $company->id]) }}"
                                     class="btn btn-outline-primary btn-sm w-100">
                                     <i class="fas fa-list me-2"></i>View Related Locations
                                 </a>
@@ -194,12 +194,12 @@
                         <div class="row text-center">
                             <div class="col-6">
                                 <div class="border-end">
-                                    <div class="h4 text-info mb-1">{{ $plant->locations->count() }}</div>
+                                    <div class="h4 text-info mb-1">{{ $company->locations->count() }}</div>
                                     <small class="text-muted">Locations</small>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="h4 text-primary mb-1">{{ $plant->users->count() }}</div>
+                                <div class="h4 text-primary mb-1">{{ $company->users->count() }}</div>
                                 <small class="text-muted">Users</small>
                             </div>
                         </div>
@@ -221,19 +221,19 @@
                     <div class="text-center">
                         <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
                         <h5>Are you sure you want to delete this company?</h5>
-                        <p class="text-muted">Company: <strong>{{ $plant->plant_name }}</strong></p>
-                        @if ($plant->locations->count() > 0 || $plant->users->count() > 0)
+                        <p class="text-muted">Company: <strong>{{ $company->company_name }}</strong></p>
+                        @if ($company->locations->count() > 0 || $company->users->count() > 0)
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
                                 This company has
-                                @if ($plant->locations->count() > 0)
-                                    <strong>{{ $plant->locations->count() }}</strong> related location(s)
+                                @if ($company->locations->count() > 0)
+                                    <strong>{{ $company->locations->count() }}</strong> related location(s)
                                 @endif
-                                @if ($plant->locations->count() > 0 && $plant->users->count() > 0)
+                                @if ($company->locations->count() > 0 && $company->users->count() > 0)
                                     and
                                 @endif
-                                @if ($plant->users->count() > 0)
-                                    <strong>{{ $plant->users->count() }}</strong> related user(s)
+                                @if ($company->users->count() > 0)
+                                    <strong>{{ $company->users->count() }}</strong> related user(s)
                                 @endif
                                 .<br>
                                 Deleting this will affect those records.
@@ -244,7 +244,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form action="{{ route('sisca-v2.plants.destroy', $plant) }}" method="POST"
+                    <form action="{{ route('sisca-v2.companies.destroy', $company) }}" method="POST"
                         style="display: inline;">
                         @csrf
                         @method('DELETE')

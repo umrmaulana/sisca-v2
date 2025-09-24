@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SiscaV2;
 
 use Illuminate\Routing\Controller;
 use App\Models\SiscaV2\Area;
+use App\Models\SiscaV2\Company;
 use Illuminate\Http\Request;
 
 class AreaController extends Controller
@@ -16,19 +17,19 @@ class AreaController extends Controller
 
     public function index(Request $request)
     {
-        $query = Area::with('plant');
+        $query = Area::with('company');
 
         // Search functionality
         if ($request->filled('search')) {
             $query->where('area_name', 'like', '%' . $request->search . '%')
-                ->orWhereHas('plant', function ($q) use ($request) {
-                    $q->where('plant_name', 'like', '%' . $request->search . '%');
+                ->orWhereHas('company', function ($q) use ($request) {
+                    $q->where('company_name', 'like', '%' . $request->search . '%');
                 });
         }
 
-        // Filter by plant
-        if ($request->filled('plant_id')) {
-            $query->where('plant_id', $request->plant_id);
+        // Filter by company
+        if ($request->filled('company_id')) {
+            $query->where('company_id', $request->company_id);
         }
 
         // Filter by status
@@ -40,27 +41,27 @@ class AreaController extends Controller
         $query->orderBy('created_at', 'desc');
 
         $areas = $query->paginate(10)->appends(request()->query());
-        $plants = \App\Models\SiscaV2\Plant::where('is_active', true)->orderBy('plant_name')->get();
+        $companies = Company::where('is_active', true)->orderBy('company_name')->get();
 
-        return view('sisca-v2.areas.index', compact('areas', 'plants'));
+        return view('sisca-v2.areas.index', compact('areas', 'companies'));
     }
 
     public function create()
     {
-        $plants = \App\Models\SiscaV2\Plant::where('is_active', true)->orderBy('plant_name')->get();
-        return view('sisca-v2.areas.create', compact('plants'));
+        $companies = Company::where('is_active', true)->orderBy('company_name')->get();
+        return view('sisca-v2.areas.create', compact('companies'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'area_name' => 'required|string|max:255|unique:tm_areas,area_name',
-            'plant_id' => 'required|exists:tm_plants,id',
+            'company_id' => 'required|exists:tm_companies,id',
             'mapping_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'is_active' => 'boolean',
         ]);
 
-        $data = $request->only(['area_name', 'plant_id']);
+        $data = $request->only(['area_name', 'company_id']);
         $data['is_active'] = $request->has('is_active') ? true : false;
 
         // Handle mapping picture upload
@@ -79,27 +80,27 @@ class AreaController extends Controller
 
     public function show(Area $area)
     {
-        $plants = \App\Models\SiscaV2\Plant::where('is_active', true)->orderBy('plant_name')->get();
-        $area->load(['plant', 'locations']);
-        return view('sisca-v2.areas.show', compact('area', 'plants'));
+        $companies = Company::where('is_active', true)->orderBy('company_name')->get();
+        $area->load(['company', 'locations']);
+        return view('sisca-v2.areas.show', compact('area', 'companies'));
     }
 
     public function edit(Area $area)
     {
-        $plants = \App\Models\SiscaV2\Plant::where('is_active', true)->orderBy('plant_name')->get();
-        return view('sisca-v2.areas.edit', compact('area', 'plants'));
+        $companies = Company::where('is_active', true)->orderBy('company_name')->get();
+        return view('sisca-v2.areas.edit', compact('area', 'companies'));
     }
 
     public function update(Request $request, Area $area)
     {
         $request->validate([
             'area_name' => 'required|string|max:255|unique:tm_areas,area_name,' . $area->id,
-            'plant_id' => 'required|exists:tm_plants,id',
+            'company_id' => 'required|exists:tm_companies,id',
             'mapping_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'is_active' => 'boolean',
         ]);
 
-        $data = $request->only(['area_name', 'plant_id']);
+        $data = $request->only(['area_name', 'company_id']);
         $data['is_active'] = $request->has('is_active') ? true : false;
 
         // Handle mapping picture upload

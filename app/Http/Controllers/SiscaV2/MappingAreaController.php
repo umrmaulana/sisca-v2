@@ -6,7 +6,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\SiscaV2\Plant;
+use App\Models\SiscaV2\Company;
 use App\Models\SiscaV2\Area;
 use App\Models\SiscaV2\Equipment;
 use App\Models\SiscaV2\Inspection;
@@ -25,12 +25,12 @@ class MappingAreaController extends Controller
         $userRole = $user->role;
 
         // Initialize variables
-        $plants = collect();
+        $companies = collect();
         $areas = collect();
         $equipments = Equipment::with(['equipmentType', 'location'])->where('id', 0)->paginate(15); // Empty paginated result
         $equipmentTypes = collect();
         $mappingImage = null;
-        $selectedPlant = null;
+        $selectedCompany = null;
         $selectedArea = null;
         $selectedEquipmentType = null;
         $selectedMonth = $request->get('month', date('m'));
@@ -38,7 +38,7 @@ class MappingAreaController extends Controller
         $selectedStatus = $request->get('status', 'all');
         $searchEquipment = $request->get('search_equipment', '');
         $selectedEquipmentTypeId = $request->get('equipment_type_id');
-        $viewMode = $request->get('view_mode', 'area'); // 'area' or 'plant'
+        $viewMode = $request->get('view_mode', 'area'); // 'area' or 'company'
 
         // Get equipment types based on role
         if (in_array($userRole, ['Admin', 'Management'])) {
@@ -47,12 +47,12 @@ class MappingAreaController extends Controller
                 ->orderBy('equipment_name')
                 ->get();
         } else {
-            // PIC & Supervisor only see equipment types available in their plant
-            if ($user->plant_id) {
+            // PIC & Supervisor only see equipment types available in their company
+            if ($user->company_id) {
                 $equipmentTypes = \App\Models\SiscaV2\EquipmentType::where('is_active', true)
                     ->whereHas('equipments', function ($q) use ($user) {
                         $q->whereHas('location', function ($loc) use ($user) {
-                            $loc->where('plant_id', $user->plant_id);
+                            $loc->where('company_id', $user->company_id);
                         });
                     })
                     ->orderBy('equipment_name')
@@ -65,23 +65,23 @@ class MappingAreaController extends Controller
             $selectedEquipmentType = \App\Models\SiscaV2\EquipmentType::find($selectedEquipmentTypeId);
         }
 
-        // Get plants based on role
+        // Get companies based on role
         if (in_array($userRole, ['Admin', 'Management'])) {
-            $plants = Plant::where('is_active', true)->orderBy('plant_name')->get();
-            $selectedPlantId = $request->get('plant_id');
+            $companies = Company::where('is_active', true)->orderBy('company_name')->get();
+            $selectedCompanyId = $request->get('company_id');
         } else {
-            // For PIC and Supervisor, use their plant_id
-            $selectedPlantId = $user->plant_id;
-            if ($selectedPlantId) {
-                $plants = Plant::where('id', $selectedPlantId)->where('is_active', true)->get();
+            // For PIC and Supervisor, use their company_id
+            $selectedCompanyId = $user->company_id;
+            if ($selectedCompanyId) {
+                $companies = Company::where('id', $selectedCompanyId)->where('is_active', true)->get();
             }
         }
 
-        if ($selectedPlantId) {
-            $selectedPlant = Plant::find($selectedPlantId);
+        if ($selectedCompanyId) {
+            $selectedCompany = Company::find($selectedCompanyId);
 
-            // Get areas for selected plant (always needed for dropdown)
-            $areasQuery = Area::where('plant_id', $selectedPlantId)
+            // Get areas for selected company (always needed for dropdown)
+            $areasQuery = Area::where('company_id', $selectedCompanyId)
                 ->where('is_active', true);
 
             // If equipment type is selected, only show areas that have equipment of that type
@@ -112,14 +112,14 @@ class MappingAreaController extends Controller
                 $equipments = $equipmentsQuery->paginate(15)->appends(request()->query());
                 $this->addInspectionStatus($equipments, $selectedMonth, $selectedYear);
 
-            } elseif ($selectedAreaId === 'all' || (!$selectedAreaId && $selectedPlant)) {
-                // Show plant mapping (All Area)
-                $mappingImage = $this->getPlantMappingImage($selectedPlant);
+            } elseif ($selectedAreaId === 'all' || (!$selectedAreaId && $selectedCompany)) {
+                // Show company mapping (All Area)
+                $mappingImage = $this->getCompanyMappingImage($selectedCompany);
 
-                // Get all equipments in this plant with plant-level coordinates
+                // Get all equipments in this company with company-level coordinates
                 $equipmentsQuery = Equipment::with(['equipmentType', 'location'])
-                    ->whereHas('location', function ($q) use ($selectedPlantId) {
-                        $q->where('plant_id', $selectedPlantId);
+                    ->whereHas('location', function ($q) use ($selectedCompanyId) {
+                        $q->where('company_id', $selectedCompanyId);
                     })
                     ->where('is_active', true);
 
@@ -130,12 +130,12 @@ class MappingAreaController extends Controller
         }
 
         return view('sisca-v2.mapping-area.index', compact(
-            'plants',
+            'companies',
             'areas',
             'equipments',
             'equipmentTypes',
             'mappingImage',
-            'selectedPlant',
+            'selectedCompany',
             'selectedArea',
             'selectedEquipmentType',
             'selectedMonth',
@@ -147,12 +147,12 @@ class MappingAreaController extends Controller
         ));
     }
 
-    public function getAreasByPlant(Request $request)
+    public function getAreasByCompany(Request $request)
     {
-        $plantId = $request->get('plant_id');
+        $companyId = $request->get('company_id');
         $equipmentTypeId = $request->get('equipment_type_id');
 
-        $areasQuery = Area::where('plant_id', $plantId)
+        $areasQuery = Area::where('company_id', $companyId)
             ->where('is_active', true);
 
         // If equipment type is selected, only show areas that have equipment of that type
@@ -264,21 +264,21 @@ class MappingAreaController extends Controller
     }
 
     /**
-     * Get plant mapping image URL from database
+     * Get company mapping image URL from database
      */
-    private function getPlantMappingImage($plant)
+    private function getCompanyMappingImage($company)
     {
-        if (!$plant) {
+        if (!$company) {
             return null;
         }
 
-        // Get image from database plant_mapping_picture field
-        if ($plant->plant_mapping_picture && Storage::disk('public')->exists($plant->plant_mapping_picture)) {
-            return asset('storage/' . $plant->plant_mapping_picture);
+        // Get image from database company_mapping_picture field
+        if ($company->company_mapping_picture && Storage::disk('public')->exists($company->company_mapping_picture)) {
+            return asset('storage/' . $company->company_mapping_picture);
         }
 
-        // Fallback: try conventional naming (plant_ID.jpg) for backward compatibility
-        $fallbackImagePath = "sisca-v2/templates/mapping/plant_{$plant->id}.jpg";
+        // Fallback: try conventional naming (company_ID.jpg) for backward compatibility
+        $fallbackImagePath = "sisca-v2/templates/mapping/company_{$company->id}.jpg";
         if (Storage::disk('public')->exists($fallbackImagePath)) {
             return asset('storage/' . $fallbackImagePath);
         }
@@ -286,7 +286,7 @@ class MappingAreaController extends Controller
         // Try other common extensions
         $extensions = ['png', 'jpeg', 'gif'];
         foreach ($extensions as $ext) {
-            $fallbackPath = "sisca-v2/templates/mapping/plant_{$plant->id}.{$ext}";
+            $fallbackPath = "sisca-v2/templates/mapping/company_{$company->id}.{$ext}";
             if (Storage::disk('public')->exists($fallbackPath)) {
                 return asset('storage/' . $fallbackPath);
             }

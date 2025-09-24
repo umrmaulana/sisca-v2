@@ -17,15 +17,15 @@
                 <form method="GET" action="{{ route('sisca-v2.mapping-area.index') }}" id="filterForm">
                     <div class="row g-3">
                         @if (in_array($userRole, ['Admin', 'Management']))
-                            <!-- Plant Filter (Admin & Management only) -->
+                            <!-- Company Filter (Admin & Management only) -->
                             <div class="col-lg-3">
-                                <label for="plant_id" class="form-label">Company</label>
-                                <select class="form-select" id="plant_id" name="plant_id" onchange="loadAreas()">
+                                <label for="company_id" class="form-label">Company</label>
+                                <select class="form-select" id="company_id" name="company_id" onchange="loadAreas()">
                                     <option value="">Select Company</option>
-                                    @foreach ($plants as $plant)
-                                        <option value="{{ $plant->id }}"
-                                            {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
-                                            {{ $plant->plant_name }}
+                                    @foreach ($companies as $company)
+                                        <option value="{{ $company->id }}"
+                                            {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                                            {{ $company->company_name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -36,7 +36,7 @@
                                 <label for="area_id" class="form-label">Area</label>
                                 <select class="form-select" id="area_id" name="area_id" onchange="submitFilter()">
                                     <option value="">Select Area</option>
-                                    @if (request('plant_id') && $areas->count() > 0)
+                                    @if (request('company_id') && $areas->count() > 0)
                                         <option value="all" {{ request('area_id') == 'all' ? 'selected' : '' }}>
                                             All Areas (Company View)
                                         </option>
@@ -141,20 +141,20 @@
 
         @if (
             $selectedArea ||
-                (request('view_mode') == 'plant' && $selectedPlant && $mappingImage) ||
-                (!$selectedArea && $selectedPlant && request('view_mode') != 'area'))
+                (request('view_mode') == 'company' && $selectedCompany && $mappingImage) ||
+                (!$selectedArea && $selectedCompany && request('view_mode') != 'area'))
             <div class="row">
                 <!-- Area Map -->
                 <div class="col-xl-12">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
                             <h6 class="card-title m-0 font-weight-bold">
-                                @if (request('area_id') == 'all' || (!request('area_id') && $selectedPlant))
-                                    Plant Map: {{ $selectedPlant->plant_name ?? 'All Areas' }}
+                                @if (request('area_id') == 'all' || (!request('area_id') && $selectedCompany))
+                                    Company Map: {{ $selectedCompany->company_name ?? 'All Areas' }}
                                 @else
                                     Area Map: {{ $selectedArea->area_name ?? 'Select Area' }}
-                                    @if ($selectedPlant)
-                                        - {{ $selectedPlant->plant_name }}
+                                    @if ($selectedCompany)
+                                        - {{ $selectedCompany->company_name }}
                                     @endif
                                 @endif
                                 @if ($selectedEquipmentType)
@@ -167,23 +167,23 @@
                             @if ($mappingImage)
                                 <div class="mapping-container position-relative">
                                     <img src="{{ $mappingImage }}" class="img-fluid mapping-image"
-                                        alt="@if (request('area_id') == 'all' || (!request('area_id') && $selectedPlant)) Plant Mapping@else Area Mapping @endif"
+                                        alt="@if (request('area_id') == 'all' || (!request('area_id') && $selectedCompany)) Company Mapping@else Area Mapping @endif"
                                         style="max-height: 100%; width: 100%; object-fit: contain;">
 
                                     <!-- Equipment markers would be positioned here -->
                                     @foreach ($equipments as $equipment)
                                         @php
-                                            // Use plant coordinates if area_id is 'all' (All Areas selected)
+                                            // Use company coordinates if area_id is 'all' (All Areas selected)
                                             $coordinateX = null;
                                             $coordinateY = null;
 
                                             if (
                                                 request('area_id') == 'all' ||
-                                                (!request('area_id') && $selectedPlant)
+                                                (!request('area_id') && $selectedCompany)
                                             ) {
-                                                // For plant view, use plant coordinates (percentage 0-100)
-                                                $coordinateX = $equipment->location->plant_coordinate_x ?? null;
-                                                $coordinateY = $equipment->location->plant_coordinate_y ?? null;
+                                                // For company view, use company coordinates (percentage 0-100)
+                                                $coordinateX = $equipment->location->company_coordinate_x ?? null;
+                                                $coordinateY = $equipment->location->company_coordinate_y ?? null;
                                             } else {
                                                 // For area view, use area coordinates (decimal 0-1 converted to percentage)
                                                 $coordinateX = $equipment->location->coordinate_x
@@ -199,8 +199,8 @@
                                             //     'equipment_id' => $equipment->id,
                                             //     'location' => $equipment->location,
                                             //     'area_id' => request('area_id'),
-                                            //     'plant_x' => $equipment->location->plant_coordinate_x ?? 'null',
-                                            //     'plant_y' => $equipment->location->plant_coordinate_y ?? 'null',
+                                            //     'company_x' => $equipment->location->company_coordinate_x ?? 'null',
+                                            //     'company_y' => $equipment->location->company_coordinate_y ?? 'null',
                                             //     'area_x' => $equipment->location->coordinate_x ?? 'null',
                                             //     'area_y' => $equipment->location->coordinate_y ?? 'null',
                                             //     'final_x' => $coordinateX,
@@ -243,14 +243,14 @@
                                             <!-- Debug missing coordinates -->
                                             @if (config('app.debug'))
                                                 <!-- Equipment {{ $equipment->id }} ({{ $equipment->equipment_code }}) missing coordinates:
-                                                                                    Location: {{ $equipment->location ? 'exists' : 'missing' }}
-                                                                                    Plant X: {{ $equipment->location->plant_coordinate_x ?? 'null' }}
-                                                                                    Plant Y: {{ $equipment->location->plant_coordinate_y ?? 'null' }}
-                                                                                    Area X: {{ $equipment->location->coordinate_x ?? 'null' }}
-                                                                                    Area Y: {{ $equipment->location->coordinate_y ?? 'null' }}
-                                                                                    Final X: {{ $coordinateX ?? 'null' }}
-                                                                                    Final Y: {{ $coordinateY ?? 'null' }}
-                                                                                    -->
+                                                                                                    Location: {{ $equipment->location ? 'exists' : 'missing' }}
+                                                                                                    company X: {{ $equipment->location->company_coordinate_x ?? 'null' }}
+                                                                                                    company Y: {{ $equipment->location->company_coordinate_y ?? 'null' }}
+                                                                                                    Area X: {{ $equipment->location->coordinate_x ?? 'null' }}
+                                                                                                    Area Y: {{ $equipment->location->coordinate_y ?? 'null' }}
+                                                                                                    Final X: {{ $coordinateX ?? 'null' }}
+                                                                                                    Final Y: {{ $coordinateY ?? 'null' }}
+                                                                                                    -->
                                             @endif
                                         @endif
                                     @endforeach
@@ -258,9 +258,9 @@
                             @else
                                 <div class="text-center py-5">
                                     <i class="bi bi-image-fill text-muted" style="font-size: 3rem;"></i>
-                                    @if (request('area_id') == 'all' || (!request('area_id') && $selectedPlant))
+                                    @if (request('area_id') == 'all' || (!request('area_id') && $selectedCompany))
                                         <p class="text-muted mt-2">No company mapping image available for
-                                            {{ $selectedPlant->plant_name ?? 'this company' }}</p>
+                                            {{ $selectedCompany->company_name ?? 'this company' }}</p>
                                         <small class="text-muted">Please upload a company mapping image in Company
                                             Management</small>
                                     @else
@@ -464,7 +464,7 @@
                 <div class="card-body text-center py-5">
                     <i class="bi bi-geo-alt text-muted" style="font-size: 3rem;"></i>
                     @if (in_array($userRole, ['Admin', 'Management']))
-                        @if (!$selectedPlant)
+                        @if (!$selectedCompany)
                             <h5 class="mt-3 text-muted">Select Company to View Mapping</h5>
                             <p class="text-muted">Please select a Company first to view either the complete company mapping
                                 or
@@ -477,7 +477,7 @@
                             </p>
                         @endif
                     @else
-                        @if (request('view_mode') == 'plant')
+                        @if (request('view_mode') == 'company')
                             <h5 class="mt-3 text-muted">Company View Available</h5>
                             <p class="text-muted">View the complete company mapping with all equipment positioned according
                                 to company coordinates.</p>
@@ -576,38 +576,38 @@
     @endpush
     @push('scripts')
         <script>
-            // Load areas when plant changes (for Admin/Management)
+            // Load areas when company changes (for Admin/Management)
             function loadAreas() {
-                const plantId = document.getElementById('plant_id').value;
+                const companyId = document.getElementById('company_id').value;
                 const equipmentTypeId = document.getElementById('equipment_type_id').value;
 
-                loadAreasByPlantAndType(plantId, equipmentTypeId);
+                loadAreasByCompanyAndType(companyId, equipmentTypeId);
             }
 
             // Load areas when equipment type changes
             function loadAreasWithEquipmentType() {
                 @if (in_array($userRole, ['Admin', 'Management']))
-                    const plantId = document.getElementById('plant_id').value;
+                    const companyId = document.getElementById('company_id').value;
                 @else
-                    const plantId = '{{ $user->plant_id ?? '' }}';
+                    const companyId = '{{ $user->company_id ?? '' }}';
                 @endif
                 const equipmentTypeId = document.getElementById('equipment_type_id').value;
 
                 // Reset area selection when equipment type changes
                 document.getElementById('area_id').value = '';
 
-                loadAreasByPlantAndType(plantId, equipmentTypeId);
+                loadAreasByCompanyAndType(companyId, equipmentTypeId);
             }
 
-            // Generic function to load areas based on plant and equipment type
-            function loadAreasByPlantAndType(plantId, equipmentTypeId = '') {
+            // Generic function to load areas based on company and equipment type
+            function loadAreasByCompanyAndType(companyId, equipmentTypeId = '') {
                 const areaSelect = document.getElementById('area_id');
 
                 // Clear current options
                 areaSelect.innerHTML = '<option value="">Select Area</option>';
 
-                if (plantId) {
-                    let url = `${window.location.origin}/sisca-v2/mapping-area/areas-by-plant?plant_id=${plantId}`;
+                if (companyId) {
+                    let url = `${window.location.origin}/sisca-v2/mapping-area/areas-by-company?company_id=${companyId}`;
                     if (equipmentTypeId) {
                         url += `&equipment_type_id=${equipmentTypeId}`;
                     }
@@ -622,7 +622,7 @@
                                 option.disabled = true;
                                 areaSelect.appendChild(option);
                             } else if (data.length > 0) {
-                                // Add "All Areas" option for plant view
+                                // Add "All Areas" option for company view
                                 const allAreasOption = document.createElement('option');
                                 allAreasOption.value = 'all';
                                 allAreasOption.textContent = 'All Areas (Company View)';
@@ -655,16 +655,16 @@
 
             // Initialize tooltips and area loading on page load
             document.addEventListener('DOMContentLoaded', function() {
-                // Load areas on page load if plant is already selected
+                // Load areas on page load if company is already selected
                 @if (in_array($userRole, ['Admin', 'Management']))
-                    const initialPlantId = document.getElementById('plant_id').value;
+                    const initialCompanyId = document.getElementById('company_id').value;
                 @else
-                    const initialPlantId = '{{ $user->plant_id ?? '' }}';
+                    const initialCompanyId = '{{ $user->company_id ?? '' }}';
                 @endif
                 const initialEquipmentTypeId = document.getElementById('equipment_type_id').value;
 
-                if (initialPlantId) {
-                    loadAreasByPlantAndType(initialPlantId, initialEquipmentTypeId);
+                if (initialCompanyId) {
+                    loadAreasByCompanyAndType(initialCompanyId, initialEquipmentTypeId);
                 }
 
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

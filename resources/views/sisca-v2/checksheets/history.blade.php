@@ -41,7 +41,7 @@
                             <option value="">All Areas</option>
                             @foreach ($areas as $area)
                                 <option value="{{ $area->id }}" {{ request('area_id') == $area->id ? 'selected' : '' }}>
-                                    {{ $area->area_name }} - {{ $area->plant->plant_name ?? '' }}
+                                    {{ $area->area_name }} - {{ $area->company->company_name ?? '' }}
                                 </option>
                             @endforeach
                         </select>
@@ -56,7 +56,7 @@
                         <input type="date" class="form-control" id="to_date" name="to_date"
                             value="{{ request('to_date') }}">
                     </div>
-                    @if (count($plants) > 0)
+                    @if (count($companies) > 0)
                         <div class="col-md-2">
                             <label for="inspector_id" class="form-label">Inspector</label>
                             <select class="form-select" id="inspector_id" name="inspector_id">
@@ -70,13 +70,13 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label for="plant_id" class="form-label">Company</label>
-                            <select class="form-select" id="plant_id" name="plant_id">
+                            <label for="company_id" class="form-label">Company</label>
+                            <select class="form-select" id="company_id" name="company_id">
                                 <option value="">All Companies</option>
-                                @foreach ($plants as $plant)
-                                    <option value="{{ $plant->id }}"
-                                        {{ request('plant_id') == $plant->id ? 'selected' : '' }}>
-                                        {{ $plant->plant_name }}
+                                @foreach ($companies as $company)
+                                    <option value="{{ $company->id }}"
+                                        {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                                        {{ $company->company_name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -340,21 +340,21 @@
             });
         }, 5000);
 
-        // Handle plant change for area filtering
-        const plantSelect = document.getElementById('plant_id');
+        // Handle company change for area filtering
+        const companySelect = document.getElementById('company_id');
         const areaSelect = document.getElementById('area_id');
 
-        if (plantSelect && areaSelect) {
-            plantSelect.addEventListener('change', function() {
-                const plantId = this.value;
+        if (companySelect && areaSelect) {
+            companySelect.addEventListener('change', function() {
+                const companyId = this.value;
 
                 // Clear current options
                 areaSelect.innerHTML = '<option value="">Loading...</option>';
                 areaSelect.disabled = true;
 
-                if (plantId) {
+                if (companyId) {
                     // Make AJAX request to get areas
-                    fetch(`${window.location.origin}/sisca-v2/checksheets/areas-by-plant?plant_id=${plantId}`)
+                    fetch(`${window.location.origin}/sisca-v2/checksheets/areas-by-company?company_id=${companyId}`)
                         .then(response => response.json())
                         .then(data => {
                             areaSelect.innerHTML = '<option value="">All Areas</option>';
@@ -380,9 +380,9 @@
                 }
             });
 
-            // Auto filter on page load if plant is selected
-            if (plantSelect.value) {
-                plantSelect.dispatchEvent(new Event('change'));
+            // Auto filter on page load if company is selected
+            if (companySelect.value) {
+                companySelect.dispatchEvent(new Event('change'));
             }
         }
 

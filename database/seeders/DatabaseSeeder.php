@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         // ]);
         $this->call([
                 // Master data seeders (run in order due to foreign key dependencies)
-            PlantSeeder::class,
+            CompanySeeder::class,
             UserSeeder::class,
             // AreaSeeder::class,
             // PeriodCheckSeeder::class,
