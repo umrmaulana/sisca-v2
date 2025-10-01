@@ -1,15 +1,38 @@
-@extends('layout.master')
-@section('title', 'Login')
+<!DOCTYPE html>
+<html lang="en">
 
-@section('content')
-    <div class="container mt-2 mb-5">
-        <div class="row justify-content-center">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SISCA PT. AISIN GROUP | Login</title>
+
+    <!-- Logo only -->
+    <link rel="icon" href="/foto/aii.ico">
+
+    <!-- CSS & JS Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="{{ asset('dist/css/bootstrap-icons.css') }}">
+
+    <!-- CSS-->
+    <link rel="stylesheet" href="/css/stylev2.css">
+</head>
+
+<body class="login sidebar-collapsed">
+    <div class="container">
+        <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
             <div class="col-md-6">
                 <div class="card border-0 shadow rounded">
-                    <div class="card-body m-2 rounded"
-                        style="background-image:url('https://www.aisinindonesia.co.id/assetweb/image/login/bg.jpg');background-repeat:no-repeat;-webkit-background-size:cover;-moz-background-size:cover;-o-background-size:cover;background-size:cover;background-position:center;">
-                        <div class="m-4">
-                            <h2>LOGIN</h2>
+                    <div class="card-header d-flex justify-content-center align-items-center">
+                    </div>
+                    <div class="rounded">
+                        <div class="d-flex justify-content-center align-items-center bg-white">
+                            <img src="{{ asset('foto/satu-aisin-final.png') }}" class="img-fluid" style="width: 70%"
+                                alt="Logo Aisin">
+                        </div>
+                        <div class="m-4 p-4">
+                            <h2 class="text-center">SISCA LOGIN</h2>
 
                             @if (session()->has('message'))
                                 <div class="alert alert-success">
@@ -29,15 +52,16 @@
                                 </div>
                             @endif
 
-                            <form action="/login" method="POST">
+                            <form action="{{ route('login.submit') }}" method="POST">
                                 @csrf
                                 <div class="mb-3 mt-3">
-                                    <label for="npk" class="form-label">NPK <span class="text-danger">*</span></label>
+                                    <label for="npk" class="form-label">NPK <span
+                                            class="text-danger">*</span></label>
                                     <input type="number" step="1" min="0"
-                                        class="form-control @error('npk')
-                                    is-invalid @enderror"
-                                        name="npk" id="npk" aria-describedby="npk" autofocus required
-                                        value="{{ old('npk') }}">
+                                        class="form-control @error('npk') is-invalid @enderror" name="npk"
+                                        id="npk" aria-describedby="npk" value="{{ old('npk') }}"
+                                        oninput="if(this.value.length > 6) this.value = this.value.slice(0,6);"
+                                        maxlength="6" autofocus required>
                                     @error('npk')
                                         <div class="invalid-feedback">
                                             {{ $message }}
@@ -45,22 +69,31 @@
                                     @enderror
                                 </div>
                                 <div class="mb-3">
-                                    <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                                    <label for="password" class="form-label">Password <span
+                                            class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control" id="password" name="password">
-                                        <span class="input-group-text" id="toggle-password">
+                                        <input type="password"
+                                            class="form-control @error('password') is-invalid @enderror" id="password"
+                                            name="password" required>
+                                        <span class="input-group-text" id="toggle-password" style="cursor: pointer;">
                                             <i class="bi bi-eye-slash" id="password-icon"></i>
                                         </span>
                                     </div>
+                                    @error('password')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
                                     <div id="password-error" class="invalid-feedback"></div>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary center-block w-100 mb-3">LOG IN</button>
-                                <p class="text-muted">
-                                    Dont Have an account yet?
-                                    <a href="/register" style="font-weight: 700;" class="custom-link">
-                                        Register now.</a>
-                                </p>
+                                <button type="submit" class="btn btn-primary center-block w-100 mt-3 mb-3">LOG
+                                    IN</button>
+                                <div class="text-center">
+                                    <p class="text-muted mb-0">
+                                        <strong>SISCA</strong> - System Information Safety Checksheet Aisin
+                                    </p>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -69,12 +102,24 @@
         </div>
     </div>
 
+    <button id="scrollToTopBtn">
+        <i class="bi bi-chevron-up"></i>
+    </button>
+
+    <!-- JavaScript link -->
+    <script src="/js/script.js"></script>
+
+    <!-- Link ke JS Bootstrap (Popper.js dan jQuery) -->
+    <script src="{{ asset('dist/js/jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ asset('dist/js/popper.min.js') }}"></script>
+    <script src="{{ asset('dist/js/bootstrap.min.js') }}"></script>
+
     <script>
         const passwordInput = document.getElementById('password');
         const passwordIcon = document.getElementById('password-icon');
         const passwordError = document.getElementById('password-error');
 
-        document.getElementById('toggle-password').addEventListener('click', function () {
+        document.getElementById('toggle-password').addEventListener('click', function() {
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 passwordIcon.classList.remove('bi-eye-slash');
@@ -86,12 +131,22 @@
             }
         });
 
-        // Jika Anda ingin menghilangkan pesan kesalahan saat pengguna mengklik input
-        passwordInput.addEventListener('focus', function () {
+        // Remove error message when user clicks on input
+        passwordInput.addEventListener('focus', function() {
             passwordError.textContent = '';
             passwordInput.classList.remove('is-invalid');
         });
+
+        // Auto hide alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
     </script>
 
+</body>
 
-@endsection
+</html>

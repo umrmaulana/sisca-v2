@@ -40,11 +40,6 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        
-        'sisca-v2' => [
-            'driver' => 'session',
-            'provider' => 'sisca-v2-users',
-        ],
     ],
 
     /*
@@ -68,11 +63,6 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
-        ],
-
-        'sisca-v2-users' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\SiscaV2\User::class,
         ],
 
         // 'users' => [

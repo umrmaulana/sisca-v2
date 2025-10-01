@@ -26,7 +26,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Set default pagination view for SISCA V2
+        // Set application timezone
+        date_default_timezone_set(config('app.timezone'));
+
+        // Set default pagination view for SISCA 
         Paginator::defaultView('pagination::tailwind');
         Paginator::defaultSimpleView('pagination::simple-tailwind');
 

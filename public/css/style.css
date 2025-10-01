@@ -300,3 +300,22 @@ body.sidebar-collapsed .btn-sidebar-toggle #sidebar-arrow {
     border-radius: 16px;
     overflow: hidden;
 }
+
+/* Pastikan modal selalu muncul di atas backdrop */
+.modal {
+    z-index: 1060 !important;
+}
+
+/* Pastikan backdrop tidak nutupin modal */
+.modal-backdrop {
+    z-index: 1050 !important;
+    background-color: rgba(0, 0, 0, 0.5) !important; /* 50% transparan */
+}
+
+/* Fix kalau ada global opacity/filter dari template */
+.modal.show {
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+

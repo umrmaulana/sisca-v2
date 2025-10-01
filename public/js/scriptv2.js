@@ -96,39 +96,54 @@ function initializeSidebar() {
 function toggleSidebar() {
     const body = document.body;
     const sidebar = document.getElementById("sidebar");
+    const isMobile = window.innerWidth <= 768;
 
     // Toggle the minimized state using data attribute like SISCA V1
     const isCurrentlyMinimized = isSidebarMinimized();
     setSidebarMinimized(!isCurrentlyMinimized);
 
-    // Save state to localStorage
-    const newState = isSidebarMinimized();
-    localStorage.setItem("sidebarCollapsed", newState.toString());
+    // Save state to localStorage (only for desktop)
+    if (!isMobile) {
+        const newState = isSidebarMinimized();
+        localStorage.setItem("sidebarCollapsed", newState.toString());
+    }
 
-    // Force CSS reflow and animation
+    // Different behavior for mobile vs desktop
     if (sidebar) {
-        sidebar.style.transition =
-            "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
-        // Force reflow
-        sidebar.offsetHeight;
-        // Trigger transform
-        if (newState) {
-            sidebar.style.transform = "translateX(-280px)";
+        if (isMobile) {
+            // Mobile: show/hide sidebar completely
+            sidebar.style.transition =
+                "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
+            sidebar.offsetHeight; // Force reflow
+            if (isCurrentlyMinimized) {
+                sidebar.style.transform = "translateX(0)";
+            } else {
+                sidebar.style.transform = "translateX(-100%)";
+            }
         } else {
-            sidebar.style.transform = "translateX(0px)";
+            // Desktop: minimize to 70px width (show icons only)
+            sidebar.style.transition =
+                "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
+            sidebar.offsetHeight; // Force reflow
+            if (isCurrentlyMinimized) {
+                sidebar.style.width = "280px";
+            } else {
+                sidebar.style.width = "70px";
+            }
         }
     }
 
     // Force content margin adjustment
     const content = document.getElementById("content");
-    if (content) {
+    if (content && !isMobile) {
+        // Only adjust content margin on desktop
         content.style.transition =
             "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
         content.offsetHeight; // Force reflow
-        if (newState) {
-            content.style.marginLeft = "0px";
-        } else {
+        if (isCurrentlyMinimized) {
             content.style.marginLeft = "280px";
+        } else {
+            content.style.marginLeft = "70px";
         }
     }
 }
@@ -226,16 +241,18 @@ function initializeMenuAccordions() {
             e.preventDefault();
             e.stopPropagation();
 
-            // Close other accordions at the same level
-            const parentMenu = item.closest("#app_menu");
-            if (parentMenu) {
-                parentMenu
-                    .querySelectorAll(":scope > .menu-item.menu-accordion.show")
-                    .forEach((sibling) => {
-                        if (sibling !== item) {
-                            sibling.classList.remove("show");
-                        }
-                    });
+            // Close other accordions at the same level (sibling accordions only)
+            const parentContainer = item.parentElement;
+            if (parentContainer) {
+                // Find sibling accordions at the same level
+                const siblingAccordions = parentContainer.querySelectorAll(
+                    ":scope > .menu-item.menu-accordion.show"
+                );
+                siblingAccordions.forEach((sibling) => {
+                    if (sibling !== item) {
+                        sibling.classList.remove("show");
+                    }
+                });
             }
 
             // Toggle current accordion
@@ -861,3 +878,120 @@ if (document.body) {
         attributeFilter: ["class", "data-kt-app-sidebar-minimize"],
     });
 }
+
+// Notification
+async function fetchNotifications() {
+    try {
+        const response = await fetch(notificationsUrl, {
+            credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+            console.error("Gagal fetch notifikasi, status:", response.status);
+            return;
+        }
+
+        const data = await response.json();
+        const notifCountEl = document.getElementById("notifCount");
+        const notifListEl = document.getElementById("notifList");
+
+        // Update badge
+        if (data.count > 0) {
+            notifCountEl.classList.remove("d-none");
+            notifCountEl.textContent = data.count;
+        } else {
+            notifCountEl.classList.add("d-none");
+        }
+
+        // Update list
+        notifListEl.innerHTML = "";
+
+        if ((data.expired && data.expired.length > 0) || (data.low_stock && data.low_stock.length > 0)) {
+            data.expired.forEach(item => {
+                notifListEl.innerHTML += `
+                    <div class="dropdown-item" style="font-size: 0.85rem;">
+                        <a>
+                            <span>${item.name} kadaluarsa (${item.expired_date})</span>
+                        </a>
+                        <div>
+                            <span>Lokasi: ${item.location}</span>
+                        </div>
+                    </div>
+                    `;
+            });
+
+            data.low_stock.forEach(item => {
+                notifListEl.innerHTML += `
+                    <div class="dropdown-item" style="font-size: 0.85rem;">
+                        <a href="">
+                            <span>${item.name} stok rendah (${item.stock}/${item.minimum_stock})</span>
+                        </a>
+                        <div>
+                            <span>Lokasi: ${item.location}</span>
+                        </div>
+                    </div>
+                    `;
+            });
+        } else {
+            notifListEl.innerHTML = `<span class="dropdown-item text-muted">Notification not available</span>`;
+        }
+
+    } catch (error) {
+        console.error("Gagal fetch notifikasi", error);
+    }
+}
+
+
+// Polling setiap 10 detik
+setInterval(fetchNotifications, 10000);
+fetchNotifications();
+
+// Update setiap detik untuk waktu
+function updateTime() {
+    const now = new Date();
+    const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    };
+    const tanggal = now.toLocaleDateString('id-ID', options);
+    const waktu = now.toLocaleTimeString('id-ID', {
+        hour12: false
+    });
+
+    const datetimeEl = document.getElementById('datetime');
+    if (datetimeEl) {
+        datetimeEl.innerText = `${tanggal} ${waktu}`;
+    }
+}
+
+setInterval(updateTime, 1000);
+updateTime(); // Jalankan pertama kali
+// End Notification
+
+
+// DataTables
+$(document).ready(function () {
+    $('#customTable').DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        lengthMenu: [5, 10, 25, 50],
+        pageLength: 10
+    });
+    // DataTables Dashboard
+    $('#table-dashboard').DataTable({
+        paging: true,
+        pageLength: 5,
+        lengthChange: false,
+        searching: false,
+        info: false,
+        ordering: false
+    });
+});
+// End Data Tables
+
+
+
+

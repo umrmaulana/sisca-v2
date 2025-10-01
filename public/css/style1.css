@@ -40,11 +40,11 @@ a:focus {
 }
 
 .navbar {
-    padding: 15px 20px;
+    padding: 15px;
     background: #fff;
     border: none;
     border-radius: 15px;
-    margin: 10px 15px 0 15px;
+    margin: 10px 15px 30px 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     position: relative;
     z-index: 998;
@@ -1112,4 +1112,53 @@ figure.zoom img {
     font-size: 0.875rem;
     color: #6c757d;
     /* Warna teks seperti pada tailwind "text-gray-600" */
+}
+
+/* ===================================================
+   BOOTSTRAP MODAL STACKING FIX (letakkan di PALING BAWAH)
+   =================================================== */
+
+/* Naikkan modal & backdrop di atas UI lain (sidebar/flyout sampai z-index 10000) */
+.modal-backdrop {
+    z-index: 19990 !important; /* berada tepat di bawah modal */
+}
+.modal {
+    z-index: 20000 !important; /* pastikan modal paling atas */
+}
+
+/* Komponen di dalam modal yang perlu di atas konten modal */
+.modal .dropdown-menu,
+.modal .flatpickr-calendar,
+.modal .select2-container,
+.modal .tt-menu,
+.modal .autocomplete-suggestions {
+    z-index: 20010 !important;
+}
+
+/* Saat modal terbuka, netralkan stacking context yang dibuat oleh konten/topbar */
+body.modal-open #content,
+body.modal-open .dashboard-navbar,
+body.modal-open .navbar {
+    z-index: auto !important; /* hilangkan z-index 1 pada #content ketika modal aktif */
+    transform: none !important; /* cegah konteks tumpuk baru */
+    filter: none !important;
+    perspective: none !important;
+}
+
+/* Jaga sidebar/flyout tidak menimpa modal & tidak bisa diklik saat modal aktif */
+body.modal-open #kt_app_sidebar,
+body.modal-open #kt_app_sidebar .sidebar-toggle-fab,
+body.modal-open #kt_app_sidebar .user-dropdown-menu,
+body.modal-open #kt_app_sidebar .menu-sub.menu-sub-dropdown {
+    z-index: 100 !important;
+    pointer-events: none; /* cegah klik/hover menembus modal */
+}
+
+/* (Opsional) matikan hover-flyout ketika modal aktif */
+body.modal-open
+    [data-kt-app-sidebar-minimize="on"]
+    #kt_app_sidebar
+    .menu-item:hover
+    .menu-sub.menu-sub-dropdown {
+    display: none !important;
 }
