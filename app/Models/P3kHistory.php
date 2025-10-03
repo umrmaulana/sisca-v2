@@ -14,7 +14,7 @@ class P3kHistory extends Model
         'expired_at' => 'date',
     ];
 
-    protected $table = 'p3k_histories';
+    protected $table = 'tt_p3k_histories';
 
     protected $guarded = [];
 
@@ -25,6 +25,6 @@ class P3kHistory extends Model
 
     public function accident()
     {
-        return $this->belongsTo(P3kAccident::class);
+        return $this->belongsTo(P3kAccident::class, 'accident_id', 'id');
     }
 }

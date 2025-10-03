@@ -881,9 +881,32 @@ if (document.body) {
 
 // Notification
 async function fetchNotifications() {
+    // Cek apakah kita berada di modul P3K
+    const currentPath = window.location.pathname;
+    const isP3kModule =
+        currentPath.includes("/p3k") || currentPath.includes("p3k");
+
+    // Hanya jalankan notifikasi jika di modul P3K
+    if (!isP3kModule) {
+        return;
+    }
+
+    // Cek apakah notificationsUrl tersedia dan elemen notifikasi ada
+    if (typeof notificationsUrl === "undefined") {
+        return;
+    }
+
+    const notifCountEl = document.getElementById("notifCount");
+    const notifListEl = document.getElementById("notifList");
+
+    // Jika elemen notifikasi tidak ada, jangan lanjutkan
+    if (!notifCountEl || !notifListEl) {
+        return;
+    }
+
     try {
         const response = await fetch(notificationsUrl, {
-            credentials: 'same-origin'
+            credentials: "same-origin",
         });
 
         if (!response.ok) {
@@ -892,8 +915,6 @@ async function fetchNotifications() {
         }
 
         const data = await response.json();
-        const notifCountEl = document.getElementById("notifCount");
-        const notifListEl = document.getElementById("notifList");
 
         // Update badge
         if (data.count > 0) {
@@ -906,8 +927,11 @@ async function fetchNotifications() {
         // Update list
         notifListEl.innerHTML = "";
 
-        if ((data.expired && data.expired.length > 0) || (data.low_stock && data.low_stock.length > 0)) {
-            data.expired.forEach(item => {
+        if (
+            (data.expired && data.expired.length > 0) ||
+            (data.low_stock && data.low_stock.length > 0)
+        ) {
+            data.expired.forEach((item) => {
                 notifListEl.innerHTML += `
                     <div class="dropdown-item" style="font-size: 0.85rem;">
                         <a>
@@ -920,7 +944,7 @@ async function fetchNotifications() {
                     `;
             });
 
-            data.low_stock.forEach(item => {
+            data.low_stock.forEach((item) => {
                 notifListEl.innerHTML += `
                     <div class="dropdown-item" style="font-size: 0.85rem;">
                         <a href="">
@@ -935,32 +959,43 @@ async function fetchNotifications() {
         } else {
             notifListEl.innerHTML = `<span class="dropdown-item text-muted">Notification not available</span>`;
         }
-
     } catch (error) {
         console.error("Gagal fetch notifikasi", error);
     }
 }
 
+// Fungsi untuk mengatur polling notifikasi
+function initializeNotifications() {
+    const currentPath = window.location.pathname;
+    const isP3kModule =
+        currentPath.includes("/p3k") || currentPath.includes("p3k");
 
-// Polling setiap 10 detik
-setInterval(fetchNotifications, 10000);
-fetchNotifications();
+    // Hanya setup polling jika di modul P3K
+    if (isP3kModule && typeof notificationsUrl !== "undefined") {
+        // Polling setiap 10 detik
+        setInterval(fetchNotifications, 10000);
+        fetchNotifications();
+    }
+}
+
+// Panggil fungsi inisialisasi notifikasi
+initializeNotifications();
 
 // Update setiap detik untuk waktu
 function updateTime() {
     const now = new Date();
     const options = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
     };
-    const tanggal = now.toLocaleDateString('id-ID', options);
-    const waktu = now.toLocaleTimeString('id-ID', {
-        hour12: false
+    const tanggal = now.toLocaleDateString("id-ID", options);
+    const waktu = now.toLocaleTimeString("id-ID", {
+        hour12: false,
     });
 
-    const datetimeEl = document.getElementById('datetime');
+    const datetimeEl = document.getElementById("datetime");
     if (datetimeEl) {
         datetimeEl.innerText = `${tanggal} ${waktu}`;
     }
@@ -970,28 +1005,23 @@ setInterval(updateTime, 1000);
 updateTime(); // Jalankan pertama kali
 // End Notification
 
-
 // DataTables
 $(document).ready(function () {
-    $('#customTable').DataTable({
+    $("#customTable").DataTable({
         paging: true,
         searching: true,
         ordering: true,
         lengthMenu: [5, 10, 25, 50],
-        pageLength: 10
+        pageLength: 10,
     });
     // DataTables Dashboard
-    $('#table-dashboard').DataTable({
+    $("#table-dashboard").DataTable({
         paging: true,
         pageLength: 5,
         lengthChange: false,
         searching: false,
         info: false,
-        ordering: false
+        ordering: false,
     });
 });
 // End Data Tables
-
-
-
-

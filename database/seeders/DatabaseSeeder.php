@@ -24,13 +24,19 @@ class DatabaseSeeder extends Seeder
                 // Master data seeders (run in order due to foreign key dependencies)
             CompanySeeder::class,
             UserSeeder::class,
+            PeriodCheckSeeder::class,
+            P3kLocationSeeder::class,
+            P3kSeeder::class,
+            AccidentSeeder::class,
+            DeptSeeder::class,
             // AreaSeeder::class,
-            // PeriodCheckSeeder::class,
             // LocationSeeder::class,
-            // EquipmentTypeSeeder::class,
-            // ChecksheetTemplateSeeder::class,
+            EquipmentTypeSeeder::class,
+            ChecksheetTemplateSeeder::class,
             // EquipmentSeeder::class,
 
+            // Item check seeders
+            // ItemCheckHeadCraneSeeder::class,
         ]);
     }
 }

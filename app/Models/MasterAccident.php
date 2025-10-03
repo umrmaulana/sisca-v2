@@ -9,7 +9,7 @@ class MasterAccident extends Model
 {
     use HasFactory;
 
-    protected $table = 'master_data_accident';
+    protected $table = 'tm_accident';
 
     public function accident()
     {

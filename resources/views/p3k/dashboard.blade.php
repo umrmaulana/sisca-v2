@@ -208,7 +208,15 @@
                                             <td data-label="No">{{ $loop->iteration }}</td>
                                             <td data-label="Date">
                                                 {{ \Carbon\Carbon::parse($accident->created_at)->format('d M Y') }}</td>
-                                            <td data-label="Accident">{{ $accident->masterAccident->name ?? '-' }}</td>
+                                            <td data-label="Accident">
+                                                @if ($accident->accident_id && $accident->masterAccident)
+                                                    {{ $accident->masterAccident->name }}
+                                                @elseif ($accident->accident_other)
+                                                    {{ $accident->accident_other }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
                                             <td data-label="Location">{{ $accident->location->location }}</td>
                                             <td data-label="Department">{{ $accident->department->name ?? '-' }}</td>
                                         </tr>

@@ -21,8 +21,6 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
     {{-- JS for barcode generation --}}
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-    {{-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
 
     @stack('styles')
 </head>
@@ -57,12 +55,16 @@
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
-    {{-- Notification --}}
-    <script>
-        const notificationsUrl = @json(route('p3k.notifications'));
-    </script>
+    {{-- Notification - Only for P3K module --}}
+    @if (request()->is('p3k*') || str_contains(request()->path(), 'p3k'))
+        <script>
+            const notificationsUrl = @json(route('p3k.notifications'));
+        </script>
+    @endif
     <!-- Custom JavaScript V2 -->
     <script src="{{ url('js/scriptv2.js') }}"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

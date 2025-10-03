@@ -92,6 +92,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('mapping-area')->name('mapping-area.')->group(function () {
         Route::get('/', [App\Http\Controllers\MappingAreaController::class, 'index'])->name('index');
         Route::get('/areas-by-company', [App\Http\Controllers\MappingAreaController::class, 'getAreasByCompany'])->name('areas-by-company');
+        Route::get('/equipment-types-by-company', [App\Http\Controllers\MappingAreaController::class, 'getEquipmentTypesByCompany'])->name('equipment-types-by-company');
     });
 
     // ===============================
@@ -145,9 +146,10 @@ Route::middleware('auth')->group(function () {
     Route::get('checksheet-templates/get-next-order/{equipmentTypeId}', [ChecksheetTemplateController::class, 'getNextOrder'])->name('checksheet-templates.get-next-order');
 
     // Locations Management
-    Route::resource('locations', LocationController::class);
+    Route::get('locations/areas-by-company-filter', [LocationController::class, 'getAreasByCompanyForFilter'])->name('locations.areas-by-company-filter');
     Route::get('locations/areas/{company}', [LocationController::class, 'getAreasByCompany'])->name('locations.areas-by-company');
     Route::get('locations/company/{company}', [LocationController::class, 'getCompanyData'])->name('locations.company-data');
+    Route::resource('locations', LocationController::class);
 
     // Equipments Management
     Route::get('equipments/areas-by-company', [EquipmentController::class, 'getAreasByCompany'])->name('equipments.areas-by-company');

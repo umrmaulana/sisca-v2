@@ -11,7 +11,7 @@ class P3kLocation extends Model
 
     protected $fillable = ['location'];
 
-    protected $table = 'p3k_location';
+    protected $table = 'tm_p3k_location';
 
     protected $guarded = [];
 

@@ -176,7 +176,12 @@
                                                         <span>Victim:</span> {{ $history->accident->victim_name }}<br>
                                                         <span>Victim NPK:</span> {{ $history->accident->victim_npk }}<br>
                                                         <span>Accident:</span>
-                                                        {{ $history->accident->masterAccident->name ?? '-' }}<br>
+                                                        @if ($history->accident->accident_other)
+                                                            {{ $history->accident->accident_other }}
+                                                        @else
+                                                            {{ $history->accident->masterAccident->name ?? '-' }}
+                                                        @endif
+                                                        <br>
                                                         <span>Department:</span>
                                                         {{ $history->accident->department->name ?? '-' }}<br>
                                                     @else

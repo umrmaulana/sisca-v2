@@ -231,7 +231,7 @@ class P3kController extends Controller
         $month = $request->input('month'); // null = all months
 
         // Chart: hitung jumlah accident per bulan berdasarkan created_at pada tahun yg dipilih
-        $accidentPerMonth = DB::table('accidents')
+        $accidentPerMonth = DB::table('tt_accidents')
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
             ->whereYear('created_at', $year)
             ->groupBy('month')
@@ -248,8 +248,8 @@ class P3kController extends Controller
         //Table Accident
         $query = P3kAccident::with(relations: 'masterAccident');
         $accidents = $query->with('masterAccident', 'department', 'location')
-            ->when($year, fn($q) => $q->whereYear('accidents.created_at', $year))
-            ->when($month, fn($q) => $q->whereMonth('accidents.created_at', $month))->orderBy('created_at', 'desc')
+            ->when($year, fn($q) => $q->whereYear('tt_accidents.created_at', $year))
+            ->when($month, fn($q) => $q->whereMonth('tt_accidents.created_at', $month))->orderBy('created_at', 'desc')
             ->get();
 
         return view('p3k.dashboard', compact(

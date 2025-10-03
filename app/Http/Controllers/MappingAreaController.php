@@ -31,6 +31,7 @@ class MappingAreaController extends Controller
         $companies = collect();
         $areas = collect();
         $equipments = Equipment::with(['equipmentType', 'location'])->where('id', 0)->paginate(15); // Empty paginated result
+        $mappingEquipments = collect(); // Equipment for mapping (no pagination)
         $equipmentTypes = collect();
         $mappingImage = null;
         $selectedCompany = null;
@@ -43,32 +44,7 @@ class MappingAreaController extends Controller
         $selectedEquipmentTypeId = $request->get('equipment_type_id');
         $viewMode = $request->get('view_mode', 'area'); // 'area' or 'company'
 
-        // Get equipment types based on role
-        if (in_array($userRole, ['Admin', 'Management'])) {
-            // Admin & Management can see all equipment types
-            $equipmentTypes = \App\Models\EquipmentType::where('is_active', true)
-                ->orderBy('equipment_name')
-                ->get();
-        } else {
-            // PIC & Supervisor only see equipment types available in their company
-            if ($user->company_id) {
-                $equipmentTypes = \App\Models\EquipmentType::where('is_active', true)
-                    ->whereHas('equipments', function ($q) use ($user) {
-                        $q->whereHas('location', function ($loc) use ($user) {
-                            $loc->where('company_id', $user->company_id);
-                        });
-                    })
-                    ->orderBy('equipment_name')
-                    ->get();
-            }
-        }
-
-        // Set selected equipment type
-        if ($selectedEquipmentTypeId) {
-            $selectedEquipmentType = \App\Models\EquipmentType::find($selectedEquipmentTypeId);
-        }
-
-        // Get companies based on role
+        // Get companies based on role first to get selected company ID
         if (in_array($userRole, ['Admin', 'Management'])) {
             $companies = Company::where('is_active', true)->orderBy('company_name')->get();
             $selectedCompanyId = $request->get('company_id');
@@ -78,6 +54,27 @@ class MappingAreaController extends Controller
             if ($selectedCompanyId) {
                 $companies = Company::where('id', $selectedCompanyId)->where('is_active', true)->get();
             }
+        }
+
+        // Get equipment types based on selected company
+        if ($selectedCompanyId) {
+            // Only show equipment types available in the selected company
+            $equipmentTypes = \App\Models\EquipmentType::where('is_active', true)
+                ->whereHas('equipments', function ($q) use ($selectedCompanyId) {
+                    $q->whereHas('location', function ($loc) use ($selectedCompanyId) {
+                        $loc->where('company_id', $selectedCompanyId);
+                    });
+                })
+                ->orderBy('equipment_name')
+                ->get();
+        } else {
+            // No company selected, show empty equipment types
+            $equipmentTypes = collect();
+        }
+
+        // Set selected equipment type
+        if ($selectedEquipmentTypeId) {
+            $selectedEquipmentType = \App\Models\EquipmentType::find($selectedEquipmentTypeId);
         }
 
         if ($selectedCompanyId) {
@@ -104,31 +101,77 @@ class MappingAreaController extends Controller
                 $selectedArea = Area::find($selectedAreaId);
                 $mappingImage = $this->getMappingImage($selectedArea);
 
-                // Get equipments with area coordinates
-                $equipmentsQuery = Equipment::with(['equipmentType', 'location', 'periodCheck'])
+                // Get equipments with area coordinates for list (with pagination)
+                $equipmentsQuery = Equipment::with([
+                    'equipmentType',
+                    'location',
+                    'periodCheck'
+                ])
                     ->whereHas('location', function ($q) use ($selectedAreaId) {
                         $q->where('area_id', $selectedAreaId);
                     })
                     ->where('is_active', true);
 
+                // Get equipments for mapping (without pagination, only equipment type filter)
+                $mappingEquipmentsQuery = Equipment::with([
+                    'equipmentType',
+                    'location',
+                    'periodCheck'
+                ])
+                    ->whereHas('location', function ($q) use ($selectedAreaId) {
+                        $q->where('area_id', $selectedAreaId);
+                    })
+                    ->where('is_active', true);
+
+                // Apply equipment type filter to mapping equipments if specified
+                if ($selectedEquipmentTypeId) {
+                    $mappingEquipmentsQuery->where('equipment_type_id', $selectedEquipmentTypeId);
+                }
+
                 $this->applyEquipmentFilters($equipmentsQuery, $selectedEquipmentTypeId, $searchEquipment, $selectedStatus, $selectedMonth, $selectedYear);
                 $equipments = $equipmentsQuery->paginate(15)->appends(request()->query());
+                $mappingEquipments = $mappingEquipmentsQuery->get();
+
                 $this->addInspectionStatusWithCheckItems($equipments, $selectedMonth, $selectedYear);
+                $this->addInspectionStatusWithCheckItems($mappingEquipments, $selectedMonth, $selectedYear);
 
             } elseif ($selectedAreaId === 'all' || (!$selectedAreaId && $selectedCompany)) {
                 // Show company mapping (All Area)
                 $mappingImage = $this->getCompanyMappingImage($selectedCompany);
 
-                // Get all equipments in this company with company-level coordinates
-                $equipmentsQuery = Equipment::with(['equipmentType', 'location', 'periodCheck'])
+                // Get all equipments in this company for list (with pagination)
+                $equipmentsQuery = Equipment::with([
+                    'equipmentType',
+                    'location',
+                    'periodCheck'
+                ])
                     ->whereHas('location', function ($q) use ($selectedCompanyId) {
                         $q->where('company_id', $selectedCompanyId);
                     })
                     ->where('is_active', true);
 
+                // Get equipments for mapping (without pagination, only equipment type filter)
+                $mappingEquipmentsQuery = Equipment::with([
+                    'equipmentType',
+                    'location',
+                    'periodCheck'
+                ])
+                    ->whereHas('location', function ($q) use ($selectedCompanyId) {
+                        $q->where('company_id', $selectedCompanyId);
+                    })
+                    ->where('is_active', true);
+
+                // Apply equipment type filter to mapping equipments if specified
+                if ($selectedEquipmentTypeId) {
+                    $mappingEquipmentsQuery->where('equipment_type_id', $selectedEquipmentTypeId);
+                }
+
                 $this->applyEquipmentFilters($equipmentsQuery, $selectedEquipmentTypeId, $searchEquipment, $selectedStatus, $selectedMonth, $selectedYear);
                 $equipments = $equipmentsQuery->paginate(15)->appends(request()->query());
+                $mappingEquipments = $mappingEquipmentsQuery->get();
+
                 $this->addInspectionStatusWithCheckItems($equipments, $selectedMonth, $selectedYear);
+                $this->addInspectionStatusWithCheckItems($mappingEquipments, $selectedMonth, $selectedYear);
             }
         }
 
@@ -136,6 +179,7 @@ class MappingAreaController extends Controller
             'companies',
             'areas',
             'equipments',
+            'mappingEquipments',
             'equipmentTypes',
             'mappingImage',
             'selectedCompany',
@@ -169,6 +213,26 @@ class MappingAreaController extends Controller
         $areas = $areasQuery->orderBy('area_name')->get();
 
         return response()->json($areas);
+    }
+
+    public function getEquipmentTypesByCompany(Request $request)
+    {
+        $companyId = $request->get('company_id');
+
+        if (!$companyId) {
+            return response()->json([]);
+        }
+
+        $equipmentTypes = \App\Models\EquipmentType::where('is_active', true)
+            ->whereHas('equipments', function ($q) use ($companyId) {
+                $q->whereHas('location', function ($loc) use ($companyId) {
+                    $loc->where('company_id', $companyId);
+                });
+            })
+            ->orderBy('equipment_name')
+            ->get();
+
+        return response()->json($equipmentTypes);
     }
 
     /**
@@ -245,12 +309,26 @@ class MappingAreaController extends Controller
      */
     private function addInspectionStatusWithCheckItems($equipments, $month, $year)
     {
-        $today = Carbon::now();
+        // Use the selected month/year from filter for inspection date range
+        $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+
+        // Get all equipment IDs for bulk queries
+        $equipmentIds = $equipments->pluck('id')->toArray();
+
+        // Get all last inspections for these equipments in one query
+        $lastInspections = Inspection::select('equipment_id', 'inspection_date', 'user_id')
+            ->whereIn('equipment_id', $equipmentIds)
+            ->where('status', '!=', 'draft')
+            ->with(['user'])
+            ->orderBy('inspection_date', 'desc')
+            ->get()
+            ->groupBy('equipment_id')
+            ->map(function ($inspections) {
+                return $inspections->first(); // Get the latest inspection for each equipment
+            });
 
         foreach ($equipments as $equipment) {
-            // Get period-based date range for current inspection cycle
-            $dateRange = $this->getInspectionDateRange($equipment, $today);
-
             // Get checksheet templates for this equipment type
             $checksheetTemplates = ChecksheetTemplate::where('equipment_type_id', $equipment->equipment_type_id)
                 ->where('is_active', true)
@@ -259,19 +337,19 @@ class MappingAreaController extends Controller
 
             $equipment->checksheet_templates = $checksheetTemplates;
 
-            // Get latest inspection within the period
-            $latestInspection = null;
-            if ($dateRange) {
-                $latestInspection = Inspection::where('equipment_id', $equipment->id)
-                    ->whereBetween('inspection_date', [$dateRange['start'], $dateRange['end']])
-                    ->where('status', '!=', 'draft')
-                    ->with(['details.checksheetTemplate'])
-                    ->orderBy('inspection_date', 'desc')
-                    ->first();
-            }
+            // Get latest inspection within the selected month/year period
+            $latestInspection = Inspection::where('equipment_id', $equipment->id)
+                ->whereBetween('inspection_date', [$startOfMonth, $endOfMonth])
+                ->where('status', '!=', 'draft')
+                ->with(['details.checksheetTemplate'])
+                ->orderBy('inspection_date', 'desc')
+                ->first();
 
             $equipment->latest_inspection = $latestInspection;
             $equipment->is_checked = (bool) $latestInspection;
+
+            // Get the last inspection ever from the bulk query result
+            $equipment->last_inspection_ever = $lastInspections->get($equipment->id);
 
             // Create check items status array
             $checkItemsStatus = [];

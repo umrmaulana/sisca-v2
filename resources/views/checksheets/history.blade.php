@@ -23,21 +23,32 @@
             <div class="card-body">
                 <form method="GET" action="{{ route('checksheets.history') }}" class="row g-3">
                     <!-- History Search -->
+                    @if (count($companies) > 0)
+                        <div class="col-md-2">
+                            <label for="company_id" class="form-label">Company</label>
+                            <select class="form-select" id="company_id" name="company_id">
+                                <option value="">All Companies</option>
+                                @foreach ($companies as $company)
+                                    <option value="{{ $company->id }}"
+                                        {{ request('company_id') == $company->id ? 'selected' : '' }}>
+                                        {{ $company->company_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                     <div class="col-lg-2">
-                        <label for="search_history" class="form-label fw-bold">Search Equipment</label>
-                        <input type="text" class="form-control" id="search_history" name="search_history"
-                            placeholder="Search by equipment code..." value="{{ $searchHistory ?? '' }}">
+                        <label for="search" class="form-label fw-bold">Search Equipment</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                            placeholder="Search by equipment code..." value="{{ $search ?? '' }}">
                     </div>
                     <div class="col-md-2">
-                        <label for="equipment_id" class="form-label">Equipment</label>
-                        <select class="form-select" id="equipment_id" name="equipment_id">
-                            <option value="">All Equipment</option>
-                            @foreach ($equipments as $equipment)
-                                <option value="{{ $equipment->id }}"
-                                    {{ request('equipment_id') == $equipment->id ? 'selected' : '' }}>
-                                    {{ $equipment->equipment_code }} - {{ $equipment->equipmentType->equipment_name ?? '' }}
-                                </option>
-                            @endforeach
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">All Status</option>
+                            <option value="OK" {{ request('status') == 'OK' ? 'selected' : '' }}>OK - All Good</option>
+                            <option value="NG" {{ request('status') == 'NG' ? 'selected' : '' }}>NG - Has Issues
+                            </option>
                         </select>
                     </div>
 
@@ -46,7 +57,8 @@
                         <select class="form-select" id="area_id" name="area_id">
                             <option value="">All Areas</option>
                             @foreach ($areas as $area)
-                                <option value="{{ $area->id }}" {{ request('area_id') == $area->id ? 'selected' : '' }}>
+                                <option value="{{ $area->id }}"
+                                    {{ request('area_id') == $area->id ? 'selected' : '' }}>
                                     {{ $area->area_name }} - {{ $area->company->company_name ?? '' }}
                                 </option>
                             @endforeach
@@ -62,32 +74,6 @@
                         <input type="date" class="form-control" id="to_date" name="to_date"
                             value="{{ request('to_date') }}">
                     </div>
-                    @if (count($companies) > 0)
-                        <div class="col-md-2">
-                            <label for="inspector_id" class="form-label">Inspector</label>
-                            <select class="form-select" id="inspector_id" name="inspector_id">
-                                <option value="">All Inspectors</option>
-                                @foreach ($inspectors as $inspector)
-                                    <option value="{{ $inspector->id }}"
-                                        {{ request('inspector_id') == $inspector->id ? 'selected' : '' }}>
-                                        {{ $inspector->name }} ({{ $inspector->npk }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label for="company_id" class="form-label">Company</label>
-                            <select class="form-select" id="company_id" name="company_id">
-                                <option value="">All Companies</option>
-                                @foreach ($companies as $company)
-                                    <option value="{{ $company->id }}"
-                                        {{ request('company_id') == $company->id ? 'selected' : '' }}>
-                                        {{ $company->company_name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    @endif
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-outline-primary me-2">
                             <i class="fas fa-search me-1"></i>Search
@@ -263,6 +249,8 @@
     </div>
 @endsection
 
+
+
 @push('scripts')
     <script>
         function showInspectionModal(inspectionId) {
@@ -391,6 +379,8 @@
                 companySelect.dispatchEvent(new Event('change'));
             }
         }
+
+
 
         // Approval modal function
         window.showApprovalModal = function(inspectionId) {

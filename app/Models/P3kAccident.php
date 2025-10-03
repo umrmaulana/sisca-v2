@@ -9,11 +9,9 @@ class P3kAccident extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['reported_by', 'location_id', 'accident_id', 'department_id', 'victim_npk', 'victim_name'];
+    protected $fillable = ['reported_by', 'location_id', 'accident_id', 'accident_other', 'department_id', 'victim_npk', 'victim_name'];
 
-    protected $table = 'accidents';
-
-    protected $guarded = [];
+    protected $table = 'tt_accidents';
 
     public function location()
     {

@@ -19,47 +19,6 @@ class AreaSeeder extends Seeder
         $companies = DB::table('tm_companies')->pluck('id', 'company_name');
 
         DB::table('tm_areas')->insert([
-            // Companny  1 Aii
-            [
-                'area_name' => 'Office AII',
-                'company_id' => $companies->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/Office_aii.png',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'area_name' => 'Body AII',
-                'company_id' => $companies->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/Body_aii.png',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'area_name' => 'Unit AII',
-                'company_id' => $companies->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/Unit_aii.png',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'area_name' => 'Eq Dev AII',
-                'company_id' => $companies->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/Eq_dev_aii.png',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'area_name' => 'PPIC AII',
-                'company_id' => $companies->first(),
-                'mapping_picture' => 'sisca-v2/templates/mapping/PPIC_aii.png',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
             // Company 2 areas (if exists)
             [
                 'area_name' => 'Office AIIA',
@@ -127,6 +86,47 @@ class AreaSeeder extends Seeder
             [
                 'area_name' => 'WWT AIIA',
                 'company_id' => $companies->count() > 1 ? $companies->skip(1)->first() : $companies->first(),
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            // Companny  1 Aii
+            [
+                'area_name' => 'Office AII',
+                'company_id' => $companies->first(),
+                'mapping_picture' => 'sisca-v2/templates/mapping/Office_aii.png',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'area_name' => 'Body AII',
+                'company_id' => $companies->first(),
+                'mapping_picture' => 'sisca-v2/templates/mapping/Body_aii.png',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'area_name' => 'Unit AII',
+                'company_id' => $companies->first(),
+                'mapping_picture' => 'sisca-v2/templates/mapping/Unit_aii.png',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'area_name' => 'Eq Dev AII',
+                'company_id' => $companies->first(),
+                'mapping_picture' => 'sisca-v2/templates/mapping/Eq_dev_aii.png',
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'area_name' => 'PPIC AII',
+                'company_id' => $companies->first(),
+                'mapping_picture' => 'sisca-v2/templates/mapping/PPIC_aii.png',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),

@@ -58,7 +58,7 @@
             @endif
 
             {{-- Jika role = GA, tampilkan P3K --}}
-            @if ($role === 'GA')
+            @if ($role === 'GA' || $role === 'PIC P3K')
                 <div class="col-md-4 col-sm-6">
                     <div class="card card-link shadow-sm text-center py-4">
                         <div class="card-body">
@@ -75,7 +75,7 @@
             @endif
 
             {{-- Jika role selain Pic & GA, tampilkan keduanya --}}
-            @if ($role !== 'Pic' && $role !== 'GA')
+            @if ($role !== 'Pic' && $role !== 'GA' && $role !== 'PIC P3K')
                 <div class="col-md-4 col-sm-6">
                     <div id="cs" class="card card-link shadow-sm text-center py-4">
                         <div class="card-body">

@@ -4,12 +4,6 @@
 @section('content')
     <div class="container">
         <div class="mb-5">
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
-
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('p3k.dashboard') }}">Dashboard</a></li>
@@ -69,14 +63,19 @@
 
                     <div x-data="{ selected: '' }" class="mb-3">
                         <label for="accident_id" class="form-label">Accident</label>
-                        <select name="accident_id" id="accident_id" x-model="selected" class="form-control" required>
+                        <select name="accident_id" id="accident_id" class="form-control">
                             <option value="">-- Select Accident --</option>
                             @foreach ($accidents as $accident)
                                 <option value="{{ $accident->id }}">{{ $accident->name }}</option>
                             @endforeach
+                            <option value="other">Other</option>
                         </select>
-                    </div>
 
+                        <div id="other_accident_field" style="display:none;" class="mt-2">
+                            <input type="text" name="accident_other" class="form-control"
+                                placeholder="Please specify">
+                        </div>
+                    </div>
 
                     <div>
                         <label for="victim_data" class="form-label">Victim Data</label>
@@ -114,37 +113,45 @@
     </div>
 </div>
 @push('scripts')
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const modalEl = document.getElementById('accidentModal');
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const modalEl = document.getElementById('accidentModal');
 
-        if (modalEl && modalEl.parentElement !== document.body) {
-            document.body.appendChild(modalEl);
-        }
+            if (modalEl && modalEl.parentElement !== document.body) {
+                document.body.appendChild(modalEl);
+            }
 
-        const modalButtons = document.querySelectorAll(".openModalBtn");
+            const modalButtons = document.querySelectorAll(".openModalBtn");
 
-        modalButtons.forEach(btn => {
-            btn.addEventListener("click", function() {
-                const locationId = this.getAttribute("data-location-id");
-                const locationName = this.getAttribute("data-location-name");
+            modalButtons.forEach(btn => {
+                btn.addEventListener("click", function() {
+                    const locationId = this.getAttribute("data-location-id");
+                    const locationName = this.getAttribute("data-location-name");
 
-                document.getElementById("modal_location_id").value = locationId;
-                document.getElementById("modal_location_name").value = locationName;
+                    document.getElementById("modal_location_id").value = locationId;
+                    document.getElementById("modal_location_name").value = locationName;
+                });
             });
         });
-    });
 
-    $(document).ready(function() {
-        $('#accident_id').select2({
-            placeholder: "-- Select Accident --",
-            allowClear: true
+        document.getElementById('accident_id').addEventListener('change', function() {
+            if (this.value === 'other') {
+                document.getElementById('other_accident_field').style.display = 'block';
+            } else {
+                document.getElementById('other_accident_field').style.display = 'none';
+            }
         });
 
-        $('#department_id').select2({
-            placeholder: "-- Select Department --",
-            allowClear: true
+        $(document).ready(function() {
+            $('#accident_id').select2({
+                placeholder: "-- Select Accident --",
+                allowClear: true
+            });
+
+            $('#department_id').select2({
+                placeholder: "-- Select Department --",
+                allowClear: true
+            });
         });
-    });
-</script>
+    </script>
 @endpush

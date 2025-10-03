@@ -1,0 +1,272 @@
+<?php
+
+use App\Http\Controllers\SiscaV2\LandingController;
+use App\Http\Controllers\SiscaV2\PeriodCheckController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SiscaV2\CompanyController;
+use App\Http\Controllers\SiscaV2\AreaController;
+use App\Http\Controllers\SiscaV2\EquipmentTypeController;
+use App\Http\Controllers\SiscaV2\LocationController;
+use App\Http\Controllers\SiscaV2\EquipmentController;
+use App\Http\Controllers\SiscaV2\UserController;
+use App\Http\Controllers\SiscaV2\AuthController;
+use App\Http\Controllers\SiscaV2\ChecksheetTemplateController;
+use App\Http\Controllers\SiscaV2\ChecksheetController;
+use App\Http\Controllers\SiscaV2\InspectionController;
+use App\Http\Controllers\SiscaV2\DashboardController;
+use App\Http\Controllers\SiscaV2\P3kMasterController;
+use App\Http\Controllers\SiscaV2\P3kController;
+use App\Http\Controllers\SiscaV2\P3kHistoryController;
+use App\Http\Controllers\SiscaV2\P3kAccidentController;
+
+/*
+|--------------------------------------------------------------------------
+| SISCA V2 Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register SISCA V2 routes for your application.
+| These routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group.
+|
+*/
+
+// Authentication Routes
+Route::prefix('sisca-v2')->name('sisca-v2.')->group(function () {
+
+    // ===========================================
+    // 1. PUBLIC ROUTES (No Authentication Required)
+    // ===========================================
+
+    // Root redirect - redirect to dashboard if authenticated, login if not
+    Route::get('/', function () {
+        if (auth('sisca-v2')->check()) {
+            return redirect()->route('sisca-v2.dashboard');
+        }
+        return redirect()->route('sisca-v2.login');
+    })->name('home');
+
+    // Login Routes (No middleware for login page)
+    Route::get('login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest:sisca-v2');
+    Route::post('login', [AuthController::class, 'login'])->name('login.submit')->middleware('guest:sisca-v2');
+
+    // No Access Route
+    Route::get('no-access', function () {
+        return view('sisca-v2.errors.no-access');
+    })->name('no-access');
+
+    // ===========================================
+    // 2. PROTECTED ROUTES (Authentication Required)
+    // ===========================================
+
+    Route::middleware('auth:sisca-v2')->group(function () {
+        // Landing Page
+        Route::get('/index', [LandingController::class, 'index'])->name('index');
+
+        // Logout Route
+        Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+        // ===============================
+        // Dashboard Routes
+        // ===============================
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('dashboard/areas-by-company', [DashboardController::class, 'getAreasByCompany'])->name('dashboard.areas-by-company');
+
+        // ===============================
+        // Checksheet Management
+        // ===============================
+        Route::prefix('checksheets')->name('checksheets.')->group(function () {
+            Route::get('/', [ChecksheetController::class, 'index'])->name('index');
+            Route::get('/create', [ChecksheetController::class, 'create'])->name('create');
+            Route::post('/store', [ChecksheetController::class, 'store'])->name('store');
+            Route::get('/show/{id}', [ChecksheetController::class, 'show'])->name('show');
+            Route::get('/history', [ChecksheetController::class, 'history'])->name('history');
+            Route::get('/equipment/{code}', [ChecksheetController::class, 'getEquipment'])->name('equipment');
+            Route::get('/areas-by-company', [ChecksheetController::class, 'getAreasByCompany'])->name('areas-by-company');
+            Route::post('/approve/{id}', [ChecksheetController::class, 'approve'])->name('approve');
+            Route::get('/ng-history/{equipmentId}', [ChecksheetController::class, 'ngHistory'])->name('ng-history');
+        });
+
+        // ===============================
+        // Mapping Area Management
+        // ===============================
+        Route::prefix('mapping-area')->name('mapping-area.')->group(function () {
+            Route::get('/', [App\Http\Controllers\SiscaV2\MappingAreaController::class, 'index'])->name('index');
+            Route::get('/areas-by-company', [App\Http\Controllers\SiscaV2\MappingAreaController::class, 'getAreasByCompany'])->name('areas-by-company');
+        });
+
+        // ===============================
+        // Report Management (Supervisor/Management/Admin only)
+        // ===============================
+
+        // Summary Report Management
+        Route::prefix('summary-report')->name('summary-report.')->group(function () {
+            Route::get('/', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'index'])->name('index');
+            Route::get('/equipment-data', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'getEquipmentSummaryData'])->name('equipment-data');
+            Route::get('/inspections-data', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'getInspectionsData'])->name('inspections-data');
+            Route::post('/{id}/approve', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'approve'])->name('approve');
+            Route::post('/{id}/reject', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'reject'])->name('reject');
+            Route::post('/bulk-approve', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'bulkApprove'])->name('bulk-approve');
+            Route::post('/bulk-reject', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'bulkReject'])->name('bulk-reject');
+            Route::get('/areas-by-company', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'getAreasByCompany'])->name('areas-by-company');
+            Route::get('/get-inspection/{id}', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'getInspection'])->name('get-inspection');
+            Route::post('/edit-approved/{id}', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'editApproved'])->name('edit-approved');
+            Route::get('/get-inspection-history/{id}', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'getInspectionHistory'])->name('get-inspection-history');
+            Route::post('/back-date/{id}', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'backDateInspection'])->name('back-date');
+            Route::get('/export-pdf', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'exportPdf'])->name('export-pdf');
+            Route::get('/export-excel', [App\Http\Controllers\SiscaV2\SummaryReportController::class, 'exportExcel'])->name('export-excel');
+        });
+
+        // NG History Management
+        Route::prefix('ng-history')->name('ng-history.')->group(function () {
+            Route::get('/', [ChecksheetController::class, 'ngHistoryIndex'])->name('index');
+        });
+
+        // ===============================
+        // Master Data Management (Admin/Management Only)
+        // ===============================
+
+        // Companies Management
+        Route::resource('companies', CompanyController::class);
+
+        // Areas Management
+        Route::resource('areas', AreaController::class);
+
+        // Equipment Types Management
+        Route::resource('equipment-types', EquipmentTypeController::class);
+
+        // Period Checks Management
+        Route::resource('period-checks', PeriodCheckController::class);
+
+        // Checksheet Template Management
+        Route::resource('checksheet-templates', ChecksheetTemplateController::class);
+        Route::get('checksheet-templates/type/{type}', [ChecksheetTemplateController::class, 'getByType'])->name('checksheet-templates.by-type');
+        Route::get('checksheet-templates/equipment/{type}', [ChecksheetTemplateController::class, 'getEquipmentList'])->name('checksheet-templates.equipment');
+        Route::get('checksheet-templates/get-next-order/{equipmentTypeId}', [ChecksheetTemplateController::class, 'getNextOrder'])->name('checksheet-templates.get-next-order');
+
+        // Locations Management
+        Route::resource('locations', LocationController::class);
+        Route::get('locations/areas/{company}', [LocationController::class, 'getAreasByCompany'])->name('locations.areas-by-company');
+        Route::get('locations/company/{company}', [LocationController::class, 'getCompanyData'])->name('locations.company-data');
+
+        // Equipments Management
+        Route::get('equipments/areas-by-company', [EquipmentController::class, 'getAreasByCompany'])->name('equipments.areas-by-company');
+        Route::get('equipments/locations-by-area', [EquipmentController::class, 'getLocationsByArea'])->name('equipments.locations-by-area');
+        Route::get('equipments/test-qr', [EquipmentController::class, 'testQrGeneration'])->name('equipments.test-qr');
+        Route::resource('equipments', EquipmentController::class);
+
+        // ===============================
+        // Inspections Management
+        // ===============================
+        Route::resource('inspections', InspectionController::class);
+        Route::get('inspections/ng-history', [InspectionController::class, 'getNgHistory'])->name('inspections.ng-history');
+
+        // ===============================
+        // User Management (Admin Only)
+        // ===============================
+        Route::resource('users', UserController::class);
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+        Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+
+        // ===============================
+        // Profile Management (All Roles)
+        // ===============================
+        Route::prefix('profile')->name('profile.')->group(function () {
+            Route::get('/', [App\Http\Controllers\SiscaV2\ProfileController::class, 'show'])->name('show');
+            Route::get('/edit', [App\Http\Controllers\SiscaV2\ProfileController::class, 'edit'])->name('edit');
+            Route::put('/update', [App\Http\Controllers\SiscaV2\ProfileController::class, 'update'])->name('update');
+            Route::get('/change-password', [App\Http\Controllers\SiscaV2\ProfileController::class, 'changePassword'])->name('change-password');
+            Route::put('/update-password', [App\Http\Controllers\SiscaV2\ProfileController::class, 'updatePassword'])->name('update-password');
+        });
+
+        // ===============================
+        // API Routes for AJAX calls
+        // ===============================
+        Route::prefix('api')->name('api.')->group(function () {
+            Route::get('companies', function () {
+                return response()->json(\App\Models\SiscaV2\Company::where('is_active', true)->get());
+            })->name('companies');
+
+            Route::get('areas', function () {
+                return response()->json(\App\Models\SiscaV2\Area::where('is_active', true)->get());
+            })->name('areas');
+
+            Route::get('equipment-types', function () {
+                return response()->json(\App\Models\SiscaV2\EquipmentType::where('is_active', true)->get());
+            })->name('equipment-types');
+
+            Route::get('equipments', function () {
+                return response()->json(\App\Models\SiscaV2\Equipment::where('is_active', true)->with(['equipmentType', 'location'])->get());
+            })->name('equipments');
+
+            Route::get('locations', function () {
+                return response()->json(\App\Models\SiscaV2\Location::where('is_active', true)->with(['company', 'area'])->get());
+            })->name('locations');
+
+            Route::get('checksheet-templates', function () {
+                return response()->json(\App\Models\SiscaV2\ChecksheetTemplate::where('is_active', true)->get());
+            })->name('checksheet-templates');
+
+            Route::get('inspections/{id}', function ($id) {
+                $inspection = \App\Models\SiscaV2\Inspection::with([
+                    'user',
+                    'equipment.equipmentType',
+                    'equipment.location',
+                    'details.checksheetTemplate'
+                ])->findOrFail($id);
+                return response()->json($inspection);
+            })->name('inspections.show');
+        });
+
+        // ===============================
+        // P3K Management
+        // ===============================
+        Route::prefix('p3k')->name('p3k.')->group(function () {
+
+            // -------------------------------
+            // Master P3K (Admin only)
+            // -------------------------------
+            Route::middleware('admin')->prefix('master')->name('master.')->group(function () {
+                Route::get('/', [P3kMasterController::class, 'index'])->name('index');
+                Route::post('/', [P3kMasterController::class, 'store'])->name('store');
+                Route::put('/{id}', [P3kMasterController::class, 'update'])->name('update');
+                Route::delete('/{id}', [P3kMasterController::class, 'destroy'])->name('destroy');
+            });
+
+            // -------------------------------
+            // Dashboard P3K
+            // -------------------------------
+            Route::get('dashboard', [P3kController::class, 'dashboard'])->name('dashboard');
+
+            // -------------------------------
+            // Monitoring Stock
+            // -------------------------------
+            Route::prefix('monitoring-stock')->name('monitoring-stock.')->group(function () {
+                Route::get('/', [P3kController::class, 'index'])->name('index');
+                Route::get('/{id}/edit', [P3kController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [P3kController::class, 'update'])->name('update');
+                Route::get('/filter', [P3kController::class, 'filterHistory'])->name('filterHistory');
+            });
+
+            // -------------------------------
+            // Notifications
+            // -------------------------------
+            Route::get('notifications', [P3kController::class, 'notifications'])->name('notifications');
+
+            // -------------------------------
+            // Transaction & History
+            // -------------------------------
+            Route::prefix('transaction-history')->name('transaction-history.')->group(function () {
+                Route::get('/', [P3kHistoryController::class, 'index'])->name('index');
+                Route::post('/', [P3kHistoryController::class, 'store'])->name('store');
+                Route::get('/{location_id}', [P3kHistoryController::class, 'show'])->name('show');
+                Route::delete('/{id}', [P3kHistoryController::class, 'destroy'])->name('destroy');
+            });
+
+            // -------------------------------
+            // Accident
+            // -------------------------------
+            Route::post('accident/store', [P3kAccidentController::class, 'store'])->name('accident.store');
+        });
+
+    });
+});

@@ -142,6 +142,21 @@
                                 </div>
                             </div>
 
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-">
+                                        <label name="pos" class="form-label">Position </label>
+                                        <input type="text" class="form-control @error('pos') is-invalid @enderror"
+                                            id="pos" name="pos" value="{{ old('pos') }}"
+                                            placeholder="Enter pos...">
+                                        @error('pos')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">Descriptive name for this pos</div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Area Coordinates -->
                             <div class="row">
                                 <div class="col-md-6">

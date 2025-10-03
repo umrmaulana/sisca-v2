@@ -73,10 +73,7 @@
                                 @foreach ($equipmentTypes as $type)
                                     <option value="{{ $type->id }}"
                                         {{ request('equipment_type_id') == $type->id ? 'selected' : '' }}>
-                                        {{ $type->equipment_name }}
-                                        @if ($type->equipment_type)
-                                            ({{ $type->equipment_type }})
-                                        @endif
+                                        {{ $type->equipment_name }}{{ $type->equipment_type ? ' - ' . $type->equipment_type : '' }}
                                     </option>
                                 @endforeach
                             </select>
@@ -171,7 +168,7 @@
                                         style="max-height: 100%; width: 100%; object-fit: contain;">
 
                                     <!-- Equipment markers would be positioned here -->
-                                    @foreach ($equipments as $equipment)
+                                    @foreach ($mappingEquipments as $equipment)
                                         @php
                                             // Use company coordinates if area_id is 'all' (All Areas selected)
                                             $coordinateX = null;
@@ -288,14 +285,14 @@
                                             <!-- Debug missing coordinates -->
                                             @if (config('app.debug'))
                                                 <!-- Equipment {{ $equipment->id }} ({{ $equipment->equipment_code }}) missing coordinates:
-                                                                                                                Location: {{ $equipment->location ? 'exists' : 'missing' }}
-                                                                                                                company X: {{ $equipment->location->company_coordinate_x ?? 'null' }}
-                                                                                                                company Y: {{ $equipment->location->company_coordinate_y ?? 'null' }}
-                                                                                                                Area X: {{ $equipment->location->coordinate_x ?? 'null' }}
-                                                                                                                Area Y: {{ $equipment->location->coordinate_y ?? 'null' }}
-                                                                                                                Final X: {{ $coordinateX ?? 'null' }}
-                                                                                                                Final Y: {{ $coordinateY ?? 'null' }}
-                                                                                                                -->
+                                                                                                                                                Location: {{ $equipment->location ? 'exists' : 'missing' }}
+                                                                                                                                                company X: {{ $equipment->location->company_coordinate_x ?? 'null' }}
+                                                                                                                                                company Y: {{ $equipment->location->company_coordinate_y ?? 'null' }}
+                                                                                                                                                Area X: {{ $equipment->location->coordinate_x ?? 'null' }}
+                                                                                                                                                Area Y: {{ $equipment->location->coordinate_y ?? 'null' }}
+                                                                                                                                                Final X: {{ $coordinateX ?? 'null' }}
+                                                                                                                                                Final Y: {{ $coordinateY ?? 'null' }}
+                                                                                                                                                -->
                                             @endif
                                         @endif
                                     @endforeach
@@ -373,7 +370,7 @@
                                                             {{ $equipment->location->location_code ?? '-' }}
                                                         </div>
                                                         <small class="text-muted">
-                                                            {{ $equipment->location->location_name ?? '-' }}
+                                                            {{ $equipment->location->pos ?? '-' }}
                                                         </small>
                                                     </td>
                                                     <td>
@@ -453,20 +450,47 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        @if ($equipment->is_checked && $equipment->latest_inspection)
-                                                            <div class="small text-success">
+                                                        @if ($equipment->last_inspection_ever)
+                                                            @php
+                                                                $isCurrentPeriod =
+                                                                    $equipment->is_checked &&
+                                                                    $equipment->latest_inspection &&
+                                                                    $equipment->latest_inspection->id ==
+                                                                        $equipment->last_inspection_ever->id;
+
+                                                                $daysDiff = \Carbon\Carbon::now()->diffInDays(
+                                                                    $equipment->last_inspection_ever->inspection_date,
+                                                                );
+                                                            @endphp
+
+                                                            <div
+                                                                class="small {{ $isCurrentPeriod ? 'text-success' : 'text-info' }}">
                                                                 <i class="bi bi-calendar-check"></i>
-                                                                {{ $equipment->latest_inspection->inspection_date->format('d/m/Y') }}
+                                                                {{ $equipment->last_inspection_ever->inspection_date->format('d M Y') }}
+
+                                                                @if ($isCurrentPeriod)
+                                                                    <span class="badge bg-success ms-1"
+                                                                        style="font-size: 0.55rem;">
+                                                                        Current Period
+                                                                    </span>
+                                                                @else
+                                                                    <span class="badge bg-secondary ms-1"
+                                                                        style="font-size: 0.55rem;">
+                                                                        {{ $daysDiff }} days ago
+                                                                    </span>
+                                                                @endif
                                                             </div>
-                                                            @if ($equipment->latest_inspection->user)
+
+                                                            @if ($equipment->last_inspection_ever->user)
                                                                 <small class="text-muted">
-                                                                    {{ $equipment->latest_inspection->user->name ?? 'Unknown' }}
+                                                                    by
+                                                                    {{ $equipment->last_inspection_ever->user->name ?? 'Unknown' }}
                                                                 </small>
                                                             @endif
                                                         @else
                                                             <div class="small text-muted">
                                                                 <i class="bi bi-calendar-x"></i>
-                                                                Not checked in current period
+                                                                <span class="text-warning">Never inspected</span>
                                                             </div>
                                                         @endif
                                                     </td>
@@ -760,9 +784,40 @@
             // Load areas when company changes (for Admin/Management)
             function loadAreas() {
                 const companyId = document.getElementById('company_id').value;
-                const equipmentTypeId = document.getElementById('equipment_type_id').value;
 
-                loadAreasByCompanyAndType(companyId, equipmentTypeId);
+                // Clear and reset equipment type dropdown
+                loadEquipmentTypesByCompany(companyId);
+
+                // Reset equipment type selection
+                document.getElementById('equipment_type_id').value = '';
+
+                // Load areas for the selected company
+                loadAreasByCompanyAndType(companyId, '');
+            }
+
+            // Load equipment types when company changes
+            function loadEquipmentTypesByCompany(companyId) {
+                const equipmentTypeSelect = document.getElementById('equipment_type_id');
+
+                // Clear current options
+                equipmentTypeSelect.innerHTML = '<option value="">All Equipment Types</option>';
+
+                if (companyId) {
+                    fetch(`${window.location.origin}/mapping-area/equipment-types-by-company?company_id=${companyId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.forEach(equipmentType => {
+                                const option = document.createElement('option');
+                                option.value = equipmentType.id;
+                                option.textContent = equipmentType.equipment_name + (equipmentType.equipment_type ?
+                                    ' - ' + equipmentType.equipment_type : '');
+                                equipmentTypeSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error loading equipment types:', error);
+                        });
+                }
             }
 
             // Load areas when equipment type changes
@@ -845,6 +900,9 @@
                 const initialEquipmentTypeId = document.getElementById('equipment_type_id').value;
 
                 if (initialCompanyId) {
+                    // Load equipment types for the selected company
+                    loadEquipmentTypesByCompany(initialCompanyId);
+                    // Load areas for the selected company and equipment type
                     loadAreasByCompanyAndType(initialCompanyId, initialEquipmentTypeId);
                 }
 

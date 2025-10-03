@@ -264,26 +264,6 @@
             </div>
 
             <div class="col-lg-6">
-                <!-- Company Mapping Section -->
-                <div id="companyMappingSection" class="card mb-3" style="display: none;">
-                    <div class="card-header" style="background-color: #198754;">
-                        <h5 class="card-title mb-0 text-white">
-                            <i class="fas fa-industry me-2"></i>Company Mapping
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="position-relative">
-                            <img id="companyMappingImage" src="" alt="Company Mapping"
-                                class="img-fluid border rounded"
-                                style="cursor: crosshair; width: 100%; height: auto; max-height: 300px;">
-                        </div>
-                        <div class="mt-2 small text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Company mapping for location reference
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Area Mapping Section -->
                 <div id="areaMappingSection" class="card mb-3" style="display: none;">
                     <div class="card-header" style="background-color: #0d6efd;">
@@ -365,7 +345,6 @@
         // Initialize cascade dropdowns
         document.addEventListener('DOMContentLoaded', function() {
             if (originalCompanyId) {
-                loadCompanyMapping(originalCompanyId);
                 loadAreas(originalCompanyId, originalAreaId);
             }
             if (originalAreaId) {
@@ -425,26 +404,6 @@
                 clearLocationHighlight();
             }
         });
-
-        // Load company mapping
-        function loadCompanyMapping(companyId) {
-            fetch(`${window.location.origin}/locations/company/${companyId}`)
-                .then(response => response.json())
-                .then(company => {
-                    if (company.company_mapping_picture) {
-                        const imagePath = `${window.location.origin}/storage/${company.company_mapping_picture}`;
-                        document.getElementById('companyMappingImage').src = imagePath;
-                        document.getElementById('companyMappingSection').style.display = 'block';
-                        document.getElementById('noMappingMessage').style.display = 'none';
-                    } else {
-                        document.getElementById('companyMappingSection').style.display = 'none';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading company mapping:', error);
-                    document.getElementById('companyMappingSection').style.display = 'none';
-                });
-        }
 
         // Load area mapping
         function loadAreaMapping(areaId) {

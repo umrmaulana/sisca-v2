@@ -22,7 +22,12 @@
                 <span>Victim:</span> {{ $history->accident->victim_name }}<br>
                 <span>Victim NPK:</span> {{ $history->accident->victim_npk }}<br>
                 <span>Accident:</span>
-                {{ $history->accident->masterAccident->name ?? '-' }}<br>
+                @if ($history->accident->accident_other)
+                    {{ $history->accident->accident_other }}
+                @else
+                    {{ $history->accident->masterAccident->name ?? '-' }}
+                @endif
+                <br>
                 <span>Department:</span>
                 {{ $history->accident->department->name ?? '-' }}<br>
             @else
@@ -31,8 +36,8 @@
         </td>
         <td>{{ $history->updated_at->format('d-m-Y H:i') }}</td>
         <td>
-            <form action="{{ route('p3k.transaction-history.destroy', $history->id) }}" method="POST"
-                class="d-inline" onsubmit="return confirm('Are you sure to delete this history?')">
+            <form action="{{ route('p3k.transaction-history.destroy', $history->id) }}" method="POST" class="d-inline"
+                onsubmit="return confirm('Are you sure to delete this history?')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-sm btn-outline-danger">

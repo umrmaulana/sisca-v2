@@ -1,6 +1,6 @@
 {{-- P3K --}}
 <nav class="menu mt-3" id="app_menu">
-    @if (auth()->user() && in_array(auth()->user()->role, ['Admin', 'GA', 'Supervisor', 'Management']))
+    @if (auth()->user() && in_array(auth()->user()->role, ['Admin', 'GA', 'Supervisor', 'Management', 'PIC P3K']))
         <div class="menu-item menu-accordion">
             <div class="menu-link {{ Request::is('p3k*') ? 'active' : '' }}" data-tooltip="P3K">
                 <span class="menu-icon">
@@ -22,7 +22,7 @@
                         <span class="menu-title">Dashboard</span>
                     </a>
                 </div>
-
+                @if (auth()->user() && in_array(auth()->user()->role, ['Admin', 'GA', 'Supervisor', 'Management']))
                 <!-- Monitoring Stock -->
                 <div class="menu-item">
                     <a class="menu-link {{ Request::is('p3k/monitoring-stock*') ? 'active' : '' }}"
@@ -33,8 +33,10 @@
                         <span class="menu-title">Monitoring Stock</span>
                     </a>
                 </div>
+                @endif
 
                 <!-- Transaction and History -->
+                @if (auth()->user() && in_array(auth()->user()->role, ['Admin', 'GA', 'Supervisor', 'Management', 'PIC P3K']))
                 <div class="menu-item">
                     <a class="menu-link {{ Request::is('p3k/transaction-history*') ? 'active' : '' }}"
                         href="{{ route('p3k.transaction-history.index') }}">
@@ -44,6 +46,7 @@
                         <span class="menu-title">First Aid Services</span>
                     </a>
                 </div>
+                @endif
             </div>
         </div>
     @endif

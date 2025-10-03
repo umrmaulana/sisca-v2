@@ -115,6 +115,12 @@
                                     <td><strong>Location:</strong></td>
                                     <td>{{ $equipment->location->location_code }}</td>
                                 </tr>
+                                @if ($equipment->location->pos)
+                                    <tr>
+                                        <td><strong>Position:</strong></td>
+                                        <td>{{ $equipment->location->pos }}</td>
+                                    </tr>
+                                @endif
                                 @if ($equipment->location->area)
                                     <tr>
                                         <td><strong>Area:</strong></td>

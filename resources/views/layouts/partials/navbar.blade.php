@@ -1,11 +1,13 @@
 <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid">
         {{-- Left: Title --}}
-        {{-- <div class="d-flex align-items-center">
+        @if (request()->is('p3k*'))
+        <div class="d-flex align-items-center">
             <div class="ms-2">
                 <h6 class="mb-0 fw-semibold" id="navbarTitle">@yield('title', '')</h6>
             </div>
-        </div> --}}
+        </div>
+        @endif
 
         {{-- Tanggal dan Jam --}}
         <div class="d-flex align-items-center">

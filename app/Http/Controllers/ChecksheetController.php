@@ -647,11 +647,6 @@ class ChecksheetController extends Controller
             }
         })->orderBy('created_at', 'desc');
 
-        // Filter by equipment if provided
-        if ($request->equipment_id) {
-            $query->where('equipment_id', $request->equipment_id);
-        }
-
         // Filter by date range
         if ($request->from_date) {
             $query->whereDate('inspection_date', '>=', $request->from_date);
@@ -661,10 +656,34 @@ class ChecksheetController extends Controller
             $query->whereDate('inspection_date', '<=', $request->to_date);
         }
 
-        // Filter by inspector
-        if ($request->inspector_id) {
-            $query->where('user_id', $request->inspector_id);
+        // Filter by search equipment code or name
+        if ($request->search) {
+            $searchTerm = $request->search;
+            $query->whereHas('equipment', function ($equipmentQuery) use ($searchTerm) {
+                $equipmentQuery->where('equipment_code', 'like', '%' . $searchTerm . '%')
+                    ->orWhereHas('equipmentType', function ($typeQuery) use ($searchTerm) {
+                        $typeQuery->where('equipment_name', 'like', '%' . $searchTerm . '%');
+                    });
+            });
         }
+
+        // Filter by inspection status (OK, NG)
+        if ($request->status) {
+            if ($request->status === 'OK') {
+                // Inspections that have only OK details (no NG items)
+                $query->whereDoesntHave('details', function ($detailQuery) {
+                    $detailQuery->where('status', 'NG');
+                })->whereHas('details', function ($detailQuery) {
+                    $detailQuery->where('status', 'OK');
+                });
+            } elseif ($request->status === 'NG') {
+                // Inspections that have at least one NG detail
+                $query->whereHas('details', function ($detailQuery) {
+                    $detailQuery->where('status', 'NG');
+                });
+            }
+        }
+
 
         // Filter by company (only for Admin/Management)
         if ($request->company_id && ($user->role === 'Admin' || $user->role === 'Management')) {
@@ -685,7 +704,7 @@ class ChecksheetController extends Controller
         // Append query parameters to pagination links
         $inspections->appends($request->query());
 
-        // Get data for filters based on user's company access
+        // Get equipment data for search history autocomplete based on user's company access
         $equipmentsQuery = Equipment::with(['equipmentType', 'location.company'])->where('is_active', true);
         if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
             $equipmentsQuery->whereHas('location', function ($query) use ($user) {

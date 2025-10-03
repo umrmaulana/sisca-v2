@@ -1,6 +1,68 @@
 <nav class="menu mt-3" id="app_menu">
     @if (auth()->user() && in_array(auth()->user()->role, ['Admin', 'Supervisor', 'Management', 'Pic']))
-        <div
+        <!-- Dashboard -->
+        <div class="menu-item">
+            <a class="menu-link {{ Request::is('dashboard*') ? 'active' : '' }}" href="{{ route('dashboard') }}"
+                data-tooltip="Dashboard">
+                <span class="menu-icon">
+                    <i class="bi bi-speedometer2"></i>
+                </span>
+                <span class="menu-title">Dashboard</span>
+            </a>
+        </div>
+
+        <!-- Checksheet Section -->
+        <div class="menu-item">
+            <a class="menu-link {{ Request::is('checksheets*') ? 'active' : '' }}"
+                href="{{ route('checksheets.index') }}" data-tooltip="Checksheet">
+                <span class="menu-icon">
+                    <i class="bi bi-clipboard2-check-fill"></i>
+                </span>
+                <span class="menu-title">Checksheet</span>
+            </a>
+        </div>
+
+        <!-- Mapping Area -->
+        <div class="menu-item">
+            <a class="menu-link {{ Request::is('mapping-area*') ? 'active' : '' }}"
+                href="{{ route('mapping-area.index') }}" data-tooltip="Mapping Area">
+                <span class="menu-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </span>
+                <span class="menu-title">Mapping Area</span>
+            </a>
+        </div>
+
+        <!-- Report Section (Admin, Supervisor, Management only) -->
+        @if (auth()->user() && in_array(auth()->user()->role, ['Admin', 'Supervisor', 'Management']))
+            <div
+                class="menu-item menu-accordion {{ Request::is('report*', 'summary-report*', 'ng-history*') ? 'show' : '' }}">
+                <div class="menu-link {{ Request::is('report*', 'summary-report*', 'ng-history*') ? 'active' : '' }}">
+                    <span class="menu-icon">
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                    </span>
+                    <span class="menu-title">Report</span>
+                    <span class="menu-arrow">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="menu-sub menu-sub-accordion menu-sub-dropdown">
+                    <div class="menu-item">
+                        <a class="menu-link {{ Request::is('summary-report*') ? 'active' : '' }}"
+                            href="{{ route('summary-report.index') }}">
+                            <span class="sub-menu-title">Annual Summary Report</span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a class="menu-link {{ Request::is('ng-history*') ? 'active' : '' }}"
+                            href="{{ route('ng-history.index') }}">
+                            <span class="sub-menu-title">NG History</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
+        {{-- <div
             class="menu-item menu-accordion {{ Request::is('dashboard*', 'summary-report*', 'checksheets*', 'mapping-area*', 'ng-history*') ? 'show' : '' }}">
             <div class="menu-link {{ Request::is('dashboard*', 'summary-report*', 'checksheets*', 'mapping-area*', 'ng-history*') ? 'active' : '' }}"
                 data-tooltip="Checksheet Safety">
@@ -14,74 +76,12 @@
             </div>
 
             <div class="menu-sub menu-sub-accordion menu-sub-dropdown">
-                <!-- Dashboard -->
-                <div class="menu-item">
-                    <a class="menu-link {{ Request::is('dashboard*') ? 'active' : '' }}" href="{{ route('dashboard') }}"
-                        data-tooltip="Dashboard">
-                        <span class="menu-icon">
-                            <i class="bi bi-speedometer2"></i>
-                        </span>
-                        <span class="menu-title">Dashboard</span>
-                    </a>
-                </div>
-
-                <!-- Checksheet Section -->
-                <div class="menu-item">
-                    <a class="menu-link {{ Request::is('checksheets*') ? 'active' : '' }}"
-                        href="{{ route('checksheets.index') }}" data-tooltip="Checksheet">
-                        <span class="menu-icon">
-                            <i class="bi bi-clipboard2-check-fill"></i>
-                        </span>
-                        <span class="menu-title">Checksheet</span>
-                    </a>
-                </div>
-
-                <!-- Mapping Area -->
-                <div class="menu-item">
-                    <a class="menu-link {{ Request::is('mapping-area*') ? 'active' : '' }}"
-                        href="{{ route('mapping-area.index') }}" data-tooltip="Mapping Area">
-                        <span class="menu-icon">
-                            <i class="bi bi-geo-alt-fill"></i>
-                        </span>
-                        <span class="menu-title">Mapping Area</span>
-                    </a>
-                </div>
-
-                <!-- Report Section (Admin, Supervisor, Management only) -->
-                @if (auth()->user() && in_array(auth()->user()->role, ['Admin', 'Supervisor', 'Management']))
-                    <div
-                        class="menu-item menu-accordion {{ Request::is('report*', 'summary-report*', 'ng-history*') ? 'show' : '' }}">
-                        <div
-                            class="menu-link {{ Request::is('report*', 'summary-report*', 'ng-history*') ? 'active' : '' }}">
-                            <span class="menu-icon">
-                                <i class="bi bi-file-earmark-text-fill"></i>
-                            </span>
-                            <span class="menu-title">Report</span>
-                            <span class="menu-arrow">
-                                <i class="fas fa-chevron-down"></i>
-                            </span>
-                        </div>
-                        <div class="menu-sub menu-sub-accordion menu-sub-dropdown">
-                            <div class="menu-item">
-                                <a class="menu-link {{ Request::is('summary-report*') ? 'active' : '' }}"
-                                    href="{{ route('summary-report.index') }}">
-                                    <span class="sub-menu-title">Annual Summary Report</span>
-                                </a>
-                            </div>
-                            <div class="menu-item">
-                                <a class="menu-link {{ Request::is('ng-history*') ? 'active' : '' }}"
-                                    href="{{ route('ng-history.index') }}">
-                                    <span class="sub-menu-title">NG History</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            </div>
+                Dashboard
         </div>
+        </div> --}}
     @endif
 
-    @if (auth()->user() && auth()->user()->role === 'Admin')
+    @if (auth()->user() && in_array(auth()->user()->role, ['Admin', 'Supervisor', 'Management']))
         <div
             class="menu-item menu-accordion {{ Request::is('equipments*', 'equipment-types*', 'locations*', 'companies*', 'areas*', 'checksheet-templates*', 'period-checks*') ? 'show' : '' }}">
             <div

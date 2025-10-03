@@ -147,13 +147,13 @@
                                     </td>
                                     <td>
                                         <div class="fw-bold">{{ $equipment->location->location_code ?? '-' }}</div>
+                                        @if ($equipment->location && $equipment->location->pos)
+                                            <small class="text-muted d-block">{{ $equipment->location->pos }}</small>
+                                        @else
+                                        @endif
                                         @if ($equipment->location && $equipment->location->area)
                                             <small
                                                 class="text-muted d-block">{{ $equipment->location->area->area_name }}</small>
-                                        @endif
-                                        @if ($equipment->location && $equipment->location->company)
-                                            <small
-                                                class="text-muted d-block">{{ $equipment->location->company->company_name }}</small>
                                         @endif
                                     </td>
                                     <td>

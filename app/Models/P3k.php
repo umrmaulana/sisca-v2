@@ -12,7 +12,7 @@ class P3k extends Model
     protected $fillable = ['item', 'location_id', 'tag_number', 'expired_at', 'standard_stock', 'actual_stock'];
 
 
-    protected $table = 'p3k';
+    protected $table = 'tm_p3k';
 
     protected $casts = [
         'expired_at' => 'date',

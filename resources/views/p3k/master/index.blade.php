@@ -109,7 +109,7 @@
                         <table class="table table-hover align-middle text-center" id="customTable">
                             <thead class="small">
                                 <tr>
-                                    <th>No</th>
+                                    <th>#</th>
                                     <th>Location</th>
                                     <th>Action</th>
                                 </tr>

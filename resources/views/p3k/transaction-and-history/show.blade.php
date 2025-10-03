@@ -77,9 +77,19 @@
                                         <label for="quantity-{{ $item->id }}"
                                             class="form-label text-muted small">Quantity</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control" id="quantity-{{ $item->id }}"
-                                                name="items[{{ $item->id }}][quantity]" min="1">
+                                            <input type="number"
+                                                class="form-control @error("items.$item->id.quantity") is-invalid @enderror"
+                                                id="quantity-{{ $item->id }}"
+                                                name="items[{{ $item->id }}][quantity]" min="1"
+                                                data-stock="{{ $item->actual_stock }}">
+
                                             <span class="input-group-text">pcs</span>
+
+                                            <div class="invalid-feedback">
+                                                @error("items.$item->id.quantity")
+                                                    {{ $message }}
+                                                @enderror
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -139,8 +149,7 @@
 
                         {{-- Tabel History --}}
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover align-middle text-center"
-                                id="customTable">
+                            <table class="table table-bordered table-hover align-middle text-center" id="customTable">
                                 <thead class="table-sm">
                                     <tr>
                                         <th class="text-center">#</th>
@@ -148,7 +157,7 @@
                                         <th class="text-center">NPK</th>
                                         <th class="text-center">Activity</th>
                                         <th class="text-center">Quantity</th>
-                                        <th >Accident</th>
+                                        <th>Accident</th>
                                         <th class="text-center">Date</th>
                                         <th class="text-center">Actions</th>
                                     </tr>
@@ -188,7 +197,12 @@
                                                     <span>Victim NPK:</span>
                                                     {{ $history->accident->victim_npk }}<br>
                                                     <span>Accident:</span>
-                                                    {{ $history->accident->masterAccident->name ?? '-' }}<br>
+                                                    @if ($history->accident->accident_other)
+                                                        {{ $history->accident->accident_other }}
+                                                    @else
+                                                        {{ $history->accident->masterAccident->name ?? '-' }}
+                                                    @endif
+                                                    <br>
                                                     <span>Department:</span>
                                                     {{ $history->accident->department->name ?? '-' }}<br>
                                                 @else
@@ -235,13 +249,29 @@
         const itemsListContainer = document.getElementById('selectedItemsList');
 
         // Enable/Disable quantity input when checkbox is toggled
-        document.querySelectorAll('input[type="checkbox"][name$="[selected]"]').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const itemId = this.id.replace('item-', '');
-                const quantityInput = document.querySelector(
-                    `input[name="items[${itemId}][quantity]"]`);
-                quantityInput.disabled = !this.checked;
-                if (!this.checked) quantityInput.value = '';
+        // Live validation untuk quantity > stock
+        document.querySelectorAll('input[type="number"][id^="quantity-"]').forEach(input => {
+            input.addEventListener('input', function() {
+                const stock = parseInt(this.getAttribute("data-stock"));
+                const card = this.closest('.card'); // highlight card kalau salah
+                const errorMsg = this.closest(".input-group").querySelector(".error-message");
+
+                if (parseInt(this.value) > stock) {
+                    this.classList.add("is-invalid");
+                    card.classList.add("border-danger");
+
+                    if (!errorMsg) {
+                        const small = document.createElement("small");
+                        small.className = "text-danger error-message";
+                        small.textContent = `Quantity tidak boleh lebih dari stok (${stock}).`;
+                        this.closest(".input-group").appendChild(small);
+                    }
+                } else {
+                    this.classList.remove("is-invalid");
+                    card.classList.remove("border-danger");
+
+                    if (errorMsg) errorMsg.remove();
+                }
             });
         });
 
@@ -250,7 +280,9 @@
             confirmButton.disabled = true;
 
             const checkedItems = document.querySelectorAll(
-                'input[type="checkbox"][name$="[selected]"]:checked');
+                'input[type="checkbox"][name$="[selected]"]:checked'
+            );
+
             if (checkedItems.length === 0) return;
 
             let hasValidItem = false;
@@ -259,11 +291,23 @@
                 const itemId = checkbox.id.replace('item-', '');
                 const label = document.querySelector(`label[for="item-${itemId}"]`);
                 const quantityInput = document.querySelector(
-                    `input[name="items[${itemId}][quantity]"]`);
-                const quantity = quantityInput?.value;
+                    `input[name="items[${itemId}][quantity]"]`
+                );
+                const card = checkbox.closest('.card');
+                const quantity = parseInt(quantityInput?.value || 0);
 
-                if (label && quantity && parseInt(quantity) > 0) {
+                // ambil stok dari atribut data (lebih aman daripada baca teks)
+                const stock = parseInt(
+                    document.getElementById(`quantity-${itemId}`).getAttribute("data-stock")
+                );
+
+                // reset error state
+                quantityInput.classList.remove('is-invalid');
+                card.classList.remove('border-danger');
+
+                if (label && quantity > 0 && quantity <= stock) {
                     hasValidItem = true;
+
                     const listItem = document.createElement('li');
                     listItem.className =
                         'list-group-item d-flex justify-content-between align-items-center';
@@ -272,6 +316,10 @@
                 <span class="badge bg-primary rounded-pill">${quantity} pcs</span>
             `;
                     itemsListContainer.appendChild(listItem);
+                } else {
+                    // kasih tanda error merah
+                    quantityInput.classList.add('is-invalid');
+                    card.classList.add('border-danger');
                 }
             });
 

@@ -37,14 +37,29 @@ class P3kHistoryController extends Controller
     {
         $request->validate([
             'items' => 'required|array',
-            'accident_id' => 'required|exists:accidents,id',
+            'accident_id' => 'nullable',
+            'accident_other' => 'nullable|string|max:255',
         ]);
 
         DB::beginTransaction();
 
         try {
-            // Tangkap accident
-            $accidentId = $request->input('accident_id');
+            $accidentId = null;
+            $accidentOther = null;
+
+            // Cek apakah user pilih "Other"
+            if ($request->input('accident_id') === 'other') {
+                if (empty($request->accident_other)) {
+                    throw new \Exception("Please specify accident if you choose Other.");
+                }
+                $accidentOther = $request->accident_other;
+            } else {
+                // validasi normal accident_id
+                $request->validate([
+                    'accident_id' => 'exists:tm_accident,id'
+                ]);
+                $accidentId = $request->accident_id;
+            }
 
             foreach ($request->items as $id => $itemData) {
                 if (!isset($itemData['selected']) || empty($itemData['quantity'])) {
@@ -70,6 +85,7 @@ class P3kHistoryController extends Controller
                     'action' => 'take',
                     'quantity' => $qty,
                     'accident_id' => $accidentId,
+                    'accident_other' => $accidentOther,
                 ]);
             }
 
@@ -103,7 +119,8 @@ class P3kHistoryController extends Controller
         $histories = $query->with(
             'p3k',
             'accident.masterAccident',
-            'accident.department')
+            'accident.department'
+        )
             ->orderBy('updated_at', 'desc')
             ->where('action', 'take')
             ->latest()

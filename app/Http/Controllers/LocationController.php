@@ -13,25 +13,26 @@ class LocationController extends Controller
     public function __construct()
     {
         // Only Admin and Supervisor can create, update, delete
-        $this->middleware('role:Admin')->except(['index', 'show', 'getAreasByCompany', 'getCompanyData']);
+        $this->middleware('role:Admin')->except(['index', 'show', 'getAreasByCompany', 'getAreasByCompanyForFilter', 'getCompanyData']);
         // All roles can view (index, show) and use AJAX helper
-        $this->middleware('role:Admin,Supervisor,Management')->only(['index', 'show', 'getAreasByCompany', 'getCompanyData']);
+        $this->middleware('role:Admin,Supervisor,Management')->only(['index', 'show', 'getAreasByCompany', 'getAreasByCompanyForFilter', 'getCompanyData']);
     }
 
     public function index(Request $request)
     {
         $user = auth()->user();
 
-        $query = Location::with(['company', 'area']);
+        $query = Location::with(['company', 'area'])
+            ->orderBy('created_at', 'desc');
 
         // Apply company filter for non-admin users
         if ($user->role === 'Supervisor' && $user->company_id) {
             $query->where('company_id', $user->company_id);
         }
 
-        // Filter by area (for Admin/Management or when specified)
-        if ($request->filled('area_id')) {
-            $query->where('area_id', $request->area_id);
+        // Filter by company (for Admin/Management when specified)
+        if ($request->filled('company_id')) {
+            $query->where('company_id', $request->company_id);
         }
 
         // Filter by area
@@ -41,7 +42,8 @@ class LocationController extends Controller
 
         // Search by location code
         if ($request->filled('search')) {
-            $query->where('location_code', 'like', '%' . $request->search . '%');
+            $query->where('location_code', 'like', '%' . $request->search . '%')
+                ->orwhere('pos', 'like', '%' . $request->search . '%');
         }
 
         $locations = $query->paginate(10)->appends($request->query());
@@ -54,10 +56,14 @@ class LocationController extends Controller
             $companies = Company::where('id', $user->company_id)->where('is_active', true)->get();
         }
 
-        // Areas dropdown (filtered by accessible companies)
+        // Areas dropdown (filtered by accessible companies and selected company)
         $areas = collect();
         if ($user->role === 'Admin' || $user->role === 'Management') {
-            $areas = Area::where('is_active', true)->get();
+            if ($request->filled('company_id')) {
+                $areas = Area::where('company_id', $request->company_id)->where('is_active', true)->get();
+            } else {
+                $areas = Area::where('is_active', true)->get();
+            }
         } elseif ($user->role === 'Supervisor' && $user->company_id) {
             $areas = Area::where('company_id', $user->company_id)->where('is_active', true)->get();
         }
@@ -100,13 +106,16 @@ class LocationController extends Controller
         $user = auth()->user();
 
         $request->validate([
-            'location_name' => 'required|string|max:100',
+            'location_name' => 'required|string|max:100|unique:tm_locations_new,location_code',
+            'pos' => 'nullable|string|max:255',
             'company_id' => 'required|exists:tm_companies,id',
             'area_id' => 'required|exists:tm_areas,id',
             'coordinate_x' => 'nullable|numeric|between:-999999.999999,999999.999999',
             'coordinate_y' => 'nullable|numeric|between:-999999.999999,999999.999999',
             'company_coordinate_x' => 'nullable|numeric|between:-999999.999999,999999.999999',
             'company_coordinate_y' => 'nullable|numeric|between:-999999.999999,999999.999999',
+        ], [
+            'location_name.unique' => 'The location code has already been taken.',
         ]);
 
         // For supervisor, ensure they can only create locations in their assigned company
@@ -251,6 +260,23 @@ class LocationController extends Controller
             ->get(['id', 'area_name', 'mapping_picture']);
 
         return response()->json($areas);
+    }
+
+    // AJAX method for area filtering (compatible with location filter)
+    public function getAreasByCompanyForFilter(Request $request)
+    {
+        $companyId = $request->get('company_id');
+
+        if (!$companyId) {
+            return response()->json(['areas' => []]);
+        }
+
+        $areas = Area::where('company_id', $companyId)
+            ->where('is_active', true)
+            ->orderBy('area_name')
+            ->get(['id', 'area_name']);
+
+        return response()->json(['areas' => $areas]);
     }
 
     // AJAX method to get company data

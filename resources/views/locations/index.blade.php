@@ -252,6 +252,53 @@
                 const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
                 modal.show();
             }
+
+            // Handle company change for area filtering
+            const companySelect = document.getElementById('company_id');
+            const areaSelect = document.getElementById('area_id');
+
+            if (companySelect && areaSelect) {
+                companySelect.addEventListener('change', function() {
+                    const companyId = this.value;
+
+                    // Clear current options
+                    areaSelect.innerHTML = '<option value="">Loading...</option>';
+                    areaSelect.disabled = true;
+
+                    if (companyId) {
+                        // Make AJAX request to get areas
+                        fetch(`${window.location.origin}/locations/areas-by-company-filter?company_id=${companyId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                areaSelect.innerHTML = '<option value="">All Areas</option>';
+                                data.areas.forEach(area => {
+                                    const option = document.createElement('option');
+                                    option.value = area.id;
+                                    option.textContent = area.area_name;
+                                    if (area.id == '{{ request('area_id') }}') {
+                                        option.selected = true;
+                                    }
+                                    areaSelect.appendChild(option);
+                                });
+                                areaSelect.disabled = false;
+                            })
+                            .catch(error => {
+                                console.error('Error loading areas:', error);
+                                areaSelect.innerHTML = '<option value="">Error loading areas</option>';
+                                areaSelect.disabled = false;
+                            });
+                    } else {
+                        areaSelect.innerHTML = '<option value="">All Areas</option>';
+                        areaSelect.disabled = false;
+                    }
+                });
+
+                // Auto filter on page load if company is selected
+                if (companySelect.value) {
+                    companySelect.dispatchEvent(new Event('change'));
+                }
+            }
+
             // Auto dismiss alerts
             setTimeout(function() {
                 const alerts = document.querySelectorAll('.alert');
