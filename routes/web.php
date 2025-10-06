@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\SummaryReportApiController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PeriodCheckController;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +51,20 @@ Route::post('login', [AuthController::class, 'login'])->name('login.submit')->mi
 Route::get('no-access', function () {
     return view('errors.no-access');
 })->name('no-access');
+
+// ===========================================
+// 3. PUBLIC API ROUTES (No Authentication Required)
+// ===========================================
+
+// AII Summary Report API (Public Access - for external integration)
+Route::prefix('api/aii')->name('api.aii.')->group(function () {
+    Route::get('summary-report', [SummaryReportApiController::class, 'getAiiSummaryReport'])->name('summary-report');
+    Route::get('inspections-list', [SummaryReportApiController::class, 'getAiiInspectionsList'])->name('inspections-list');
+    Route::get('inspection-detail', [SummaryReportApiController::class, 'getAiiInspectionDetail'])->name('inspection-detail');
+    Route::get('monthly-chart-data', [SummaryReportApiController::class, 'getAiiMonthlyChartData'])->name('monthly-chart-data');
+    Route::get('areas', [SummaryReportApiController::class, 'getAiiAreas'])->name('areas');
+    Route::get('equipment-types', [SummaryReportApiController::class, 'getAiiEquipmentTypes'])->name('equipment-types');
+});
 
 // ===========================================
 // 2. PROTECTED ROUTES (Authentication Required)
