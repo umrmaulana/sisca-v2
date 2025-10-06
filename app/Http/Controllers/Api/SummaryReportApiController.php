@@ -813,7 +813,11 @@ class SummaryReportApiController extends Controller
                 'data' => [
                     'year' => $year,
                     'equipment_type_id' => $equipmentTypeId,
-                    'equipment_type_name' => $equipmentTypeId ? (EquipmentType::find($equipmentTypeId)->equipment_name ?? 'Unknown') : 'All Types',
+                    'equipment_type_name' => $equipmentTypeId
+                        ? (($type = EquipmentType::find($equipmentTypeId))
+                            ? ($type->equipment_name ?? 'Unknown') . ' - ' . ($type->equipment_type ?? 'Unknown')
+                            : 'Unknown')
+                        : 'All Types',
                     'company' => [
                         'id' => $aiiCompany->id,
                         'name' => $aiiCompany->company_name
