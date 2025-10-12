@@ -263,16 +263,34 @@
                                 </div>
                                 <div class="card-body">
                                     @php
-                                        $templatesToShow =
-                                            $isRecheck && isset($ngOnlyTemplates) && $ngOnlyTemplates->isNotEmpty()
-                                                ? $ngOnlyTemplates
-                                                : $templates;
+                                        // For rejected inspection recheck, show all templates
+                                        // For NG recheck, show only NG templates
+                                        // For normal inspection, show all templates
+                                        $templatesToShow = $templates; // Default to all templates
+
+                                        if ($isRecheck && isset($isRejectedRecheck) && $isRejectedRecheck) {
+                                            $templatesToShow = $templates; // Show all templates for rejected recheck
+                                        } elseif (
+                                            $isRecheck &&
+                                            isset($ngOnlyTemplates) &&
+                                            $ngOnlyTemplates->isNotEmpty()
+                                        ) {
+                                            $templatesToShow = $ngOnlyTemplates; // Show only NG templates for NG recheck
+                                        }
                                     @endphp
 
-                                    @if ($isRecheck && isset($ngOnlyTemplates) && $ngOnlyTemplates->isNotEmpty())
+                                    @if ($isRecheck && isset($isRejectedRecheck) && $isRejectedRecheck)
+                                        <div class="alert alert-warning mb-4">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>Rejected Inspection Re-check:</strong> This inspection was previously
+                                            rejected.
+                                            You can now re-inspect all {{ $templates->count() }} items to address the
+                                            issues.
+                                        </div>
+                                    @elseif ($isRecheck && isset($ngOnlyTemplates) && $ngOnlyTemplates->isNotEmpty())
                                         <div class="alert alert-info mb-4">
                                             <i class="fas fa-info-circle me-2"></i>
-                                            <strong>Re-inspection Mode:</strong> Only showing
+                                            <strong>NG Items Re-inspection:</strong> Only showing
                                             {{ $ngOnlyTemplates->count() }} items
                                             that were previously marked as NG.
                                             Items that were OK will remain unchanged.

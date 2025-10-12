@@ -83,10 +83,10 @@
                         </select>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-outline-primary me-2">
+                        <button type="submit" class="btn btn-primary me-2">
                             <i class="fas fa-search me-1"></i>Search
                         </button>
-                        <a href="{{ route('equipments.index') }}" class="btn btn-outline-danger">
+                        <a href="{{ route('equipments.index') }}" class="btn btn-secondary">
                             <i class="fas fa-times me-1"></i>Clear
                         </a>
                     </div>

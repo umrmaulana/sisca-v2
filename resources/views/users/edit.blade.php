@@ -81,16 +81,12 @@
                                     <select class="form-select @error('role') is-invalid @enderror" id="role"
                                         name="role" required>
                                         <option value="">Select Role</option>
-                                        <option value="Admin" {{ old('role', $user->role) == 'Admin' ? 'selected' : '' }}>
-                                            Admin</option>
-                                        <option value="Supervisor"
-                                            {{ old('role', $user->role) == 'Supervisor' ? 'selected' : '' }}>Supervisor
-                                        </option>
-                                        <option value="Management"
-                                            {{ old('role', $user->role) == 'Management' ? 'selected' : '' }}>Management
-                                        </option>
-                                        <option value="Pic" {{ old('role', $user->role) == 'Pic' ? 'selected' : '' }}>
-                                            Pic</option>
+                                        @foreach ($roles as $role)
+                                            <option value="{{ $role }}"
+                                                {{ old('role', $user->role) == $role ? 'selected' : '' }}>
+                                                {{ $role }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                     @error('role')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -117,12 +113,39 @@
                                 </div>
                             </div>
 
+                            <!-- Module Permissions -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-cogs me-2"></i>Module Permissions
+                                </label>
+                                <div class="row">
+                                    @foreach ($availableModules as $key => $label)
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox"
+                                                    id="module_{{ $key }}" name="module_permissions[]"
+                                                    value="{{ $key }}"
+                                                    {{ in_array($key, old('module_permissions', $user->module_permissions ?? [])) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="module_{{ $key }}">
+                                                    {{ $label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="form-text">Select which modules this user can access (Admin automatically gets
+                                    all modules)</div>
+                                @error('module_permissions')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="row mb-3">
                                 <div class="mb-3">
                                     <div class="form-check form-switch">
                                         <input class="form-check-input @error('is_active') is-invalid @enderror"
                                             type="checkbox" id="is_active" name="is_active" value="1"
-                                            {{ old('is_active', true) ? 'checked' : '' }}>
+                                            {{ old('is_active', $user->is_active) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="is_active">
                                             <strong>Active Status</strong>
                                         </label>
@@ -201,7 +224,7 @@
                             </div>
 
                             <div class="d-flex justify-content-end gap-2">
-                                <a href="{{ route('users.index') }}" class="btn btn-outline-danger">
+                                <a href="{{ route('users.index') }}" class="btn btn-danger">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </a>
                                 <button type="submit" class="btn btn-primary">
@@ -233,12 +256,12 @@
                                     <h6>Account Status</h6>
                                     <p class="text-muted small">Quickly activate or deactivate this user account.</p>
                                     @if ($user->is_active)
-                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                        <button type="button" class="btn btn-danger btn-sm"
                                             onclick="toggleUserStatus(0)">
                                             <i class="fas fa-user-slash me-1"></i>Deactivate
                                         </button>
                                     @else
-                                        <button type="button" class="btn btn-outline-success btn-sm"
+                                        <button type="button" class="btn btn-success btn-sm"
                                             onclick="toggleUserStatus(1)">
                                             <i class="fas fa-user-check me-1"></i>Activate
                                         </button>
@@ -317,7 +340,7 @@
                     // Create a form to toggle status
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `${window.location.origin}/users.toggle-status/${$user->id}`;
+                    form.action = '{{ route('users.toggle-status', $user->id) }}';
 
                     const csrfToken = document.createElement('input');
                     csrfToken.type = 'hidden';
@@ -335,15 +358,6 @@
                     form.submit();
                 }
             }
-
-            // Warn if editing own role
-            @if (auth()->id() === $user->id)
-                document.getElementById('role').addEventListener('change', function() {
-                    if (this.value !== '{{ $user->role }}') {
-                        alert('Warning: You are changing your own role. This may affect your access permissions.');
-                    }
-                });
-            @endif
         </script>
     @endpush
 

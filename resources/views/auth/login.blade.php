@@ -20,19 +20,36 @@
 </head>
 
 <body class="login sidebar-collapsed">
+    <!-- Floating particles -->
+    <div class="floating-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
     <div class="container">
         <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
             <div class="col-md-6">
                 <div class="card border-0 shadow rounded">
                     <div class="card-header d-flex justify-content-center align-items-center">
                     </div>
-                    <div class="rounded">
-                        <div class="d-flex justify-content-center align-items-center bg-white">
-                            <img src="{{ asset('foto/satu-aisin-final.png') }}" class="img-fluid" style="width: 70%"
+                    <div class="rounded login-card-glass">
+                        <div class="d-flex justify-content-center align-items-center login-logo-section mt-4">
+                            <img src="{{ asset('foto/satu-aisin-final.png') }}" class="img-fluid" style="width: 20%"
                                 alt="Logo Aisin">
+                            <img src="{{ asset('foto/Logo-blue.png') }}" class="img-fluid" style="width: 20%"
+                                alt="Logo Sisca">
                         </div>
-                        <div class="m-4 p-4">
-                            <h2 class="text-center">SISCA LOGIN</h2>
+                        <div class="m-4">
+                            <h1 class="text-center fw-bold mb-2"
+                                style="font-size: 2rem; color: #1e3c72; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
+                                LOGIN</h1>
+                            <p class="text-center text-muted mb-4" style="font-size: 0.8rem; font-weight: 500;">
+                                <strong>Sisca</strong> - System Information Safety Checksheet Aisin
+                            </p>
 
                             @if (session()->has('message'))
                                 <div class="alert alert-success">
@@ -89,11 +106,6 @@
 
                                 <button type="submit" class="btn btn-primary center-block w-100 mt-3 mb-3">LOG
                                     IN</button>
-                                <div class="text-center">
-                                    <p class="text-muted mb-0">
-                                        <strong>SISCA</strong> - System Information Safety Checksheet Aisin
-                                    </p>
-                                </div>
                             </form>
                         </div>
                     </div>

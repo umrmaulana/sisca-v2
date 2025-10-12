@@ -22,6 +22,21 @@
             </div>
         </div>
 
+        <!-- Alert Messages -->
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <!-- Filter Section -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -402,7 +417,7 @@
                                                     @endif
 
                                                     <!-- Back Date Button - Available for all statuses -->
-                                                    @if (in_array($userRole, ['Management', 'Admin']))
+                                                    @if (in_array($userRole, ['Supervisor', 'Admin']))
                                                         <button class="btn btn-secondary btn-sm"
                                                             onclick="showBackDateModal({{ $inspection->id }})"
                                                             title="Change Inspection Date (Back Date)">
@@ -780,11 +795,40 @@
                     }
 
                     showError(message) {
-                        alert('Error: ' + message);
+                        this.showAlert(message, 'danger', 'fas fa-exclamation-circle');
                     }
 
                     showSuccess(message) {
-                        alert(message);
+                        this.showAlert(message, 'success', 'fas fa-check-circle');
+                    }
+
+                    showAlert(message, type, icon) {
+                        // Remove existing alerts
+                        const existingAlerts = document.querySelectorAll('.alert-temp');
+                        existingAlerts.forEach(alert => alert.remove());
+
+                        // Create new alert
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = `alert alert-${type} alert-dismissible fade show alert-temp`;
+                        alertDiv.style.position = 'fixed';
+                        alertDiv.style.top = '20px';
+                        alertDiv.style.right = '20px';
+                        alertDiv.style.zIndex = '9999';
+                        alertDiv.style.minWidth = '300px';
+                        alertDiv.innerHTML = `
+                            <i class="${icon} me-2"></i>${message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        `;
+
+                        // Add to body
+                        document.body.appendChild(alertDiv);
+
+                        // Auto-dismiss after 5 seconds
+                        setTimeout(() => {
+                            if (alertDiv && alertDiv.parentNode) {
+                                alertDiv.remove();
+                            }
+                        }, 5000);
                     }
 
                     // Area Management
@@ -1071,7 +1115,7 @@
 
                             if (data.success) {
                                 this.showSuccess(data.message);
-                                location.reload();
+                                setTimeout(() => location.reload(), 1500);
                             } else {
                                 throw new Error(data.error || 'Unknown error occurred');
                             }
@@ -1192,7 +1236,7 @@
 
                             if (data.success) {
                                 this.showSuccess(data.message);
-                                location.reload();
+                                setTimeout(() => location.reload(), 1500);
                             } else {
                                 throw new Error(data.error || 'Unknown error occurred');
                             }
@@ -1255,7 +1299,7 @@
 
                             if (data.success) {
                                 this.showSuccess(data.message);
-                                location.reload();
+                                setTimeout(() => location.reload(), 1500);
                             } else {
                                 throw new Error(data.error || 'Unknown error occurred');
                             }
@@ -1598,7 +1642,7 @@
                             const data = await response.json();
                             if (data.success) {
                                 this.showSuccess('Inspection updated successfully');
-                                location.reload();
+                                setTimeout(() => location.reload(), 1500);
                             } else {
                                 this.showError('Failed to update inspection: ' + data.message);
                             }
@@ -1679,7 +1723,7 @@
                             const data = await response.json();
                             if (data.success) {
                                 this.showSuccess('Inspection date updated successfully');
-                                location.reload();
+                                setTimeout(() => location.reload(), 1500);
                             } else {
                                 this.showError('Failed to update inspection date: ' + data.message);
                             }
@@ -1809,6 +1853,41 @@
                 /* Fix sorting for inspection date to handle month and day properly */
                 .inspection-date-sort {
                     white-space: nowrap;
+                }
+
+                /* Fixed alert styling */
+                .alert-temp {
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    border: none;
+                    animation: slideInRight 0.3s ease-out;
+                }
+
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+
+                .alert-temp.fade:not(.show) {
+                    animation: slideOutRight 0.3s ease-in;
+                }
+
+                @keyframes slideOutRight {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
                 }
             </style>
         @endpush

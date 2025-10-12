@@ -81,7 +81,7 @@
                         <input type="hidden" name="code" value="{{ request('code') }}">
                     @endif
 
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="equipment_type_id" class="form-label">Equipment Type</label>
                         <select name="equipment_type_id" id="equipment_type_id" class="form-select">
                             <option value="">All Types</option>
@@ -94,7 +94,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="area_id" class="form-label">Area</label>
                         <select name="area_id" id="area_id" class="form-select"
                             @if (count($companies) > 0) disabled @endif>
@@ -153,11 +153,11 @@
                         </div>
                     @endif
 
-                    <div class="col-md-{{ count($companies) > 0 ? '12' : '2' }} d-flex align-items-end">
-                        <button type="submit" class="btn btn-outline-primary me-2">
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn btn-primary me-2">
                             <i class="fas fa-search me-1"></i>Search
                         </button>
-                        <a href="{{ route('checksheets.index') }}" class="btn btn-outline-danger">
+                        <a href="{{ route('checksheets.index') }}" class="btn btn-secondary">
                             <i class="fas fa-times me-1"></i>Clear
                         </a>
                     </div>

@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\SummaryReportApiController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PeriodCheckController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +18,7 @@ use App\Http\Controllers\P3kMasterController;
 use App\Http\Controllers\P3kController;
 use App\Http\Controllers\P3kHistoryController;
 use App\Http\Controllers\P3kAccidentController;
+use App\Http\Controllers\Api\SummaryReportApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -233,6 +233,8 @@ Route::middleware('auth')->group(function () {
             ])->findOrFail($id);
             return response()->json($inspection);
         })->name('inspections.show');
+
+
     });
 
     // ===============================

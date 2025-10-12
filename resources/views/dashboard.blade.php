@@ -110,8 +110,9 @@
                             <div class="card-header py-3 bg-gradient-primary">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="card-title m-0 font-weight-bold">
-                                        <i class="fas fa-cogs"></i> {{ $equipmentData['equipment_type']->equipment_name }}
+                                        {{ $equipmentData['equipment_type']->equipment_name }}
                                         - {{ $equipmentData['equipment_type']->equipment_type }}
+                                        <span class="badge badge-light">({{ $equipmentData['period_check'] }})</span>
                                     </h6>
                                     <span class="badge badge-light">
                                         <i class="fas fa-list"></i> {{ $equipmentData['total_equipment'] }} units
@@ -182,6 +183,8 @@
                 </div>
             </div>
         </div>
+
+
     </div>
 
     <!-- Chart.js -->
@@ -303,7 +306,8 @@
                     borderWidth: 2,
                     borderColor: '#fff'
                 }]
-            }
+            },
+
         };
 
         // Equipment Type Bar Chart
@@ -342,6 +346,8 @@
                 }
             }
         });
+
+
 
         // Equipment Type Status Charts
         @foreach ($monthlyStatusByEquipmentType as $index => $equipmentData)
@@ -438,7 +444,8 @@
                                     const monthData = {!! json_encode($equipmentData['monthly_data']) !!}[dataIndex];
                                     return [
                                         `Total Equipment: ${monthData.total_equipment}`,
-                                        `Inspected: ${monthData.inspected_count}`
+                                        `Inspected: ${monthData.inspected_count}`,
+                                        `Period Check: {{ $equipmentData['period_check'] }}`
                                     ];
                                 }
                             }

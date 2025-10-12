@@ -53,16 +53,24 @@ class UserController extends Controller
 
         // Get data for filters
         $companies = Company::where('is_active', true)->get();
-        $roles = ['Admin', 'Supervisor', 'Management', 'User', 'Pic'];
+        $roles = ['Admin', 'Supervisor', 'Management', 'Pic'];
+        $availableModules = [
+            'checksheet' => 'Checksheet Module',
+            'p3k' => 'P3K Module'
+        ];
 
-        return view('users.index', compact('users', 'companies', 'roles'));
+        return view('users.index', compact('users', 'companies', 'roles', 'availableModules'));
     }
 
     public function create()
     {
         $companies = Company::where('is_active', true)->get();
-        $roles = ['Admin', 'Supervisor', 'Management', 'User', 'Pic'];
-        return view('users.create', compact('companies', 'roles'));
+        $roles = ['Admin', 'Supervisor', 'Management', 'Pic'];
+        $availableModules = [
+            'checksheet' => 'Checksheet Module',
+            'p3k' => 'P3K Module'
+        ];
+        return view('users.create', compact('companies', 'roles', 'availableModules'));
     }
 
     public function store(Request $request)
@@ -70,15 +78,24 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'npk' => 'required|string|max:20|unique:users,npk',
-            'role' => 'required|in:Admin,Supervisor,Management,User,Pic',
+            'role' => 'required|in:Admin,Supervisor,Management,Pic',
             'company_id' => 'nullable|exists:tm_companies,id',
             'password' => 'required|string|min:8',
             'is_active' => 'boolean',
+            'module_permissions' => 'nullable|array',
+            'module_permissions.*' => 'in:checksheet,p3k',
         ]);
 
         // Set default value for is_active if not provided
         $validated['is_active'] = $request->has('is_active') ? (bool) $request->is_active : true;
         $validated['password'] = Hash::make($request->password);
+
+        // Handle module permissions - Admin gets all permissions, others get selected
+        if ($validated['role'] === 'Admin') {
+            $validated['module_permissions'] = ['checksheet', 'p3k'];
+        } else {
+            $validated['module_permissions'] = $request->get('module_permissions', []);
+        }
 
         try {
             User::create($validated);
@@ -103,8 +120,12 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $companies = Company::where('is_active', true)->get();
-        $roles = ['Admin', 'Supervisor', 'Management', 'User', 'Pic'];
-        return view('users.edit', compact('user', 'companies', 'roles'));
+        $roles = ['Admin', 'Supervisor', 'Management', 'Pic'];
+        $availableModules = [
+            'checksheet' => 'Checksheet Module',
+            'p3k' => 'P3K Module'
+        ];
+        return view('users.edit', compact('user', 'companies', 'roles', 'availableModules'));
     }
 
     public function update(Request $request, User $user)
@@ -112,10 +133,12 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'npk' => 'required|string|max:20|unique:users,npk,' . $user->id,
-            'role' => 'required|in:Admin,Supervisor,Management,User,Pic',
+            'role' => 'required|in:Admin,Supervisor,Management,Pic',
             'company_id' => 'nullable|exists:tm_companies,id',
             'password' => 'nullable|string|min:8',
             'is_active' => 'boolean',
+            'module_permissions' => 'nullable|array',
+            'module_permissions.*' => 'in:checksheet,p3k',
         ]);
 
         // Set default value for is_active if not provided
@@ -126,6 +149,13 @@ class UserController extends Controller
             $validated['password'] = Hash::make($request->password);
         } else {
             unset($validated['password']);
+        }
+
+        // Handle module permissions - Admin gets all permissions, others get selected
+        if ($validated['role'] === 'Admin') {
+            $validated['module_permissions'] = ['checksheet', 'p3k'];
+        } else {
+            $validated['module_permissions'] = $request->get('module_permissions', []);
         }
 
         try {

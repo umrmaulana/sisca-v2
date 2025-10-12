@@ -80,10 +80,10 @@ class DashboardController extends Controller
         $equipmentSummaryAll = $this->getEquipmentSummary($selectedCompanyId, $selectedAreaId, $selectedEquipmentTypeId, $selectedMonth, $selectedYear);
 
         // Get monthly trends data
-        $monthlyTrendsByEquipmentType = $this->getMonthlyTrendsByEquipmentType($selectedCompanyId, $selectedAreaId);
+        $monthlyTrendsByEquipmentType = $this->getMonthlyTrendsByEquipmentType($selectedCompanyId, $selectedAreaId, $selectedYear);
 
         // Get monthly status data by equipment type
-        $monthlyStatusByEquipmentType = $this->getMonthlyStatusByEquipmentType($selectedCompanyId, $selectedAreaId, $selectedEquipmentTypeId);
+        $monthlyStatusByEquipmentType = $this->getMonthlyStatusByEquipmentType($selectedCompanyId, $selectedAreaId, $selectedEquipmentTypeId, $selectedYear);
 
         return view('dashboard', compact(
             'user',
@@ -108,7 +108,7 @@ class DashboardController extends Controller
         $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth();
 
         // Build equipment query
-        $equipmentQuery = Equipment::with(['equipmentType', 'location.area.company']);
+        $equipmentQuery = Equipment::with(['equipmentType', 'location.area.company', 'periodCheck']);
 
         // Apply filters
         if ($companyId) {
@@ -162,6 +162,7 @@ class DashboardController extends Controller
                 'location' => $equipment->location->location_code ?? 'Unknown',
                 'area' => $equipment->location->area->area_name ?? 'Unknown',
                 'company' => $equipment->location->area->company->company_name ?? 'Unknown',
+                'period_check' => $equipment->periodCheck->period_check ?? 'Not Set',
                 'status' => $status,
                 'inspection_date' => $inspectionDate,
                 'ng_count' => $ngCount,
@@ -172,7 +173,7 @@ class DashboardController extends Controller
         return collect($summary);
     }
 
-    private function getMonthlyTrendsByEquipmentType($companyId, $areaId)
+    private function getMonthlyTrendsByEquipmentType($companyId, $areaId, $selectedYear = null)
     {
         $trends = [];
         $equipmentTypes = [];
@@ -197,9 +198,12 @@ class DashboardController extends Controller
 
         $equipmentTypes = $equipmentTypeQuery->get();
 
-        // Get last 6 months data (reduced from 12 for better visibility)
-        for ($i = 5; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
+        // Get 6 months data based on selected year or current year (last 6 months)
+        $baseYear = $selectedYear ? (int) $selectedYear : Carbon::now()->year;
+
+        // Get last 6 months data for the selected year (July to December)
+        for ($month = 7; $month <= 12; $month++) {
+            $date = Carbon::create($baseYear, $month, 1);
             $startOfMonth = $date->copy()->startOfMonth();
             $endOfMonth = $date->copy()->endOfMonth();
 
@@ -242,7 +246,7 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getMonthlyStatusByEquipmentType($companyId, $areaId, $equipmentTypeId = null)
+    private function getMonthlyStatusByEquipmentType($companyId, $areaId, $equipmentTypeId = null, $selectedYear = null)
     {
         $equipmentTypeQuery = EquipmentType::where('is_active', true);
 
@@ -274,9 +278,12 @@ class DashboardController extends Controller
         foreach ($equipmentTypes as $equipmentType) {
             $monthlyData = [];
 
-            // Get last 12 months data
-            for ($i = 11; $i >= 0; $i--) {
-                $date = Carbon::now()->subMonths($i);
+            // Get 12 months data based on selected year or current year
+            $baseYear = $selectedYear ? (int) $selectedYear : Carbon::now()->year;
+
+            // Get 12 months data for the selected year (January to December)
+            for ($month = 1; $month <= 12; $month++) {
+                $date = Carbon::create($baseYear, $month, 1);
                 $startOfMonth = $date->copy()->startOfMonth();
                 $endOfMonth = $date->copy()->endOfMonth();
 
@@ -297,7 +304,16 @@ class DashboardController extends Controller
                     });
                 }
 
-                $equipments = $equipmentQuery->get();
+                $equipments = $equipmentQuery->with('periodCheck')->get();
+
+                // Get period check from first equipment (assuming all equipment of same type have same period)
+                $periodCheck = 'Not Set';
+                if ($equipments->count() > 0) {
+                    $firstEquipment = $equipments->first();
+                    if ($firstEquipment && $firstEquipment->periodCheck) {
+                        $periodCheck = $firstEquipment->periodCheck->period_check;
+                    }
+                }
 
                 $okCount = 0;
                 $ngCount = 0;
@@ -335,10 +351,29 @@ class DashboardController extends Controller
                 ];
             }
 
+            // Get total equipment count for this equipment type with filters applied
+            $totalEquipmentQuery = Equipment::where('equipment_type_id', $equipmentType->id)
+                ->where('is_active', true);
+
+            if ($companyId) {
+                $totalEquipmentQuery->whereHas('location.area.company', function ($q) use ($companyId) {
+                    $q->where('id', $companyId);
+                });
+            }
+
+            if ($areaId) {
+                $totalEquipmentQuery->whereHas('location', function ($q) use ($areaId) {
+                    $q->where('area_id', $areaId);
+                });
+            }
+
+            $totalEquipmentCount = $totalEquipmentQuery->count();
+
             $statusData[] = [
                 'equipment_type' => $equipmentType,
                 'monthly_data' => $monthlyData,
-                'total_equipment' => $equipments->count()
+                'period_check' => $periodCheck,
+                'total_equipment' => $totalEquipmentCount
             ];
         }
 
@@ -373,4 +408,6 @@ class DashboardController extends Controller
 
         return response()->json($formattedAreas);
     }
+
+
 }

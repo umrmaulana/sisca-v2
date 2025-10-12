@@ -21,7 +21,7 @@
         <div class="card mb-4">
             <div class="card-body">
                 <form method="GET" action="{{ route('areas.index') }}" class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="search" class="form-label">Search Area</label>
                         <input type="text" class="form-control" id="search" name="search"
                             value="{{ request('search') }}" placeholder="Enter area or company name...">
@@ -38,7 +38,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
                             <option value="">All Status</option>
@@ -46,11 +46,11 @@
                             <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
                         </select>
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-outline-primary me-2">
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
                             <i class="fas fa-search me-1"></i>Search
                         </button>
-                        <a href="{{ route('areas.index') }}" class="btn btn-outline-danger">
+                        <a href="{{ route('areas.index') }}" class="btn btn-secondary">
                             <i class="fas fa-times me-1"></i>Clear
                         </a>
                     </div>

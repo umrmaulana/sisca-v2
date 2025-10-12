@@ -55,8 +55,8 @@
                                         NPK <span class="text-danger">*</span>
                                     </label>
                                     <input type="number" class="form-control @error('npk') is-invalid @enderror"
-                                        id="npk" name="npk" value="{{ old('npk') }}" required maxlength="5"
-                                        oninput="if(this.value.length > 5) this.value = this.value.slice(0,5);">
+                                        id="npk" name="npk" value="{{ old('npk') }}" required maxlength="6"
+                                        oninput="if(this.value.length > 6) this.value = this.value.slice(0,6);">
                                     @error('npk')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -71,12 +71,12 @@
                                     <select class="form-select @error('role') is-invalid @enderror" id="role"
                                         name="role" required>
                                         <option value="">Select Role</option>
-                                        <option value="Admin" {{ old('role') == 'Admin' ? 'selected' : '' }}>Admin</option>
-                                        <option value="Supervisor" {{ old('role') == 'Supervisor' ? 'selected' : '' }}>
-                                            Supervisor</option>
-                                        <option value="Management" {{ old('role') == 'Management' ? 'selected' : '' }}>
-                                            Management</option>
-                                        <option value="Pic" {{ old('role') == 'Pic' ? 'selected' : '' }}>Pic</option>
+                                        @foreach ($roles as $role)
+                                            <option value="{{ $role }}"
+                                                {{ old('role') == $role ? 'selected' : '' }}>
+                                                {{ $role }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                     @error('role')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -101,6 +101,33 @@
                                     @enderror
                                     <div class="form-text">Optional. Assign user to specific company.</div>
                                 </div>
+                            </div>
+
+                            <!-- Module Permissions -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-cogs me-2"></i>Module Permissions
+                                </label>
+                                <div class="row">
+                                    @foreach ($availableModules as $key => $label)
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox"
+                                                    id="module_{{ $key }}" name="module_permissions[]"
+                                                    value="{{ $key }}"
+                                                    {{ in_array($key, old('module_permissions', [])) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="module_{{ $key }}">
+                                                    {{ $label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="form-text">Select which modules this user can access (Admin automatically gets
+                                    all modules)</div>
+                                @error('module_permissions')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="row mb-3">
@@ -150,15 +177,14 @@
                             <div class="alert alert-info">
                                 <h6><i class="fas fa-info-circle me-2"></i>Role Permissions:</h6>
                                 <ul class="mb-0">
-                                    <li><strong>Admin:</strong> Full system access and user management</li>
-                                    <li><strong>Supervisor:</strong> Equipment management and checksheet oversight</li>
-                                    <li><strong>Management:</strong> Reports and analytics access</li>
-                                    <li><strong>Pic:</strong> Person in charge of specific tasks</li>
+                                    <li><strong>Admin:</strong> Full system access, user management, and all modules</li>
+                                    <li><strong>Supervisor:</strong> Supervisory access with all modules</li>
+                                    <li><strong>Pic:</strong> Person in charge - module access controlled by admin</li>
                                 </ul>
                             </div>
 
                             <div class="d-flex justify-content-end gap-2">
-                                <a href="{{ route('users.index') }}" class="btn btn-outline-danger">
+                                <a href="{{ route('users.index') }}" class="btn btn-danger">
                                     <i class="fas fa-times me-2"></i>Cancel
                                 </a>
                                 <button type="submit" class="btn btn-primary">
@@ -200,17 +226,6 @@
             // NPK input formatting
             document.getElementById('npk').addEventListener('input', function() {
                 this.value = this.value.toUpperCase();
-            });
-
-            // Role description update
-            document.getElementById('role').addEventListener('change', function() {
-                const roleDescriptions = {
-                    'Admin': 'Full system access including user management and system configuration.',
-                    'Supervisor': 'Equipment management, checksheet oversight, and team supervision.',
-                    'Management': 'Access to reports, analytics, and management dashboards.',
-                    'Pic': 'Person in charge of specific tasks.'
-                };
-
             });
         </script>
     @endpush

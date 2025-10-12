@@ -33,75 +33,60 @@
         <div class="mb-5">
             <h3 class="text-dark mb-2 fw-bold">Hi, {{ $name }}</h3>
             <p class="text-dark fs-6">
-                Welcome to the SISCA - System Information Safety Checksheet Aisin. <br>
-                Choose your module to begin your checksheet or manage emergency resources.
+                Choose your module
             </p>
         </div>
 
         <!-- Module Cards -->
         <div class="row justify-content-center g-4 mt-10">
-            {{-- Jika role = Pic, tampilkan Checksheet --}}
-            @if ($role === 'Pic')
+            {{-- Checksheet Module - Show if user has checksheet access --}}
+            @if (auth()->user()->hasModuleAccess('checksheet'))
                 <div class="col-md-4 col-sm-6">
-                    <div id="cs" class="card card-link shadow-sm text-center py-4">
-                        <div class="card-body">
-                            <img src="{{ asset('foto/safety.png') }}" alt="Checksheet Logo" class="card-logo mb-3">
-                            <p class="text-dark medium mt-2">
-                                Daily safety inspections, area compliance & checklist logs.
-                            </p>
-                            <div>
-                                <a href="{{ route('dashboard') }}" class="btn btn-primary">Checksheet</a>
+                    <a href="{{ route('dashboard') }}" class="card-clickable text-decoration-none">
+                        <div id="cs" class="card card-link shadow-sm text-center py-4">
+                            <div class="card-body">
+                                <img src="{{ asset('foto/safety.png') }}" alt="Checksheet Logo" class="card-logo mb-3">
+                                <h5 class="text-dark fw-bold mb-3">Checksheet</h5>
+                                <p class="text-dark medium mt-2">
+                                    Daily safety inspections, area compliance & checklist logs.
+                                </p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             @endif
 
-            {{-- Jika role = GA, tampilkan P3K --}}
-            @if ($role === 'GA' || $role === 'PIC P3K')
+            {{-- P3K Module - Show if user has p3k access --}}
+            @if (auth()->user()->hasModuleAccess('p3k'))
                 <div class="col-md-4 col-sm-6">
-                    <div class="card card-link shadow-sm text-center py-4">
-                        <div class="card-body">
-                            <img src="{{ asset('foto/p3k.png') }}" alt="P3K Logo" class="card-logo mb-3">
-                            <p class="text-dark medium mt-2">
-                                Track first aid kits, restocking, and incident reports.
-                            </p>
-                            <div>
-                                <a href="{{ route('p3k.dashboard') }}" class="btn btn-primary">P3K</a>
+                    <a href="{{ route('p3k.dashboard') }}" class="card-clickable text-decoration-none">
+                        <div class="card card-link shadow-sm text-center py-4">
+                            <div class="card-body">
+                                <img src="{{ asset('foto/p3k.png') }}" alt="P3K Logo" class="card-logo mb-3">
+                                <h5 class="text-dark fw-bold mb-3">P3K</h5>
+                                <p class="text-dark medium mt-2">
+                                    Track first aid kits, restocking, and incident reports.
+                                </p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             @endif
 
-            {{-- Jika role selain Pic & GA, tampilkan keduanya --}}
-            @if ($role !== 'Pic' && $role !== 'GA' && $role !== 'PIC P3K')
+            {{-- User Management - Show only for Admin --}}
+            @if (auth()->user()->role === 'Admin')
                 <div class="col-md-4 col-sm-6">
-                    <div id="cs" class="card card-link shadow-sm text-center py-4">
-                        <div class="card-body">
-                            <img src="{{ asset('foto/safety.png') }}" alt="Checksheet Logo" class="card-logo mb-3">
-                            <p class="text-dark medium mt-2">
-                                Daily safety inspections, area compliance & checklist logs.
-                            </p>
-                            <div>
-                                <a href="{{ route('dashboard') }}" class="btn btn-primary">Checksheet</a>
+                    <a href="{{ route('users.index') }}" class="card-clickable text-decoration-none">
+                        <div class="card card-link shadow-sm text-center py-4">
+                            <div class="card-body">
+                                <div class="fas fa-users fa-6x card-logo mb-3"></div>
+                                <h5 class="text-dark fw-bold mb-3">User Management</h5>
+                                <p class="text-dark medium mt-2">
+                                    Manage users, roles, and permissions.
+                                </p>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-6">
-                    <div class="card card-link shadow-sm text-center py-4">
-                        <div class="card-body">
-                            <img src="{{ asset('foto/p3k.png') }}" alt="P3K Logo" class="card-logo mb-3">
-                            <p class="text-dark medium mt-2">
-                                Track first aid kits, restocking, and incident reports.
-                            </p>
-                            <div>
-                                <a href="{{ route('p3k.dashboard') }}" class="btn btn-primary">P3K</a>
-                            </div>
-                        </div>
-                    </div>
+                    </a>
                 </div>
             @endif
         </div>
@@ -116,14 +101,6 @@
             </button>
         </form>
     </div>
-
-    <!-- User Management (Admin only) -->
-    @if (auth()->user() && auth()->user()->role === 'Admin')
-        <a href="{{ route('users.index') }}" class="user-management-btn">
-            <i class="bi bi-people-fill"></i> User Management
-        </a>
-    @endif
-
 
 </body>
 

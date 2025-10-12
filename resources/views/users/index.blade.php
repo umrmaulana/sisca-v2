@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>User Management</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -84,10 +84,10 @@
                         </select>
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-outline-primary me-2">
+                        <button type="submit" class="btn btn-primary me-2">
                             <i class="fas fa-search me-1"></i>Search
                         </button>
-                        <a href="{{ route('users.index') }}" class="btn btn-outline-danger">
+                        <a href="{{ route('users.index') }}" class="btn btn-secondary">
                             <i class="fas fa-times me-1"></i>Clear
                         </a>
                     </div>
@@ -124,6 +124,7 @@
                                 <th>NPK</th>
                                 <th>Role</th>
                                 <th>Company</th>
+                                <th>Module Access</th>
                                 <th>Status</th>
                                 <th>Created Date</th>
                                 <th>Actions</th>
@@ -174,6 +175,27 @@
                                         @endif
                                     </td>
                                     <td>
+                                        @if ($user->role === 'Admin')
+                                            <span class="badge bg-success me-1">
+                                                <i class="fas fa-shield-alt me-1"></i>All Modules
+                                            </span>
+                                        @elseif ($user->module_permissions && count($user->module_permissions) > 0)
+                                            @foreach ($user->module_permissions as $permission)
+                                                @if ($permission === 'checksheet')
+                                                    <span class="badge bg-primary me-1">
+                                                        <i class="fas fa-clipboard-check me-1"></i>Checksheet
+                                                    </span>
+                                                @elseif ($permission === 'p3k')
+                                                    <span class="badge bg-success me-1">
+                                                        <i class="fas fa-first-aid me-1"></i>P3K
+                                                    </span>
+                                                @endif
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted fst-italic">No access</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         @if ($user->is_active)
                                             <span class="badge bg-success">
                                                 <i class="fas fa-check me-1"></i>Active
@@ -199,8 +221,8 @@
                                             @endcan
 
                                             @can('update', $user)
-                                                <a href="{{ route('users.edit', $user) }}" class="btn btn-outline-warning"
-                                                    title="Edit">
+                                                <a href="{{ route('users.edit', $user) }}"
+                                                    class="btn btn-outline-warning" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                             @endcan
@@ -218,12 +240,13 @@
                                 </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center py-4">
+                                        <td colspan="10" class="text-center py-4">
                                             <div class="text-muted">
                                                 <i class="fas fa-users fa-3x mb-3"></i>
                                                 <p class="mb-0">No users found</p>
                                                 @can('create', App\Models\User::class)
-                                                    <a href="{{ route('users.create') }}" class="btn btn-primary btn-sm mt-2">
+                                                    <a href="{{ route('users.create') }}"
+                                                        class="btn btn-primary btn-sm mt-2">
                                                         <i class="fas fa-plus me-1"></i>Add First User
                                                     </a>
                                                 @endcan
@@ -285,7 +308,7 @@
                 <script>
                     function confirmDelete(id) {
                         const form = document.getElementById('deleteForm');
-                        form.action = `${window.location.origin}/sisca-v2.users.index/${id}`;
+                        form.action = `${window.location.origin}/users/${id}`;
                         const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
                         modal.show();
                     }
@@ -332,6 +355,7 @@
             @stack('scripts')
 
             <!-- Footer -->
-        @include('.layouts.partials.footer')
+            @include('.layouts.partials.footer')
     </body>
-</html>
+
+    </html>

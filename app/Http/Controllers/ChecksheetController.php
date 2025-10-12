@@ -198,23 +198,32 @@ class ChecksheetController extends Controller
         // Check period restrictions and existing inspections
         $periodRestriction = $this->checkPeriodRestrictions($equipment);
 
-        // Check if this is a recheck from previous NG inspection
+        // Check if this is a recheck from previous NG inspection or rejected inspection
         $previousInspection = null;
         $isRecheck = false;
         $ngOnlyTemplates = collect();
+        $isRejectedRecheck = false;
 
-        if ($periodRestriction && isset($periodRestriction['existing_inspection']) && $periodRestriction['has_ng_items']) {
+        if ($periodRestriction && isset($periodRestriction['existing_inspection'])) {
             $previousInspection = $periodRestriction['existing_inspection'];
-            $isRecheck = true;
 
-            // Get only NG items for recheck
-            $ngDetails = $previousInspection->details()->where('status', 'NG')->get();
-            $ngTemplateIds = $ngDetails->pluck('checksheet_id');
+            // Check if it's a rejected inspection recheck
+            if ($previousInspection->status === 'rejected') {
+                $isRecheck = true;
+                $isRejectedRecheck = true;
+                // For rejected inspection, allow all items to be rechecked (ngOnlyTemplates remains empty)
+            } elseif ($periodRestriction['has_ng_items']) {
+                $isRecheck = true;
 
-            $ngOnlyTemplates = ChecksheetTemplate::whereIn('id', $ngTemplateIds)
-                ->where('is_active', true)
-                ->orderBy('order_number')
-                ->get();
+                // Get only NG items for recheck
+                $ngDetails = $previousInspection->details()->where('status', 'NG')->get();
+                $ngTemplateIds = $ngDetails->pluck('checksheet_id');
+
+                $ngOnlyTemplates = ChecksheetTemplate::whereIn('id', $ngTemplateIds)
+                    ->where('is_active', true)
+                    ->orderBy('order_number')
+                    ->get();
+            }
         }
 
         // Get all templates for normal inspection
@@ -234,7 +243,8 @@ class ChecksheetController extends Controller
             'ngOnlyTemplates',
             'periodRestriction',
             'previousInspection',
-            'isRecheck'
+            'isRecheck',
+            'isRejectedRecheck'
         ));
     }
 
@@ -262,6 +272,10 @@ class ChecksheetController extends Controller
             if ($existingInspection->status === 'approved') {
                 $canInspect = false;
                 $reason = 'Equipment has been approved and cannot be re-inspected.';
+            } elseif ($existingInspection->status === 'rejected') {
+                // If inspection is rejected, allow full re-inspection
+                $canInspect = true;
+                $hasNgItems = false; // Allow all items to be rechecked, not just NG items
             } else {
                 // Check if there are any NG items
                 $hasNgItems = $existingInspection->details()->where('status', 'NG')->exists();

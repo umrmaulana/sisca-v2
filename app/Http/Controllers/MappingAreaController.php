@@ -280,8 +280,7 @@ class MappingAreaController extends Controller
         // Apply equipment search filter
         if (!empty($searchEquipment)) {
             $equipmentsQuery->where(function ($q) use ($searchEquipment) {
-                $q->where('equipment_code', 'like', "%{$searchEquipment}%")
-                    ->orWhere('desc', 'like', "%{$searchEquipment}%");
+                $q->where('equipment_code', 'like', "%{$searchEquipment}%");
             });
         }
 

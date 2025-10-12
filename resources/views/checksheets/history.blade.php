@@ -37,11 +37,6 @@
                             </select>
                         </div>
                     @endif
-                    <div class="col-lg-2">
-                        <label for="search" class="form-label fw-bold">Search Equipment</label>
-                        <input type="text" class="form-control" id="search" name="search"
-                            placeholder="Search by equipment code..." value="{{ $search ?? '' }}">
-                    </div>
                     <div class="col-md-2">
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
@@ -57,8 +52,7 @@
                         <select class="form-select" id="area_id" name="area_id">
                             <option value="">All Areas</option>
                             @foreach ($areas as $area)
-                                <option value="{{ $area->id }}"
-                                    {{ request('area_id') == $area->id ? 'selected' : '' }}>
+                                <option value="{{ $area->id }}" {{ request('area_id') == $area->id ? 'selected' : '' }}>
                                     {{ $area->area_name }} - {{ $area->company->company_name ?? '' }}
                                 </option>
                             @endforeach
@@ -74,11 +68,16 @@
                         <input type="date" class="form-control" id="to_date" name="to_date"
                             value="{{ request('to_date') }}">
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-outline-primary me-2">
+                    <div class="col-lg-4">
+                        <label for="search" class="form-label fw-bold">Search Equipment</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                            placeholder="Search by equipment code..." value="{{ $search ?? '' }}">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
                             <i class="fas fa-search me-1"></i>Search
                         </button>
-                        <a href="{{ route('checksheets.history') }}" class="btn btn-outline-danger">
+                        <a href="{{ route('checksheets.history') }}" class="btn btn-secondary">
                             <i class="fas fa-times"></i> Clear
                         </a>
                     </div>
