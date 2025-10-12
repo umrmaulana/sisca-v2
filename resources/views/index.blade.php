@@ -31,8 +31,8 @@
     <div class="hero-content">
         <!-- Greeting -->
         <div class="mb-5">
-            <h3 class="text-dark mb-2 fw-bold">Hi, {{ $name }}</h3>
-            <p class="text-dark fs-6">
+            <h3 class="text-title mb-2 fw-bold">Hi, {{ $name }}</h3>
+            <p class="text-title">
                 Choose your module
             </p>
         </div>
