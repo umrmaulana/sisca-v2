@@ -75,7 +75,7 @@
                                     <label for="npk" class="form-label text-dark">NPK <span
                                             class="text-danger">*</span></label>
                                     <input type="number" step="1" min="0"
-                                        class="form-control @error('npk') is-invalid @enderror" name="npk"
+                                        class="form-control text-dark @error('npk') is-invalid @enderror" name="npk"
                                         id="npk" aria-describedby="npk" value="{{ old('npk') }}"
                                         oninput="if(this.value.length > 6) this.value = this.value.slice(0,6);"
                                         maxlength="6" autofocus required>
@@ -90,8 +90,8 @@
                                             class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <input type="password"
-                                            class="form-control @error('password') is-invalid @enderror" id="password"
-                                            name="password" required>
+                                            class="form-control text-dark @error('password') is-invalid @enderror"
+                                            id="password" name="password" required>
                                         <span class="input-group-text" id="toggle-password" style="cursor: pointer;">
                                             <i class="bi bi-eye-slash" id="password-icon"></i>
                                         </span>
