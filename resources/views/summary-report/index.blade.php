@@ -920,7 +920,7 @@
                         }
 
                         try {
-                            let url = `{{ url('summary-report/areas-by-company') }}?company_id=${companyId}`;
+                            let url = window.location.origin + `/summary-report/areas-by-company?company_id=${companyId}`;
                             if (equipmentTypeId) {
                                 url += `&equipment_type_id=${equipmentTypeId}`;
                             }

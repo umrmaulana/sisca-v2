@@ -72,7 +72,7 @@
                             <form action="{{ route('login.submit') }}" method="POST">
                                 @csrf
                                 <div class="mb-3 mt-3">
-                                    <label for="npk" class="form-label">NPK <span
+                                    <label for="npk" class="form-label text-dark">NPK <span
                                             class="text-danger">*</span></label>
                                     <input type="number" step="1" min="0"
                                         class="form-control @error('npk') is-invalid @enderror" name="npk"
@@ -86,7 +86,7 @@
                                     @enderror
                                 </div>
                                 <div class="mb-3">
-                                    <label for="password" class="form-label">Password <span
+                                    <label for="password" class="form-label text-dark">Password <span
                                             class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <input type="password"
