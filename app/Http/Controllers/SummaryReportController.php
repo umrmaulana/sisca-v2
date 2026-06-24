@@ -691,7 +691,6 @@ class SummaryReportController extends Controller
 
     public function exportExcel(Request $request)
     {
-        dd('MASUK EXPORT');
         try {
             // Clean any output buffer to prevent corruption
             if (ob_get_length()) {
