@@ -7,6 +7,7 @@ use App\Models\Equipment;
 use App\Models\Company;
 use App\Models\Area;
 use App\Models\EquipmentType;
+use App\Models\Inspection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -107,39 +108,28 @@ class DashboardController extends Controller
         $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth();
 
-        // Build equipment query
-        $equipmentQuery = Equipment::with(['equipmentType', 'location.area.company', 'periodCheck']);
+        $equipments = $this->equipmentQuery($companyId, $areaId, $equipmentTypeId)
+            ->with(['equipmentType', 'location.area.company', 'periodCheck'])
+            ->get();
 
-        // Apply filters
-        if ($companyId) {
-            $equipmentQuery->whereHas('location.area.company', function ($q) use ($companyId) {
-                $q->where('id', $companyId);
-            });
-        }
-
-        if ($areaId) {
-            $equipmentQuery->whereHas('location', function ($q) use ($areaId) {
-                $q->where('area_id', $areaId);
-            });
-        }
-
-        if ($equipmentTypeId) {
-            $equipmentQuery->where('equipment_type_id', $equipmentTypeId);
-        }
-
-        $equipmentQuery->where('is_active', true);
-
-        $equipments = $equipmentQuery->get();
+        $latestInspections = Inspection::whereIn('equipment_id', $equipments->pluck('id'))
+            ->whereBetween('inspection_date', [$startOfMonth, $endOfMonth])
+            ->where('status', '!=', 'draft')
+            ->withCount([
+                'details as ng_count' => function ($q) {
+                    $q->where('status', 'NG');
+                }
+            ])
+            ->orderByDesc('inspection_date')
+            ->orderByDesc('id')
+            ->get()
+            ->unique('equipment_id')
+            ->keyBy('equipment_id');
 
         $summary = [];
 
         foreach ($equipments as $equipment) {
-            // Get latest inspection in the selected month
-            $latestInspection = $equipment->inspections()
-                ->whereBetween('inspection_date', [$startOfMonth, $endOfMonth])
-                ->where('status', '!=', 'draft')
-                ->orderBy('inspection_date', 'desc')
-                ->first();
+            $latestInspection = $latestInspections->get($equipment->id);
 
             $status = 'not_inspected';
             $inspectionDate = null;
@@ -148,11 +138,7 @@ class DashboardController extends Controller
             if ($latestInspection) {
                 $status = $latestInspection->status;
                 $inspectionDate = $latestInspection->inspection_date;
-
-                // Count NG items
-                $ngCount = $latestInspection->details()
-                    ->where('status', 'NG')
-                    ->count();
+                $ngCount = (int) $latestInspection->ng_count;
             }
 
             $summary[] = [
@@ -176,7 +162,6 @@ class DashboardController extends Controller
     private function getMonthlyTrendsByEquipmentType($companyId, $areaId, $selectedYear = null)
     {
         $trends = [];
-        $equipmentTypes = [];
 
         // Get equipment types first based on filters
         $equipmentTypeQuery = EquipmentType::where('is_active', true);
@@ -197,15 +182,36 @@ class DashboardController extends Controller
         }
 
         $equipmentTypes = $equipmentTypeQuery->get();
-
-        // Get 6 months data based on selected year or current year (last 6 months)
         $baseYear = $selectedYear ? (int) $selectedYear : Carbon::now()->year;
+        $startDate = Carbon::create($baseYear, 7, 1)->startOfMonth();
+        $endDate = Carbon::create($baseYear, 12, 1)->endOfMonth();
+
+        $inspectionCountsQuery = Inspection::query()
+            ->selectRaw('MONTH(tt_inspections.inspection_date) as month_number, tm_equipments.equipment_type_id, COUNT(*) as total')
+            ->join('tm_equipments', 'tt_inspections.equipment_id', '=', 'tm_equipments.id')
+            ->join('tm_locations_new', 'tm_equipments.location_id', '=', 'tm_locations_new.id')
+            ->whereBetween('tt_inspections.inspection_date', [$startDate, $endDate])
+            ->where('tt_inspections.status', '!=', 'draft')
+            ->where('tm_equipments.is_active', true);
+
+        if ($companyId) {
+            $inspectionCountsQuery->where('tm_locations_new.company_id', $companyId);
+        }
+
+        if ($areaId) {
+            $inspectionCountsQuery->where('tm_locations_new.area_id', $areaId);
+        }
+
+        $inspectionCounts = $inspectionCountsQuery
+            ->groupByRaw('MONTH(tt_inspections.inspection_date), tm_equipments.equipment_type_id')
+            ->get()
+            ->keyBy(function ($row) {
+                return $row->month_number . '-' . $row->equipment_type_id;
+            });
 
         // Get last 6 months data for the selected year (July to December)
         for ($month = 7; $month <= 12; $month++) {
             $date = Carbon::create($baseYear, $month, 1);
-            $startOfMonth = $date->copy()->startOfMonth();
-            $endOfMonth = $date->copy()->endOfMonth();
 
             $monthData = [
                 'month' => $date->format('M y'),
@@ -213,28 +219,8 @@ class DashboardController extends Controller
             ];
 
             foreach ($equipmentTypes as $equipmentType) {
-                // Build inspections query for this month and equipment type
-                $inspectionsQuery = \App\Models\Inspection::whereBetween('inspection_date', [$startOfMonth, $endOfMonth])
-                    ->where('status', '!=', 'draft')
-                    ->whereHas('equipment', function ($q) use ($equipmentType) {
-                        $q->where('equipment_type_id', $equipmentType->id);
-                    });
-
-                // Apply company filter
-                if ($companyId) {
-                    $inspectionsQuery->whereHas('equipment.location.area.company', function ($q) use ($companyId) {
-                        $q->where('id', $companyId);
-                    });
-                }
-
-                // Apply area filter
-                if ($areaId) {
-                    $inspectionsQuery->whereHas('equipment.location', function ($q) use ($areaId) {
-                        $q->where('area_id', $areaId);
-                    });
-                }
-
-                $monthData[$equipmentType->equipment_name] = $inspectionsQuery->count();
+                $key = $month . '-' . $equipmentType->id;
+                $monthData[$equipmentType->equipment_name] = (int) optional($inspectionCounts->get($key))->total;
             }
 
             $trends[] = $monthData;
@@ -273,67 +259,53 @@ class DashboardController extends Controller
 
         $equipmentTypes = $equipmentTypeQuery->get();
 
-        $statusData = [];
+        $baseYear = $selectedYear ? (int) $selectedYear : Carbon::now()->year;
+        $startDate = Carbon::create($baseYear, 1, 1)->startOfYear();
+        $endDate = Carbon::create($baseYear, 12, 1)->endOfYear();
+        $equipments = $this->equipmentQuery($companyId, $areaId)
+            ->whereIn('equipment_type_id', $equipmentTypes->pluck('id'))
+            ->with('periodCheck')
+            ->get();
+        $equipmentsByType = $equipments->groupBy('equipment_type_id');
+        $equipmentIds = $equipments->pluck('id');
 
+        $latestInspectionsByEquipmentMonth = Inspection::whereIn('equipment_id', $equipmentIds)
+            ->whereBetween('inspection_date', [$startDate, $endDate])
+            ->where('status', '!=', 'draft')
+            ->withCount([
+                'details as ng_count' => function ($q) {
+                    $q->where('status', 'NG');
+                }
+            ])
+            ->orderByDesc('inspection_date')
+            ->orderByDesc('id')
+            ->get()
+            ->groupBy(function ($inspection) {
+                return $inspection->equipment_id . '-' . $inspection->inspection_date->format('n');
+            })
+            ->map(function ($inspections) {
+                return $inspections->first();
+            });
+
+        $statusData = [];
         foreach ($equipmentTypes as $equipmentType) {
             $monthlyData = [];
-
-            // Get 12 months data based on selected year or current year
-            $baseYear = $selectedYear ? (int) $selectedYear : Carbon::now()->year;
+            $equipmentsForType = $equipmentsByType->get($equipmentType->id, collect());
+            $periodCheck = optional(optional($equipmentsForType->first())->periodCheck)->period_check ?? 'Not Set';
+            $totalEquipment = $equipmentsForType->count();
 
             // Get 12 months data for the selected year (January to December)
             for ($month = 1; $month <= 12; $month++) {
                 $date = Carbon::create($baseYear, $month, 1);
-                $startOfMonth = $date->copy()->startOfMonth();
-                $endOfMonth = $date->copy()->endOfMonth();
-
-                // Get all equipment of this type
-                $equipmentQuery = Equipment::where('equipment_type_id', $equipmentType->id)
-                    ->where('is_active', true);
-
-                // Apply company/area filters
-                if ($companyId) {
-                    $equipmentQuery->whereHas('location.area.company', function ($q) use ($companyId) {
-                        $q->where('id', $companyId);
-                    });
-                }
-
-                if ($areaId) {
-                    $equipmentQuery->whereHas('location', function ($q) use ($areaId) {
-                        $q->where('area_id', $areaId);
-                    });
-                }
-
-                $equipments = $equipmentQuery->with('periodCheck')->get();
-
-                // Get period check from first equipment (assuming all equipment of same type have same period)
-                $periodCheck = 'Not Set';
-                if ($equipments->count() > 0) {
-                    $firstEquipment = $equipments->first();
-                    if ($firstEquipment && $firstEquipment->periodCheck) {
-                        $periodCheck = $firstEquipment->periodCheck->period_check;
-                    }
-                }
 
                 $okCount = 0;
                 $ngCount = 0;
-                $totalEquipment = $equipments->count();
 
-                foreach ($equipments as $equipment) {
-                    // Get latest inspection in this month
-                    $latestInspection = $equipment->inspections()
-                        ->whereBetween('inspection_date', [$startOfMonth, $endOfMonth])
-                        ->where('status', '!=', 'draft')
-                        ->orderBy('inspection_date', 'desc')
-                        ->first();
+                foreach ($equipmentsForType as $equipment) {
+                    $latestInspection = $latestInspectionsByEquipmentMonth->get($equipment->id . '-' . $month);
 
                     if ($latestInspection) {
-                        // Check if inspection has any NG items
-                        $hasNgItems = $latestInspection->details()
-                            ->where('status', 'NG')
-                            ->exists();
-
-                        if ($hasNgItems) {
+                        if ((int) $latestInspection->ng_count > 0) {
                             $ngCount++;
                         } else {
                             $okCount++;
@@ -351,33 +323,38 @@ class DashboardController extends Controller
                 ];
             }
 
-            // Get total equipment count for this equipment type with filters applied
-            $totalEquipmentQuery = Equipment::where('equipment_type_id', $equipmentType->id)
-                ->where('is_active', true);
-
-            if ($companyId) {
-                $totalEquipmentQuery->whereHas('location.area.company', function ($q) use ($companyId) {
-                    $q->where('id', $companyId);
-                });
-            }
-
-            if ($areaId) {
-                $totalEquipmentQuery->whereHas('location', function ($q) use ($areaId) {
-                    $q->where('area_id', $areaId);
-                });
-            }
-
-            $totalEquipmentCount = $totalEquipmentQuery->count();
-
             $statusData[] = [
                 'equipment_type' => $equipmentType,
                 'monthly_data' => $monthlyData,
                 'period_check' => $periodCheck,
-                'total_equipment' => $totalEquipmentCount
+                'total_equipment' => $totalEquipment
             ];
         }
 
         return collect($statusData);
+    }
+
+    private function equipmentQuery($companyId = null, $areaId = null, $equipmentTypeId = null)
+    {
+        $query = Equipment::where('is_active', true);
+
+        if ($companyId) {
+            $query->whereHas('location', function ($q) use ($companyId) {
+                $q->where('company_id', $companyId);
+            });
+        }
+
+        if ($areaId) {
+            $query->whereHas('location', function ($q) use ($areaId) {
+                $q->where('area_id', $areaId);
+            });
+        }
+
+        if ($equipmentTypeId) {
+            $query->where('equipment_type_id', $equipmentTypeId);
+        }
+
+        return $query;
     }
 
     public function getAreasByCompany(Request $request)

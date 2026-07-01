@@ -188,7 +188,7 @@
     </div>
 
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url('dist/js/chart.js') }}"></script>
 
     <script>
         // Prepare chart data using equipmentSummaryAll for complete data
@@ -454,16 +454,6 @@
                 }
             });
         @endforeach
-
-        // Load areas when company changes (for Admin/Management)
-        function loadAreas() {
-            const companyId = document.getElementById('company_id')?.value;
-            const equipmentTypeId = document.getElementById('equipment_type_id')?.value;
-
-            if (companyId) {
-                loadAreasByCompanyAndType(companyId, equipmentTypeId);
-            }
-        }
 
         // Load areas when company changes (for Admin/Management)
         function loadAreas() {
