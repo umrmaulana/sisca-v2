@@ -68,6 +68,8 @@ class EquipmentTypeController extends Controller
 
     public function show(EquipmentType $equipmentType)
     {
+        $equipmentType->loadCount(['equipments', 'checksheetTemplates']);
+
         return view('equipment-types.show', compact('equipmentType'));
     }
 

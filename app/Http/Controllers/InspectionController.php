@@ -20,7 +20,11 @@ class InspectionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Inspection::with(['user', 'equipment', 'details.checksheetTemplate']);
+        $query = Inspection::with([
+            'user:id,name',
+            'equipment:id,equipment_code,equipment_type_id,location_id',
+            'equipment.equipmentType:id,equipment_name,equipment_type',
+        ]);
 
         // Filter by date range
         if ($request->has('start_date') && $request->start_date) {
@@ -54,8 +58,17 @@ class InspectionController extends Controller
      */
     public function create()
     {
-        $equipments = Equipment::with('equipmentType')->get();
-        $checksheetTemplates = ChecksheetTemplate::all();
+        $equipments = Equipment::select('id', 'equipment_code', 'equipment_type_id')
+            ->with('equipmentType:id,equipment_name,equipment_type')
+            ->where('is_active', true)
+            ->orderBy('equipment_code')
+            ->limit(500)
+            ->get();
+        $checksheetTemplates = ChecksheetTemplate::select('id', 'equipment_type_id', 'order_number', 'item_name', 'standar_condition')
+            ->where('is_active', true)
+            ->orderBy('equipment_type_id')
+            ->orderBy('order_number')
+            ->get();
 
         return response()->json([
             'success' => true,
@@ -180,8 +193,17 @@ class InspectionController extends Controller
             ], 403);
         }
 
-        $equipments = Equipment::with('equipmentType')->get();
-        $checksheetTemplates = ChecksheetTemplate::all();
+        $equipments = Equipment::select('id', 'equipment_code', 'equipment_type_id')
+            ->with('equipmentType:id,equipment_name,equipment_type')
+            ->where('is_active', true)
+            ->orderBy('equipment_code')
+            ->limit(500)
+            ->get();
+        $checksheetTemplates = ChecksheetTemplate::select('id', 'equipment_type_id', 'order_number', 'item_name', 'standar_condition')
+            ->where('is_active', true)
+            ->orderBy('equipment_type_id')
+            ->orderBy('order_number')
+            ->get();
 
         return response()->json([
             'success' => true,

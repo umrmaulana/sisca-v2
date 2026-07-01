@@ -10,6 +10,7 @@ use App\Models\Area;
 use App\Models\EquipmentType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -113,7 +114,6 @@ class SummaryReportController extends Controller
             'user',
             'equipment.equipmentType',
             'equipment.location.area.company',
-            'details.checksheetTemplate',
             'approvedBy'
         ]);
 
@@ -171,12 +171,13 @@ class SummaryReportController extends Controller
             $selectedEquipmentTypeId,
             $selectedYear,
             $searchEquipment,
-            $selectedInspectionResult
+            $selectedInspectionResult,
+            500
         );
 
         // Get paginated inspections data for display (limit for better performance)
         $inspections = $inspectionsQuery->orderBy('inspection_date', 'desc')
-            ->limit(1000)
+            ->limit(250)
             ->get();
 
         return view('summary-report.index', compact(
@@ -208,7 +209,6 @@ class SummaryReportController extends Controller
             'user',
             'equipment.equipmentType',
             'equipment.location.area.company',
-            'details.checksheetTemplate',
             'approvedBy'
         ]);
 
@@ -278,7 +278,8 @@ class SummaryReportController extends Controller
         }
 
         // Get all equipment summary data with inspection result filter applied
-        $equipmentSummary = $this->getAnnualEquipmentSummary($selectedCompanyId, $selectedAreaId, $selectedEquipmentTypeId, $selectedYear, $searchEquipment, $selectedInspectionResult);
+        $limit = min((int) $request->get('length', 100), 500);
+        $equipmentSummary = $this->getAnnualEquipmentSummary($selectedCompanyId, $selectedAreaId, $selectedEquipmentTypeId, $selectedYear, $searchEquipment, $selectedInspectionResult, $limit);
 
         // Format data for DataTables
         $data = [];
@@ -337,8 +338,14 @@ class SummaryReportController extends Controller
         // Build query
         $inspectionsQuery = $this->buildInspectionsQuery($selectedYear, $selectedCompanyId, $selectedAreaId, $selectedEquipmentTypeId, $searchEquipment, $selectedStatus);
 
-        // Get all data for DataTables processing
-        $inspections = $inspectionsQuery->orderBy('inspection_date', 'desc')->get();
+        $recordsTotal = (clone $inspectionsQuery)->count();
+        $start = max((int) $request->get('start', 0), 0);
+        $length = min(max((int) $request->get('length', 25), 1), 250);
+
+        $inspections = $inspectionsQuery->orderBy('inspection_date', 'desc')
+            ->skip($start)
+            ->take($length)
+            ->get();
 
         // Format data for DataTables
         $data = [];
@@ -390,8 +397,8 @@ class SummaryReportController extends Controller
 
         return response()->json([
             'data' => $data,
-            'recordsTotal' => count($data),
-            'recordsFiltered' => count($data)
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsTotal
         ]);
     }
 
@@ -919,10 +926,10 @@ class SummaryReportController extends Controller
         }
     }
 
-    private function getAnnualEquipmentSummary($companyId, $areaId, $equipmentTypeId, $year, $searchEquipment = '', $inspectionResult = 'all')
+    private function getAnnualEquipmentSummary($companyId, $areaId, $equipmentTypeId, $year, $searchEquipment = '', $inspectionResult = 'all', $limit = null)
     {
         // Use optimized version and apply inspection result filter
-        $summary = $this->getOptimizedEquipmentSummary($companyId, $areaId, $equipmentTypeId, $year, $searchEquipment);
+        $summary = $this->getOptimizedEquipmentSummary($companyId, $areaId, $equipmentTypeId, $year, $searchEquipment, $limit);
 
         // Apply inspection result filter
         if ($inspectionResult !== 'all') {
@@ -1140,13 +1147,31 @@ class SummaryReportController extends Controller
             'status',
             'notes'
         ])->with([
-                    'details:id,inspection_id,checksheet_id,status',
+                    'details' => function ($query) {
+                        $query->select('id', 'inspection_id', 'checksheet_id', 'status')
+                            ->where('status', 'NG');
+                    },
                     'details.checksheetTemplate:id,equipment_type_id,item_name,standar_condition',
                     'details.checksheetTemplate.equipmentType:id,equipment_type'
                 ])
             ->whereIn('equipment_id', $equipmentIds)
             ->whereBetween('inspection_date', [$startOfYear, $endOfYear])
             ->where('status', '!=', 'draft')
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('tt_inspections as newer')
+                    ->whereColumn('newer.equipment_id', 'tt_inspections.equipment_id')
+                    ->whereRaw('YEAR(newer.inspection_date) = YEAR(tt_inspections.inspection_date)')
+                    ->whereRaw('MONTH(newer.inspection_date) = MONTH(tt_inspections.inspection_date)')
+                    ->where('newer.status', '!=', 'draft')
+                    ->where(function ($q) {
+                        $q->whereColumn('newer.inspection_date', '>', 'tt_inspections.inspection_date')
+                            ->orWhere(function ($sq) {
+                                $sq->whereColumn('newer.inspection_date', '=', 'tt_inspections.inspection_date')
+                                    ->whereColumn('newer.id', '>', 'tt_inspections.id');
+                            });
+                    });
+            })
             ->get()
             ->groupBy('equipment_id');
 
@@ -1170,20 +1195,11 @@ class SummaryReportController extends Controller
 
                 if ($monthInspection) {
                     $status = $monthInspection->status;
-                    $ngDetails = $monthInspection->details->where('status', 'NG');
+                    $ngDetails = $monthInspection->details;
                     if ($ngDetails->isNotEmpty()) {
                         $hasNgItems = true;
                         $ngItems = $ngDetails->map(function ($detail) use ($monthInspection) {
                             $template = $detail->checksheetTemplate;
-
-                            // Debug log
-                            \Log::info('NG Detail Debug Optimized', [
-                                'detail_id' => $detail->id,
-                                'checksheet_id' => $detail->checksheet_id,
-                                'template_exists' => $template ? 'yes' : 'no',
-                                'template_item_name' => $template ? $template->item_name : 'null',
-                                'template_id' => $template ? $template->id : 'null'
-                            ]);
 
                             return [
                                 'item_name' => $template ? $template->item_name : 'No Template Found',

@@ -81,7 +81,7 @@ class AreaController extends Controller
     public function show(Area $area)
     {
         $companies = Company::where('is_active', true)->orderBy('company_name')->get();
-        $area->load(['company', 'locations']);
+        $area->load('company')->loadCount('locations');
         return view('areas.show', compact('area', 'companies'));
     }
 

@@ -18,7 +18,7 @@ class P3kController extends Controller
      */
     public function index(Request $request)
     {
-        $locations = P3kLocation::all();
+        $locations = P3kLocation::orderBy('location')->get();
         $query = $request->input('query');
 
         $location_id = $request->input('location_id', '1');
@@ -40,6 +40,8 @@ class P3kController extends Controller
                 ->when($year, function ($q) use ($year) {
                     $q->whereYear('created_at', $year);
                 })
+                ->orderBy('item')
+                ->limit(500)
                 ->get();
 
             $location = P3kLocation::findOrFail($location_id);
@@ -73,6 +75,7 @@ class P3kController extends Controller
                 $query->whereYear('updated_at', $year);
             })
             ->latest()
+            ->take(100)
             ->get();
 
         $historyHtml = view('p3k._partials.history-table', compact('histories'))->render();
@@ -178,33 +181,37 @@ class P3kController extends Controller
     public function notifications()
     {
         // low stock
-        $lowStock = P3k::whereColumn('actual_stock', '<', 'standard_stock')->get();
-
-        // expired
-        $expired = P3k::whereNotNull('expired_at')
-            ->whereDate('expired_at', '<', now())
+        $lowStock = P3k::with('location')
+            ->whereColumn('actual_stock', '<', 'standard_stock')
+            ->limit(50)
             ->get();
 
-        $count = $lowStock->count() + $expired->count();
+        // expired
+        $expired = P3k::with('location')
+            ->whereNotNull('expired_at')
+            ->whereDate('expired_at', '<', now())
+            ->limit(50)
+            ->get();
+
+        $count = P3k::whereColumn('actual_stock', '<', 'standard_stock')->count()
+            + P3k::whereNotNull('expired_at')->whereDate('expired_at', '<', now())->count();
 
         $response = [
             'count' => $count,
             'expired' => $expired->map(function ($item) {
-                $location = P3kLocation::find($item->location_id);
                 return [
                     'name' => $item->item,
                     'expired_date' => $item->expired_at ? Carbon::parse($item->expired_at)->format('d-m-Y') : null,
-                    'location' => $location ? $location->location : 'Location not found',
+                    'location' => $item->location->location ?? 'Location not found',
 
                 ];
             }),
             'low_stock' => $lowStock->map(function ($item) {
-                $location = P3kLocation::find($item->location_id);
                 return [
                     'name' => $item->item,
                     'stock' => $item->actual_stock,
                     'minimum_stock' => $item->standard_stock,
-                    'location' => $location ? $location->location : 'Location not found',
+                    'location' => $item->location->location ?? 'Location not found',
                 ];
             }),
         ];
@@ -217,14 +224,20 @@ class P3kController extends Controller
     {
         //STOK
         // ambil stok rendah
-        $lowStock = P3k::whereColumn('actual_stock', '<', 'standard_stock')->get();
+        $lowStock = P3k::with('location')
+            ->whereColumn('actual_stock', '<', 'standard_stock')
+            ->limit(100)
+            ->get();
 
         // ambil stok expired
-        $expiredStock = P3k::whereDate('expired_at', '<', Carbon::today())->get();
+        $expiredStock = P3k::with('location')
+            ->whereDate('expired_at', '<', Carbon::today())
+            ->limit(100)
+            ->get();
 
         // data untuk chart donut
-        $lowStockCount = $lowStock->count();
-        $expiredStockCount = $expiredStock->count();
+        $lowStockCount = P3k::whereColumn('actual_stock', '<', 'standard_stock')->count();
+        $expiredStockCount = P3k::whereDate('expired_at', '<', Carbon::today())->count();
 
         //ACCIDENT
         $year = $request->input('year', date('Y'));
@@ -250,6 +263,7 @@ class P3kController extends Controller
         $accidents = $query->with('masterAccident', 'department', 'location')
             ->when($year, fn($q) => $q->whereYear('tt_accidents.created_at', $year))
             ->when($month, fn($q) => $q->whereMonth('tt_accidents.created_at', $month))->orderBy('created_at', 'desc')
+            ->limit(200)
             ->get();
 
         return view('p3k.dashboard', compact(

@@ -78,8 +78,7 @@ class CompanyController extends Controller
 
     public function show(Company $company)
     {
-        // Load relationships
-        $company->load(['locations', 'users']);
+        $company->loadCount(['locations', 'users']);
 
         return view('companies.show', compact('company'));
     }

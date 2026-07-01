@@ -246,7 +246,7 @@
                 </div>
 
                 <!-- Related Information Card -->
-                @if (isset($location->equipments))
+                @if (isset($location->equipments_count))
                     <div class="card mt-4">
                         <div class="card-header">
                             <h6 class="card-title mb-0">
@@ -257,7 +257,7 @@
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="text-muted">Total Equipments:</span>
-                                    <span class="badge bg-info">{{ $location->equipments->count() ?? 0 }}</span>
+                                    <span class="badge bg-info">{{ $location->equipments_count ?? 0 }}</span>
                                 </div>
                                 <small class="text-muted">Equipment in this location</small>
                             </div>
@@ -274,7 +274,7 @@
                                 <small class="text-muted">Location mapping availability</small>
                             </div>
 
-                            @if (isset($location->equipments) && $location->equipments->count() > 0)
+                            @if (($location->equipments_count ?? 0) > 0)
                                 <div class="mt-3">
                                     <a href="{{ route('equipments.index', ['location_id' => $location->id]) }}"
                                         class="btn btn-outline-primary btn-sm w-100">
@@ -297,7 +297,7 @@
                         <div class="row text-center">
                             <div class="col-12">
                                 <div class="h4 text-info mb-1">
-                                    {{ isset($location->equipments) ? $location->equipments->count() : 0 }}</div>
+                                    {{ $location->equipments_count ?? 0 }}</div>
                                 <small class="text-muted">Equipment</small>
                             </div>
                         </div>
@@ -364,10 +364,10 @@
                         <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
                         <h5>Are you sure you want to delete this location?</h5>
                         <p class="text-muted">Location: <strong>{{ $location->location_code }}</strong></p>
-                        @if (isset($location->equipments) && $location->equipments->count() > 0)
+                        @if (($location->equipments_count ?? 0) > 0)
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                This location has <strong>{{ $location->equipments->count() }}</strong> related equipment.
+                                This location has <strong>{{ $location->equipments_count }}</strong> related equipment.
                                 Deleting this will affect those records.
                             </div>
                         @endif

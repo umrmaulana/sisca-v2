@@ -147,7 +147,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted">Total Equipments:</span>
-                                <span class="badge bg-info">{{ $period_check->equipments->count() }}</span>
+                                <span class="badge bg-info">{{ $period_check->equipments_count }}</span>
                             </div>
                             <small class="text-muted">Equipments in this period check</small>
                         </div>
@@ -164,7 +164,7 @@
                             <small class="text-muted">Current operational status</small>
                         </div>
 
-                        @if ($period_check->equipments->count() > 0)
+                        @if ($period_check->equipments_count > 0)
                             <div class="mt-3">
                                 <a href="{{ route('equipments.index', ['period_check_id' => $period_check->id]) }}"
                                     class="btn btn-outline-primary btn-sm w-100">
@@ -185,7 +185,7 @@
                     <div class="card-body">
                         <div class="row text-center">
                             <div class="col-12">
-                                <div class="h4 text-info mb-1">{{ $period_check->equipments->count() }}</div>
+                                <div class="h4 text-info mb-1">{{ $period_check->equipments_count }}</div>
                                 <small class="text-muted">Equipments</small>
                             </div>
                         </div>
@@ -208,10 +208,10 @@
                         <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
                         <h5>Are you sure you want to delete this period check?</h5>
                         <p class="text-muted">Period Check: <strong>{{ $period_check->period_check }}</strong></p>
-                        @if ($period_check->equipments->count() > 0)
+                        @if ($period_check->equipments_count > 0)
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                This period check has <strong>{{ $period_check->equipments->count() }}</strong> related
+                                This period check has <strong>{{ $period_check->equipments_count }}</strong> related
                                 equipment(s).
                                 Deleting this will affect those records.
                             </div>

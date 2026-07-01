@@ -9,6 +9,7 @@ use App\Models\Company;
 use App\Models\Area;
 use App\Models\EquipmentType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class SummaryReportApiController extends Controller
@@ -174,11 +175,29 @@ class SummaryReportApiController extends Controller
             'approved_at',
             'notes'
         ])->with([
-                    'details:id,inspection_id,status',
+                    'details' => function ($query) {
+                        $query->select('id', 'inspection_id', 'status')
+                            ->where('status', 'NG');
+                    },
                     'approvedBy:id,name'
                 ])->whereIn('equipment_id', $equipmentIds)
             ->whereBetween('inspection_date', [$startOfYear, $endOfYear])
             ->where('status', '!=', 'draft')
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('tt_inspections as newer')
+                    ->whereColumn('newer.equipment_id', 'tt_inspections.equipment_id')
+                    ->whereRaw('YEAR(newer.inspection_date) = YEAR(tt_inspections.inspection_date)')
+                    ->whereRaw('MONTH(newer.inspection_date) = MONTH(tt_inspections.inspection_date)')
+                    ->where('newer.status', '!=', 'draft')
+                    ->where(function ($q) {
+                        $q->whereColumn('newer.inspection_date', '>', 'tt_inspections.inspection_date')
+                            ->orWhere(function ($sq) {
+                                $sq->whereColumn('newer.inspection_date', '=', 'tt_inspections.inspection_date')
+                                    ->whereColumn('newer.id', '>', 'tt_inspections.id');
+                            });
+                    });
+            })
             ->orderBy('inspection_date', 'desc')
             ->get()
             ->groupBy('equipment_id');
@@ -211,8 +230,8 @@ class SummaryReportApiController extends Controller
                     $approvedBy = $latestInspection->approvedBy ? $latestInspection->approvedBy->name : null;
                     $approvedAt = $latestInspection->approved_at;
 
-                    $ngCount = $latestInspection->details->where('status', 'NG')->count();
-                    $totalItems = $latestInspection->details->count();
+                    $ngCount = $latestInspection->details->count();
+                    $totalItems = null;
                 }
 
                 $monthlyStatus[Carbon::createFromDate($year, $month, 1)->format('M')] = [
@@ -877,41 +896,42 @@ class SummaryReportApiController extends Controller
         $equipmentQuery->where('is_active', true);
         $totalEquipments = $equipmentQuery->count();
 
+        $ngPerInspection = DB::table('tt_inspection_details')
+            ->selectRaw('inspection_id, COUNT(*) as ng_count')
+            ->where('status', 'NG')
+            ->groupBy('inspection_id');
+
+        $monthlyCountsQuery = DB::table('tt_inspections as i')
+            ->join('tm_equipments as e', 'i.equipment_id', '=', 'e.id')
+            ->join('tm_locations_new as l', 'e.location_id', '=', 'l.id')
+            ->leftJoinSub($ngPerInspection, 'ng', function ($join) {
+                $join->on('ng.inspection_id', '=', 'i.id');
+            })
+            ->whereYear('i.inspection_date', $year)
+            ->where('i.status', '!=', 'draft')
+            ->where('e.is_active', true)
+            ->where('l.company_id', $companyId);
+
+        if ($equipmentTypeId) {
+            $monthlyCountsQuery->where('e.equipment_type_id', $equipmentTypeId);
+        }
+
+        $monthlyCounts = $monthlyCountsQuery
+            ->selectRaw('
+                MONTH(i.inspection_date) as month_number,
+                COUNT(DISTINCT i.equipment_id) as inspected_equipment_count,
+                SUM(CASE WHEN COALESCE(ng.ng_count, 0) > 0 THEN 1 ELSE 0 END) as ng_count,
+                SUM(CASE WHEN COALESCE(ng.ng_count, 0) = 0 THEN 1 ELSE 0 END) as ok_count
+            ')
+            ->groupByRaw('MONTH(i.inspection_date)')
+            ->get()
+            ->keyBy('month_number');
+
         foreach ($months as $monthNum => $monthName) {
-            $startOfMonth = Carbon::createFromDate($year, $monthNum, 1)->startOfMonth();
-            $endOfMonth = Carbon::createFromDate($year, $monthNum, 1)->endOfMonth();
-
-            // Get inspections for this month
-            $inspectionsQuery = Inspection::whereBetween('inspection_date', [$startOfMonth, $endOfMonth])
-                ->where('status', '!=', 'draft')
-                ->whereHas('equipment.location.area', function ($q) use ($companyId) {
-                    $q->where('company_id', $companyId);
-                });
-
-            if ($equipmentTypeId) {
-                $inspectionsQuery->whereHas('equipment', function ($q) use ($equipmentTypeId) {
-                    $q->where('equipment_type_id', $equipmentTypeId);
-                });
-            }
-
-            $inspections = $inspectionsQuery->with(['details'])->get();
-
-            // Count OK and NG inspections
-            $okCount = 0;
-            $ngCount = 0;
-
-            foreach ($inspections as $inspection) {
-                $hasNgItems = $inspection->details->where('status', 'NG')->count() > 0;
-
-                if ($hasNgItems) {
-                    $ngCount++;
-                } else {
-                    $okCount++;
-                }
-            }
-
-            // Calculate not inspected count
-            $inspectedEquipmentCount = $inspections->pluck('equipment_id')->unique()->count();
+            $counts = $monthlyCounts->get($monthNum);
+            $okCount = (int) optional($counts)->ok_count;
+            $ngCount = (int) optional($counts)->ng_count;
+            $inspectedEquipmentCount = (int) optional($counts)->inspected_equipment_count;
             $notInspectedCount = $totalEquipments - $inspectedEquipmentCount;
 
             $monthlyData[] = [

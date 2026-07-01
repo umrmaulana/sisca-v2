@@ -147,7 +147,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted">Total Locations:</span>
-                                <span class="badge bg-info">{{ $company->locations->count() }}</span>
+                                <span class="badge bg-info">{{ $company->locations_count }}</span>
                             </div>
                             <small class="text-muted">Locations in this company</small>
                         </div>
@@ -155,7 +155,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted">Total Users:</span>
-                                <span class="badge bg-primary">{{ $company->users->count() }}</span>
+                                <span class="badge bg-primary">{{ $company->users_count }}</span>
                             </div>
                             <small class="text-muted">Users assigned to this company</small>
                         </div>
@@ -172,7 +172,7 @@
                             <small class="text-muted">Current operational status</small>
                         </div>
 
-                        @if ($company->locations->count() > 0)
+                        @if ($company->locations_count > 0)
                             <div class="mt-3">
                                 <a href="{{ route('locations.index', ['company_id' => $company->id]) }}"
                                     class="btn btn-outline-primary btn-sm w-100">
@@ -194,12 +194,12 @@
                         <div class="row text-center">
                             <div class="col-6">
                                 <div class="border-end">
-                                    <div class="h4 text-info mb-1">{{ $company->locations->count() }}</div>
+                                    <div class="h4 text-info mb-1">{{ $company->locations_count }}</div>
                                     <small class="text-muted">Locations</small>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="h4 text-primary mb-1">{{ $company->users->count() }}</div>
+                                <div class="h4 text-primary mb-1">{{ $company->users_count }}</div>
                                 <small class="text-muted">Users</small>
                             </div>
                         </div>
@@ -222,18 +222,18 @@
                         <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
                         <h5>Are you sure you want to delete this company?</h5>
                         <p class="text-muted">Company: <strong>{{ $company->company_name }}</strong></p>
-                        @if ($company->locations->count() > 0 || $company->users->count() > 0)
+                        @if ($company->locations_count > 0 || $company->users_count > 0)
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
                                 This company has
-                                @if ($company->locations->count() > 0)
-                                    <strong>{{ $company->locations->count() }}</strong> related location(s)
+                                @if ($company->locations_count > 0)
+                                    <strong>{{ $company->locations_count }}</strong> related location(s)
                                 @endif
-                                @if ($company->locations->count() > 0 && $company->users->count() > 0)
+                                @if ($company->locations_count > 0 && $company->users_count > 0)
                                     and
                                 @endif
-                                @if ($company->users->count() > 0)
-                                    <strong>{{ $company->users->count() }}</strong> related user(s)
+                                @if ($company->users_count > 0)
+                                    <strong>{{ $company->users_count }}</strong> related user(s)
                                 @endif
                                 .<br>
                                 Deleting this will affect those records.

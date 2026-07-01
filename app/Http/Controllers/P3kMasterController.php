@@ -19,12 +19,15 @@ class P3kMasterController extends Controller
         $type = $request->query('type', 'item'); // default ke 'item'
 
         $stocks = null;
-        $locations = P3kLocation::all();
+        $locations = P3kLocation::orderBy('location')->get();
 
         if ($type === 'item') {
-            $stocks = P3k::all();
+            $stocks = P3k::with('location')
+                ->orderBy('item')
+                ->limit(500)
+                ->get();
         } elseif ($type === 'location') {
-            $locations = P3kLocation::all();
+            $locations = P3kLocation::orderBy('location')->get();
         }
 
         return view('p3k.master.index', [

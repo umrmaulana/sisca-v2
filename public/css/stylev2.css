@@ -2052,7 +2052,7 @@ body[data-kt-app-sidebar-minimize="on"] #content {
    ======================================== */
 
 /* Dark Mode Support (Future Enhancement) - Prefers Dark Color Scheme */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     :root {
         --background-color: #1a1a1a;
         --text-color: #ffffff;
@@ -2109,7 +2109,7 @@ body[data-kt-app-sidebar-minimize="on"] #content {
             color: White;
         }
     }
-}
+} */
 
 /* ==================================================
    13. Customize

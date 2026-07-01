@@ -31,7 +31,7 @@ class MappingAreaController extends Controller
         $companies = collect();
         $areas = collect();
         $equipments = Equipment::with(['equipmentType', 'location'])->where('id', 0)->paginate(15); // Empty paginated result
-        $mappingEquipments = collect(); // Equipment for mapping (no pagination)
+        $mappingEquipments = collect(); // Equipment for mapping (capped to keep memory stable)
         $equipmentTypes = collect();
         $mappingImage = null;
         $selectedCompany = null;
@@ -130,7 +130,10 @@ class MappingAreaController extends Controller
 
                 $this->applyEquipmentFilters($equipmentsQuery, $selectedEquipmentTypeId, $searchEquipment, $selectedStatus, $selectedMonth, $selectedYear);
                 $equipments = $equipmentsQuery->paginate(15)->appends(request()->query());
-                $mappingEquipments = $mappingEquipmentsQuery->get();
+                $mappingEquipments = $mappingEquipmentsQuery
+                    ->orderBy('equipment_code')
+                    ->limit(500)
+                    ->get();
 
                 $this->addInspectionStatusWithCheckItems($equipments, $selectedMonth, $selectedYear);
                 $this->addInspectionStatusWithCheckItems($mappingEquipments, $selectedMonth, $selectedYear);
@@ -168,7 +171,10 @@ class MappingAreaController extends Controller
 
                 $this->applyEquipmentFilters($equipmentsQuery, $selectedEquipmentTypeId, $searchEquipment, $selectedStatus, $selectedMonth, $selectedYear);
                 $equipments = $equipmentsQuery->paginate(15)->appends(request()->query());
-                $mappingEquipments = $mappingEquipmentsQuery->get();
+                $mappingEquipments = $mappingEquipmentsQuery
+                    ->orderBy('equipment_code')
+                    ->limit(500)
+                    ->get();
 
                 $this->addInspectionStatusWithCheckItems($equipments, $selectedMonth, $selectedYear);
                 $this->addInspectionStatusWithCheckItems($mappingEquipments, $selectedMonth, $selectedYear);
@@ -314,35 +320,47 @@ class MappingAreaController extends Controller
 
         // Get all equipment IDs for bulk queries
         $equipmentIds = $equipments->pluck('id')->toArray();
+        if (empty($equipmentIds)) {
+            return;
+        }
+
+        $equipmentTypeIds = $equipments->pluck('equipment_type_id')->unique()->filter()->values();
+        $templatesByType = ChecksheetTemplate::whereIn('equipment_type_id', $equipmentTypeIds)
+            ->where('is_active', true)
+            ->orderBy('order_number')
+            ->get()
+            ->groupBy('equipment_type_id');
 
         // Get all last inspections for these equipments in one query
-        $lastInspections = Inspection::select('equipment_id', 'inspection_date', 'user_id')
+        $lastInspections = Inspection::select('id', 'equipment_id', 'inspection_date', 'user_id')
             ->whereIn('equipment_id', $equipmentIds)
             ->where('status', '!=', 'draft')
-            ->with(['user'])
+            ->with(['user:id,name'])
             ->orderBy('inspection_date', 'desc')
+            ->orderBy('id', 'desc')
             ->get()
             ->groupBy('equipment_id')
             ->map(function ($inspections) {
                 return $inspections->first(); // Get the latest inspection for each equipment
             });
 
+        $latestInspections = Inspection::select('id', 'equipment_id', 'inspection_date', 'status')
+            ->whereIn('equipment_id', $equipmentIds)
+            ->whereBetween('inspection_date', [$startOfMonth, $endOfMonth])
+            ->where('status', '!=', 'draft')
+            ->with(['details:id,inspection_id,checksheet_id,status'])
+            ->orderBy('inspection_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->groupBy('equipment_id')
+            ->map(function ($inspections) {
+                return $inspections->first();
+            });
+
         foreach ($equipments as $equipment) {
-            // Get checksheet templates for this equipment type
-            $checksheetTemplates = ChecksheetTemplate::where('equipment_type_id', $equipment->equipment_type_id)
-                ->where('is_active', true)
-                ->orderBy('order_number')
-                ->get();
-
+            $checksheetTemplates = $templatesByType->get($equipment->equipment_type_id, collect());
             $equipment->checksheet_templates = $checksheetTemplates;
-
-            // Get latest inspection within the selected month/year period
-            $latestInspection = Inspection::where('equipment_id', $equipment->id)
-                ->whereBetween('inspection_date', [$startOfMonth, $endOfMonth])
-                ->where('status', '!=', 'draft')
-                ->with(['details.checksheetTemplate'])
-                ->orderBy('inspection_date', 'desc')
-                ->first();
+            $latestInspection = $latestInspections->get($equipment->id);
 
             $equipment->latest_inspection = $latestInspection;
             $equipment->is_checked = (bool) $latestInspection;

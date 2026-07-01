@@ -170,7 +170,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted">Total Equipment:</span>
-                                <span class="badge bg-primary">{{ $equipmentType->equipments->count() ?? 0 }}</span>
+                                <span class="badge bg-primary">{{ $equipmentType->equipments_count ?? 0 }}</span>
                             </div>
                             <small class="text-muted">Equipment using this type</small>
                         </div>
@@ -187,7 +187,7 @@
                             <small class="text-muted">Current operational status</small>
                         </div>
 
-                        @if ($equipmentType->equipments->count() > 0)
+                        @if (($equipmentType->equipments_count ?? 0) > 0)
                             <div class="mt-3">
                                 <a href="{{ route('equipments.index', ['equipment_type_id' => $equipmentType->id]) }}"
                                     class="btn btn-outline-primary btn-sm w-100">
@@ -209,13 +209,13 @@
                         <div class="row text-center">
                             <div class="col-6">
                                 <div class="border-end">
-                                    <div class="h4 text-primary mb-1">{{ $equipmentType->equipments->count() ?? 0 }}</div>
+                                    <div class="h4 text-primary mb-1">{{ $equipmentType->equipments_count ?? 0 }}</div>
                                     <small class="text-muted">Equipment</small>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="h4 text-info mb-1">
-                                    {{ $equipmentType->checksheetTemplates->count() ?? 0 }}
+                                    {{ $equipmentType->checksheet_templates_count ?? 0 }}
                                 </div>
                                 <small class="text-muted">Templates</small>
                             </div>
@@ -239,10 +239,10 @@
                         <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
                         <h5>Are you sure you want to delete this equipment type?</h5>
                         <p class="text-muted">Equipment Type: <strong>{{ $equipmentType->equipment_name }}</strong></p>
-                        @if ($equipmentType->equipments->count() > 0)
+                        @if (($equipmentType->equipments_count ?? 0) > 0)
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                This equipment type has <strong>{{ $equipmentType->equipments->count() }}</strong> related
+                                This equipment type has <strong>{{ $equipmentType->equipments_count }}</strong> related
                                 equipment(s).
                                 Deleting this will affect those records.
                             </div>

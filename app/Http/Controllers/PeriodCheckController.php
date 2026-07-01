@@ -68,8 +68,7 @@ class PeriodCheckController extends Controller
 
     public function show(PeriodCheck $period_check)
     {
-        // Load relationships
-        $period_check->load(['equipments']);
+        $period_check->loadCount('equipments');
 
         return view('period-checks.show', compact('period_check'));
     }

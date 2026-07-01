@@ -170,7 +170,7 @@ class LocationController extends Controller
 
     public function show(Location $location)
     {
-        $location->load(['company', 'area', 'equipments']);
+        $location->load(['company', 'area'])->loadCount('equipments');
         return view('locations.show', compact('location'));
     }
 

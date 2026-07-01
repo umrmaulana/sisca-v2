@@ -20,9 +20,9 @@ class P3kHistoryController extends Controller
      */
     public function index(Request $request)
     {
-        $locations = P3kLocation::all();
-        $accidents = MasterAccident::all();
-        $departments = Department::all();
+        $locations = P3kLocation::orderBy('location')->get();
+        $accidents = MasterAccident::orderBy('name')->get();
+        $departments = Department::orderBy('name')->get();
 
         return view('p3k.transaction-and-history.index', compact('locations', 'departments', 'accidents'));
     }
@@ -124,12 +124,15 @@ class P3kHistoryController extends Controller
             ->orderBy('updated_at', 'desc')
             ->where('action', 'take')
             ->latest()
+            ->limit(200)
             ->get();
 
         $items = P3k::where('location_id', $location_id)
             ->when($queryStr, function ($q) use ($queryStr) {
                 $q->where('item', 'like', '%' . $queryStr . '%');
             })
+            ->orderBy('item')
+            ->limit(500)
             ->get();
 
         $locations = P3kLocation::findOrFail($location_id);

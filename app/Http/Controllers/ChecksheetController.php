@@ -38,7 +38,6 @@ class ChecksheetController extends Controller
             'equipment.equipmentType',
             'equipment.location.company',
             'equipment.location.area',
-            'details',
         ])->whereHas('equipment.location', function ($query) use ($user) {
             if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
                 $query->where('company_id', $user->company_id);
@@ -72,29 +71,32 @@ class ChecksheetController extends Controller
             });
         }
 
-        // Get all inspections and filter to latest per equipment
-        $allInspections = $inspectionsQuery->latest('inspection_date')->get();
+        $recentInspections = $inspectionsQuery
+            ->whereNotExists(function ($query) use ($request) {
+                $query->select(DB::raw(1))
+                    ->from('tt_inspections as newer')
+                    ->whereColumn('newer.equipment_id', 'tt_inspections.equipment_id')
+                    ->where('newer.status', '!=', 'draft');
 
-        // Group by equipment_id and get the latest for each
-        $latestPerEquipment = $allInspections->groupBy('equipment_id')->map(function ($group) {
-            return $group->first(); // Already sorted by latest, so first is the latest
-        })->values();
+                if ($request->month) {
+                    $query->whereMonth('newer.inspection_date', $request->month);
+                }
 
-        // Convert back to paginated collection for consistent interface
-        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage();
-        $perPage = 10;
-        $currentItems = $latestPerEquipment->forPage($currentPage, $perPage);
+                if ($request->year) {
+                    $query->whereYear('newer.inspection_date', $request->year);
+                }
 
-        $recentInspections = new \Illuminate\Pagination\LengthAwarePaginator(
-            $currentItems,
-            $latestPerEquipment->count(),
-            $perPage,
-            $currentPage,
-            ['path' => request()->url(), 'pageName' => 'page']
-        );
-
-        // Append query parameters to pagination links
-        $recentInspections->appends($request->query());
+                $query->where(function ($q) {
+                        $q->whereColumn('newer.inspection_date', '>', 'tt_inspections.inspection_date')
+                            ->orWhere(function ($sq) {
+                                $sq->whereColumn('newer.inspection_date', '=', 'tt_inspections.inspection_date')
+                                    ->whereColumn('newer.id', '>', 'tt_inspections.id');
+                            });
+                    });
+            })
+            ->latest('inspection_date')
+            ->paginate(10)
+            ->appends($request->query());
 
         // Get filter data based on user's company access
         $equipmentTypesQuery = EquipmentType::where('is_active', true);
