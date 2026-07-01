@@ -2,22 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\Area;
+use App\Models\ChecksheetTemplate;
+use App\Models\Company;
 use App\Models\Equipment;
+use App\Models\EquipmentType;
 use App\Models\Inspection;
 use App\Models\InspectionDetail;
-use App\Models\ChecksheetTemplate;
-use App\Models\PeriodCheck;
-use App\Models\User;
-use App\Models\EquipmentType;
-use App\Models\Company;
-use App\Models\Area;
-use App\Models\Location;
 use App\Models\InspectionNgHistory;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ChecksheetController extends Controller
@@ -30,7 +25,7 @@ class ChecksheetController extends Controller
         $user = auth()->user();
 
         // Role-based access check
-        if (!in_array($user->role, ['Pic', 'Admin'])) {
+        if (! in_array($user->role, ['Pic', 'Admin'])) {
             return redirect()->route('checksheets.history')
                 ->with('info', 'You can only view inspection records.');
         }
@@ -43,7 +38,7 @@ class ChecksheetController extends Controller
             'equipment.equipmentType',
             'equipment.location.company',
             'equipment.location.area',
-            'details'
+            'details',
         ])->whereHas('equipment.location', function ($query) use ($user) {
             if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
                 $query->where('company_id', $user->company_id);
@@ -144,6 +139,8 @@ class ChecksheetController extends Controller
             return redirect()->route('checksheets.create', ['code' => $equipmentCode]);
         }
 
+        return 'OK';
+
         return view('checksheets.index', compact(
             'recentInspections',
             'equipmentTypes',
@@ -160,14 +157,14 @@ class ChecksheetController extends Controller
         $user = auth()->user();
 
         // Role-based access check
-        if (!in_array($user->role, ['Pic', 'Admin'])) {
+        if (! in_array($user->role, ['Pic', 'Admin'])) {
             return redirect()->route('checksheets.history')
                 ->with('error', 'Access denied. Only Pic and Admin can perform inspections.');
         }
 
         $equipmentCode = $request->get('code');
 
-        if (!$equipmentCode) {
+        if (! $equipmentCode) {
             return redirect()->route('checksheets.index')
                 ->with('error', 'Equipment code is required.');
         }
@@ -185,12 +182,12 @@ class ChecksheetController extends Controller
 
         $equipment = $equipmentQuery->first();
 
-        if (!$equipment) {
+        if (! $equipment) {
             return redirect()->route('checksheets.index')
-                ->with('error', 'Equipment with code "' . $equipmentCode . '" not found or not accessible.');
+                ->with('error', 'Equipment with code "'.$equipmentCode.'" not found or not accessible.');
         }
 
-        if (!$equipment->is_active) {
+        if (! $equipment->is_active) {
             return redirect()->route('checksheets.index')
                 ->with('error', 'Equipment is not active.');
         }
@@ -211,7 +208,7 @@ class ChecksheetController extends Controller
             if ($previousInspection->status === 'rejected') {
                 $isRecheck = true;
                 $isRejectedRecheck = true;
-                // For rejected inspection, allow all items to be rechecked (ngOnlyTemplates remains empty)
+            // For rejected inspection, allow all items to be rechecked (ngOnlyTemplates remains empty)
             } elseif ($periodRestriction['has_ng_items']) {
                 $isRecheck = true;
 
@@ -253,7 +250,7 @@ class ChecksheetController extends Controller
      */
     private function checkPeriodRestrictions($equipment)
     {
-        if (!$equipment->periodCheck) {
+        if (! $equipment->periodCheck) {
             return null;
         }
 
@@ -282,31 +279,31 @@ class ChecksheetController extends Controller
 
                 if ($period === 'Daily') {
                     // Daily check - can only inspect once per day unless has NG items
-                    if (!$hasNgItems) {
+                    if (! $hasNgItems) {
                         $canInspect = false;
                         $reason = 'Daily inspection already completed today. Can only re-inspect if there were NG items.';
                     }
                 } elseif ($period === 'Weekly') {
                     // Weekly check - can only inspect once per week unless has NG items
-                    if (!$hasNgItems) {
+                    if (! $hasNgItems) {
                         $canInspect = false;
                         $reason = 'Weekly inspection already completed this week. Can only re-inspect if there were NG items.';
                     }
                 } elseif ($period === 'Monthly') {
                     // Monthly check - can only inspect once per month unless has NG items
-                    if (!$hasNgItems) {
+                    if (! $hasNgItems) {
                         $canInspect = false;
                         $reason = 'Monthly inspection already completed this month. Can only re-inspect if there were NG items.';
                     }
                 } elseif ($period === 'Quarterly') {
                     // Quarterly check - can only inspect once per quarter unless has NG items
-                    if (!$hasNgItems) {
+                    if (! $hasNgItems) {
                         $canInspect = false;
                         $reason = 'Quarterly inspection already completed this quarter. Can only re-inspect if there were NG items.';
                     }
                 } elseif ($period === 'Annual' || $period === 'Yearly') {
                     // Annual/Yearly check - can only inspect once per year unless has NG items
-                    if (!$hasNgItems) {
+                    if (! $hasNgItems) {
                         $canInspect = false;
                         $reason = 'Annual inspection already completed this year. Can only re-inspect if there were NG items.';
                     }
@@ -319,7 +316,7 @@ class ChecksheetController extends Controller
             'reason' => $reason,
             'existing_inspection' => $existingInspection,
             'has_ng_items' => $hasNgItems,
-            'period' => $period
+            'period' => $period,
         ];
     }
 
@@ -367,16 +364,15 @@ class ChecksheetController extends Controller
     /**
      * Store checksheet inspection
      */
-
     public function store(Request $request)
     {
         // DEBUG: Log semua input yang masuk
         \Log::info('=== CHECKSHEET STORE DEBUG START ===');
-        \Log::info('Request Method: ' . $request->method());
+        \Log::info('Request Method: '.$request->method());
         \Log::info('All Request Data:', $request->all());
-        \Log::info('Has is_recheck field: ' . ($request->has('is_recheck') ? 'YES' : 'NO'));
-        \Log::info('is_recheck value: ' . $request->is_recheck);
-        \Log::info('previous_inspection_id: ' . $request->previous_inspection_id);
+        \Log::info('Has is_recheck field: '.($request->has('is_recheck') ? 'YES' : 'NO'));
+        \Log::info('is_recheck value: '.$request->is_recheck);
+        \Log::info('previous_inspection_id: '.$request->previous_inspection_id);
 
         $request->validate([
             'equipment_id' => 'required|exists:tm_equipments,id',
@@ -399,15 +395,15 @@ class ChecksheetController extends Controller
             \Log::info('After processing:', [
                 'isRecheck' => $isRecheck,
                 'previousInspectionId' => $previousInspectionId,
-                'equipment_id' => $equipment->id
+                'equipment_id' => $equipment->id,
             ]);
 
             // Check if user has permission (only PIC and Admin can perform checksheet)
-            if (!in_array(auth()->user()->role, ['Pic', 'Admin'])) {
+            if (! in_array(auth()->user()->role, ['Pic', 'Admin'])) {
                 return redirect()->back()->with('error', 'You are not authorized to perform inspections.');
             }
 
-            // Process recheck scenario  
+            // Process recheck scenario
             if ($isRecheck && $previousInspectionId) {
                 \Log::info('=== PROCESSING RECHECK SCENARIO ===');
 
@@ -415,10 +411,10 @@ class ChecksheetController extends Controller
                 \Log::info('Found existing inspection:', [
                     'id' => $existingInspection->id,
                     'equipment_id' => $existingInspection->equipment_id,
-                    'inspection_date' => $existingInspection->inspection_date
+                    'inspection_date' => $existingInspection->inspection_date,
                 ]);
 
-                // CRITICAL FIX: Get ALL NG details that were present during initial inspection 
+                // CRITICAL FIX: Get ALL NG details that were present during initial inspection
                 // including ones that might have been updated in previous recheck attempts
                 $previousNgDetails = $existingInspection->details()->where('status', 'NG')->get();
 
@@ -432,7 +428,7 @@ class ChecksheetController extends Controller
                 \Log::info('Analysis:', [
                     'current_ng_items_in_form' => $currentNgItemIds->toArray(),
                     'previous_ng_details_count' => $previousNgDetails->count(),
-                    'form_items_count' => count($request->items)
+                    'form_items_count' => count($request->items),
                 ]);
 
                 // Get NG items that were being rechecked (from form) but are still NG
@@ -453,7 +449,7 @@ class ChecksheetController extends Controller
                     if ($itemsBeingRechecked->contains($ngDetail->checksheet_id)) {
                         \Log::info('Creating history for NG item being addressed:', [
                             'detail_id' => $ngDetail->id,
-                            'checksheet_id' => $ngDetail->checksheet_id
+                            'checksheet_id' => $ngDetail->checksheet_id,
                         ]);
 
                         // Check if history already exists
@@ -464,10 +460,10 @@ class ChecksheetController extends Controller
                         \Log::info('History exists check:', [
                             'exists' => $historyExists,
                             'original_inspection_id' => $existingInspection->id,
-                            'checksheet_id' => $ngDetail->checksheet_id
+                            'checksheet_id' => $ngDetail->checksheet_id,
                         ]);
 
-                        if (!$historyExists) {
+                        if (! $historyExists) {
                             $historyData = [
                                 'original_inspection_id' => $existingInspection->id,
                                 'equipment_id' => $existingInspection->equipment_id,
@@ -485,14 +481,14 @@ class ChecksheetController extends Controller
                                 $createdHistory = InspectionNgHistory::create($historyData);
                                 \Log::info('NG History created successfully:', [
                                     'history_id' => $createdHistory->id,
-                                    'checksheet_id' => $ngDetail->checksheet_id
+                                    'checksheet_id' => $ngDetail->checksheet_id,
                                 ]);
                             } catch (\Exception $historyError) {
                                 \Log::error('FAILED to create NG History:', [
                                     'error_message' => $historyError->getMessage(),
                                     'error_line' => $historyError->getLine(),
                                     'error_file' => $historyError->getFile(),
-                                    'data_attempted' => $historyData
+                                    'data_attempted' => $historyData,
                                 ]);
                                 throw $historyError; // Re-throw to trigger rollback
                             }
@@ -501,21 +497,21 @@ class ChecksheetController extends Controller
                         }
                     } else {
                         \Log::info('NG item not being rechecked, skipping history creation:', [
-                            'checksheet_id' => $ngDetail->checksheet_id
+                            'checksheet_id' => $ngDetail->checksheet_id,
                         ]);
                     }
                 }
 
                 // Get current inspection details that are OK (before deleting)
                 $currentOkDetails = $existingInspection->details()->where('status', 'OK')->get();
-                \Log::info('Found OK details count: ' . $currentOkDetails->count());
+                \Log::info('Found OK details count: '.$currentOkDetails->count());
 
                 // CRITICAL FIX: Store OK details data before deletion to avoid losing reference
                 $okDetailsData = $currentOkDetails->map(function ($detail) {
                     return [
                         'checksheet_id' => $detail->checksheet_id,
                         'status' => $detail->status,
-                        'picture' => $detail->picture
+                        'picture' => $detail->picture,
                     ];
                 })->toArray();
 
@@ -528,7 +524,7 @@ class ChecksheetController extends Controller
                     'inspection_date' => Carbon::today(),
                     'notes' => $request->notes,
                     'status' => 'pending',
-                    'updated_at' => now()
+                    'updated_at' => now(),
                 ]);
                 \Log::info('Updated existing inspection:', ['id' => $inspection->id]);
 
@@ -540,13 +536,13 @@ class ChecksheetController extends Controller
                 foreach ($okDetailsData as $okData) {
                     $wasRechecked = collect($request->items)->firstWhere('checksheet_id', $okData['checksheet_id']);
 
-                    if (!$wasRechecked) {
+                    if (! $wasRechecked) {
                         // Keep the OK status for items not rechecked
                         InspectionDetail::create([
                             'inspection_id' => $inspection->id,
                             'checksheet_id' => $okData['checksheet_id'],
                             'status' => $okData['status'],
-                            'picture' => $okData['picture']
+                            'picture' => $okData['picture'],
                         ]);
                         \Log::info('Re-created OK detail:', ['checksheet_id' => $okData['checksheet_id']]);
                     }
@@ -570,14 +566,14 @@ class ChecksheetController extends Controller
             }
 
             \Log::info('=== STORING NEW DETAILS FROM FORM ===');
-            \Log::info('Items to store count: ' . count($request->items));
+            \Log::info('Items to store count: '.count($request->items));
 
             // Store new inspection details from form submission
             foreach ($request->items as $index => $item) {
                 \Log::info("Processing item #$index:", [
                     'checksheet_id' => $item['checksheet_id'],
                     'status' => $item['status'],
-                    'has_picture' => isset($item['picture'])
+                    'has_picture' => isset($item['picture']),
                 ]);
 
                 $detail = new InspectionDetail([
@@ -589,7 +585,7 @@ class ChecksheetController extends Controller
                 // Handle picture upload
                 if (isset($item['picture']) && $item['picture']) {
                     $file = $item['picture'];
-                    $filename = 'checksheet_' . $inspection->id . '_' . $item['checksheet_id'] . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename = 'checksheet_'.$inspection->id.'_'.$item['checksheet_id'].'_'.time().'.'.$file->getClientOriginalExtension();
                     $path = $file->storeAs('checksheet-photos', $filename, 'public');
                     $detail->picture = $path;
                     \Log::info('Uploaded picture:', ['path' => $path]);
@@ -605,14 +601,13 @@ class ChecksheetController extends Controller
             // Final verification - count NG histories
             if ($isRecheck && $previousInspectionId) {
                 $historyCount = InspectionNgHistory::where('original_inspection_id', $previousInspectionId)->count();
-                \Log::info('Final NG History count in database: ' . $historyCount);
+                \Log::info('Final NG History count in database: '.$historyCount);
             }
 
             \Log::info('=== CHECKSHEET STORE DEBUG END ===');
 
             return redirect()->route('checksheets.show', $inspection->id)
                 ->with('success', $message);
-
         } catch (\Exception $e) {
             DB::rollback();
             \Log::error('=== TRANSACTION ROLLED BACK ===');
@@ -620,9 +615,10 @@ class ChecksheetController extends Controller
                 'message' => $e->getMessage(),
                 'line' => $e->getLine(),
                 'file' => $e->getFile(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            return redirect()->back()->with('error', 'Error saving inspection: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'Error saving inspection: '.$e->getMessage());
         }
     }
 
@@ -636,7 +632,7 @@ class ChecksheetController extends Controller
             'equipment.equipmentType',
             'equipment.location.company',
             'equipment.location.area',
-            'details.checksheetTemplate'
+            'details.checksheetTemplate',
         ])->findOrFail($id);
 
         return view('checksheets.show', compact('inspection'));
@@ -653,7 +649,7 @@ class ChecksheetController extends Controller
             'user',
             'equipment.equipmentType',
             'equipment.location.company',
-            'equipment.location.area'
+            'equipment.location.area',
         ])->whereHas('equipment.location', function ($locationQuery) use ($user) {
             // Filter by user's company if not Admin/Management
             if ($user->role !== 'Admin' && $user->role !== 'Management' && $user->company_id) {
@@ -674,9 +670,9 @@ class ChecksheetController extends Controller
         if ($request->search) {
             $searchTerm = $request->search;
             $query->whereHas('equipment', function ($equipmentQuery) use ($searchTerm) {
-                $equipmentQuery->where('equipment_code', 'like', '%' . $searchTerm . '%')
+                $equipmentQuery->where('equipment_code', 'like', '%'.$searchTerm.'%')
                     ->orWhereHas('equipmentType', function ($typeQuery) use ($searchTerm) {
-                        $typeQuery->where('equipment_name', 'like', '%' . $searchTerm . '%');
+                        $typeQuery->where('equipment_name', 'like', '%'.$searchTerm.'%');
                     });
             });
         }
@@ -697,7 +693,6 @@ class ChecksheetController extends Controller
                 });
             }
         }
-
 
         // Filter by company (only for Admin/Management)
         if ($request->company_id && ($user->role === 'Admin' || $user->role === 'Management')) {
@@ -765,7 +760,7 @@ class ChecksheetController extends Controller
             ->with(['equipmentType', 'location.company', 'location.area', 'periodCheck'])
             ->first();
 
-        if (!$equipment) {
+        if (! $equipment) {
             return response()->json(['error' => 'Equipment not found'], 404);
         }
 
@@ -774,7 +769,7 @@ class ChecksheetController extends Controller
             'templates' => ChecksheetTemplate::where('equipment_type_id', $equipment->equipment_type_id)
                 ->where('is_active', true)
                 ->orderBy('order_number')
-                ->get()
+                ->get(),
         ]);
     }
 
@@ -786,7 +781,7 @@ class ChecksheetController extends Controller
         $companyId = $request->get('company_id');
         $user = auth()->user();
 
-        if (!$companyId) {
+        if (! $companyId) {
             return response()->json(['areas' => []]);
         }
 
@@ -819,7 +814,7 @@ class ChecksheetController extends Controller
         $user = auth()->user();
 
         // Check authorization
-        if (!in_array($user->role, ['Supervisor', 'Management', 'Admin'])) {
+        if (! in_array($user->role, ['Supervisor', 'Management', 'Admin'])) {
             return redirect()->back()->with('error', 'You are not authorized to approve inspections.');
         }
 
@@ -857,7 +852,7 @@ class ChecksheetController extends Controller
         $user = auth()->user();
 
         // Check authorization - only Management, Supervisor, and Admin can access
-        if (!in_array($user->role, ['Management', 'Supervisor', 'Admin'])) {
+        if (! in_array($user->role, ['Management', 'Supervisor', 'Admin'])) {
             abort(403, 'You do not have permission to access NG History.');
         }
 
@@ -867,7 +862,7 @@ class ChecksheetController extends Controller
             'equipment.location.company',
             'equipment.location.area',
             'checksheetTemplate',
-            'user'
+            'user',
         ]);
 
         // Apply company filter for non-admin users
@@ -880,7 +875,7 @@ class ChecksheetController extends Controller
         // Apply filters
         if ($request->equipment_code) {
             $query->whereHas('equipment', function ($equipmentQuery) use ($request) {
-                $equipmentQuery->where('equipment_code', 'like', '%' . $request->equipment_code . '%');
+                $equipmentQuery->where('equipment_code', 'like', '%'.$request->equipment_code.'%');
             });
         }
 
@@ -933,4 +928,3 @@ class ChecksheetController extends Controller
         return view('ng-history.index', compact('ngHistories', 'equipmentTypes', 'inspectors', 'companies'));
     }
 }
-
