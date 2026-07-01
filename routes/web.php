@@ -90,10 +90,7 @@ Route::middleware('auth')->group(function () {
     // Checksheet Management
     // ===============================
     Route::prefix('checksheets')->name('checksheets.')->group(function () {
-        Route::get('/', function () {
-            return 'OK';
-        });
-        // Route::get('/', [ChecksheetController::class, 'index'])->name('index');
+        Route::get('/', [ChecksheetController::class, 'index'])->name('index');
         Route::get('/create', [ChecksheetController::class, 'create'])->name('create');
         Route::post('/store', [ChecksheetController::class, 'store'])->name('store');
         Route::get('/show/{id}', [ChecksheetController::class, 'show'])->name('show');
