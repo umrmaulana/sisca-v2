@@ -1,24 +1,24 @@
 <?php
 
-use App\Http\Controllers\LandingController;
-use App\Http\Controllers\PeriodCheckController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\Api\SummaryReportApiController;
 use App\Http\Controllers\AreaController;
-use App\Http\Controllers\EquipmentTypeController;
-use App\Http\Controllers\LocationController;
-use App\Http\Controllers\EquipmentController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ChecksheetTemplateController;
 use App\Http\Controllers\ChecksheetController;
-use App\Http\Controllers\InspectionController;
+use App\Http\Controllers\ChecksheetTemplateController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\P3kMasterController;
+use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\EquipmentTypeController;
+use App\Http\Controllers\InspectionController;
+use App\Http\Controllers\LandingController;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\P3kAccidentController;
 use App\Http\Controllers\P3kController;
 use App\Http\Controllers\P3kHistoryController;
-use App\Http\Controllers\P3kAccidentController;
-use App\Http\Controllers\Api\SummaryReportApiController;
+use App\Http\Controllers\P3kMasterController;
+use App\Http\Controllers\PeriodCheckController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +31,6 @@ use App\Http\Controllers\Api\SummaryReportApiController;
 |
 */
 
-
 // ===========================================
 // 1. PUBLIC ROUTES (No Authentication Required)
 // ===========================================
@@ -40,6 +39,7 @@ Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }
+
     return redirect()->route('login');
 })->name('home');
 
@@ -90,7 +90,10 @@ Route::middleware('auth')->group(function () {
     // Checksheet Management
     // ===============================
     Route::prefix('checksheets')->name('checksheets.')->group(function () {
-        Route::get('/', [ChecksheetController::class, 'index'])->name('index');
+        Route::get('/', function () {
+            return 'OK';
+        });
+        // Route::get('/', [ChecksheetController::class, 'index'])->name('index');
         Route::get('/create', [ChecksheetController::class, 'create'])->name('create');
         Route::post('/store', [ChecksheetController::class, 'store'])->name('store');
         Route::get('/show/{id}', [ChecksheetController::class, 'show'])->name('show');
@@ -229,19 +232,17 @@ Route::middleware('auth')->group(function () {
                 'user',
                 'equipment.equipmentType',
                 'equipment.location',
-                'details.checksheetTemplate'
+                'details.checksheetTemplate',
             ])->findOrFail($id);
+
             return response()->json($inspection);
         })->name('inspections.show');
-
-
     });
 
     // ===============================
     // P3K Management
     // ===============================
     Route::prefix('p3k')->name('p3k.')->group(function () {
-
         // -------------------------------
         // Master P3K (Admin only)
         // -------------------------------
@@ -287,5 +288,4 @@ Route::middleware('auth')->group(function () {
         // -------------------------------
         Route::post('accident/store', [P3kAccidentController::class, 'store'])->name('accident.store');
     });
-
 });

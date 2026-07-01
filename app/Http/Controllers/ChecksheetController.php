@@ -139,8 +139,6 @@ class ChecksheetController extends Controller
             return redirect()->route('checksheets.create', ['code' => $equipmentCode]);
         }
 
-        return 'OK';
-
         return view('checksheets.index', compact(
             'recentInspections',
             'equipmentTypes',
