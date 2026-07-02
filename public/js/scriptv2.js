@@ -1015,7 +1015,7 @@ $(document).ready(function () {
         pageLength: 10,
     });
     // DataTables Dashboard
-    $("#table-dashboard").DataTable({
+    $("[id='table-dashboard']").DataTable({
         paging: true,
         pageLength: 5,
         lengthChange: false,

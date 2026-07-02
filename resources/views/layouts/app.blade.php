@@ -61,6 +61,7 @@
     <script src="{{ url('dist/js/bootstrap.bundle.min.js') }}"></script>
     <!-- DataTables JS -->
     <script src="{{ url('dist/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url('dist/js/dataTables.bootstrap4.min.js') }}"></script>
     {{-- Notification - Only for P3K module --}}
     @if (request()->is('p3k*') || str_contains(request()->path(), 'p3k'))
         <script>
